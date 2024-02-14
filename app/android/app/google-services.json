@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "797641160577",
+    "project_id": "zempie-dev",
+    "storage_bucket": "zempie-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:797641160577:android:1e778fc147985c0f645a80",
+        "android_client_info": {
+          "package_name": "com.fromthered.zempie.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "797641160577-drbuikc9lcejq1ce0196l836v5f34l1h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fromthered.zempie.dev",
+            "certificate_hash": "f5efb74c82ba718e4be8381023fc06ba94f11f4c"
+          }
+        },
+        {
+          "client_id": "797641160577-he41fq7ea7s8dp2s9raup9dlilncsodt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fromthered.zempie.dev",
+            "certificate_hash": "8612856e7a351d70bce950ab555af1b46180f066"
+          }
+        },
+        {
+          "client_id": "797641160577-sdd5gf4k49jchs634gur4d283sghh9at.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKqVGglF6-eOJwFqkYCyoCkhw3Wu93hwc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "797641160577-sdd5gf4k49jchs634gur4d283sghh9at.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "797641160577-o2tne1mma6v3vom5nbjjacmuauq5vhik.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.fromthered.zempie.dev",
+                "app_store_id": "6449690281"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
