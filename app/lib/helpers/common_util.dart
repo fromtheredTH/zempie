@@ -64,16 +64,20 @@ String chatTime(String chatAt) {
   String result = "";
   if (chatAt.isNotEmpty) {
     DateFormat format1 = DateFormat('yyyy-MM-ddThh:mm:ss.sssZ');
+    DateFormat diferYearFormat = DateFormat('yyyy');
     DateFormat format2 = DateFormat('aa hh:mm');
-    DateFormat format3 = DateFormat('yyyy.MM.dd');
+    DateFormat format3 = DateFormat('date_format_mm_dd'.tr());
+    DateFormat format4 = DateFormat('yyyy-MM-dd');
     DateTime date = format1.parse(chatAt);
     date = date.add(const Duration(hours: 9));
     final date2 = DateTime.now();
     final difference = date2.difference(date).inDays;
     if (difference < 1) {
       result = format2.format(date);
-    } else {
+    } else if(diferYearFormat.format(date) == diferYearFormat.format(date2)){
       result = format3.format(date);
+    } else {
+      result = format4.format(date);
     }
   }
   return result;
@@ -83,7 +87,7 @@ String chatTime2(String chatAt) {
   String result = "";
   if (chatAt.isNotEmpty) {
     DateFormat format1 = DateFormat('yyyy-MM-ddThh:mm:ss.SSSZ');
-    DateFormat format2 = DateFormat('hh:mm');
+    DateFormat format2 = DateFormat('aa hh:mm');
     DateTime date = format1.parse(chatAt);
     date = date.add(const Duration(hours: 9));
     result = format2.format(date);

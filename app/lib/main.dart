@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:app/Constants/ColorConstants.dart';
+import 'package:app/Constants/Constants.dart';
 import 'package:app/pages/screens/splash.dart';
 import 'package:app/push_notification.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -6,6 +10,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'global/app_get_it.dart';
@@ -21,8 +26,16 @@ Future<void> main() async {
   setupLocator();
   await Permission.notification.request();
 
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    statusBarColor:ColorConstants.colorBg1, // Replace with your desired color
+      statusBarBrightness: Platform.isIOS ? Brightness.dark : Brightness.light,
+      statusBarIconBrightness: Platform.isIOS ? Brightness.dark : Brightness.light
+  ));
+
+
   //fcm
   await initFcm();
+  await Constants.fetchChatRooms();
 
   runApp(
     EasyLocalization(
@@ -55,19 +68,15 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-          statusBarColor: Colors.white,
-          statusBarBrightness: Brightness.dark,
-          statusBarIconBrightness: Brightness.dark), // Or Brightness.dark
-    );
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
       title: 'zempie',
       initialRoute: '/splash',
+      themeMode: Platform.isIOS ? ThemeMode.dark : ThemeMode.light,
+      darkTheme: ThemeData(brightness: Platform.isIOS ? Brightness.dark : Brightness.light),
       routes: {
         '/splash': (context) => const SplashPage(),
       },

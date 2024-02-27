@@ -19,6 +19,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Constants/Constants.dart';
+
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
 
@@ -33,7 +35,6 @@ class SplashPageState extends BaseState<SplashPage> {
   @override
   void initState() {
     super.initState();
-
     load();
   }
 
@@ -105,8 +106,9 @@ class SplashPageState extends BaseState<SplashPage> {
       showLoading();
       apiC
           .setFcmToken("Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}", jsonEncode(body))
-          .then((value) {
+          .then((value) async {
         getUserInfo();
+        await Constants.getMe(apiP);
       }).catchError((Object obj) {
         getUserInfo();
       });
@@ -159,8 +161,8 @@ class SplashPageState extends BaseState<SplashPage> {
                           child: Center(
                             child: TextField(
                               controller: idController,
-                              cursorColor: Colors.black,
-                              style: const TextStyle(color: appColorText1, fontSize: 16),
+                              cursorColor: Colors.white,
+                              style: const TextStyle(color: Colors.white, fontSize: 16),
                               onEditingComplete: () => {node.nextFocus()},
                               keyboardType: TextInputType.text,
                               textAlign: TextAlign.start,
@@ -191,8 +193,8 @@ class SplashPageState extends BaseState<SplashPage> {
                           child: Center(
                             child: TextField(
                               controller: pwdController,
-                              cursorColor: Colors.black,
-                              style: TextStyle(color: appColorText1, fontSize: 16),
+                              cursorColor: Colors.white,
+                              style: TextStyle(color: Colors.white, fontSize: 16),
                               onEditingComplete: onClickLogin,
                               keyboardType: TextInputType.visiblePassword,
                               textAlign: TextAlign.start,

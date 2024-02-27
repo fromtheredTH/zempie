@@ -42,14 +42,14 @@ class ChatNamePageState extends BaseState<ChatNamePage> {
   }
 
   String makeRoomName() {
-    List<String> list = widget.roomDto.joined_users!.map((e) => e.nickname!).toList();
+    List<String> list = widget.roomDto.joined_users!.map((e) => e.nickname ?? "").toList();
     list.sort();
     String str = list.join(",");
     String name = str.substring(0, min(14, str.length));
 
     int cnt1 = name.split(',').length;
     int cnt2 = widget.roomDto.joined_users!.length + 1 - cnt1;
-    if (cnt2 > 0) {
+    if (cnt2 > 1) {
       return "$name 외 $cnt2명";
     } else {
       return name;

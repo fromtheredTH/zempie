@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:app/Constants/ColorConstants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:app/global/app_colors.dart';
 import 'package:app/helpers/common_util.dart';
@@ -7,6 +8,9 @@ import 'package:app/models/dto/chat_room_dto.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../../../models/dto/user_dto.dart';
+import '../app_text.dart';
 
 class ItemChatRoom extends StatelessWidget {
   ChatRoomDto info;
@@ -18,11 +22,62 @@ class ItemChatRoom extends StatelessWidget {
       : super(key: key);
 
   String makeRoomName() {
-    List<String> list = info.joined_users!.map((e) => e.nickname!).toList();
+    List<String> list = info.joined_users!.map((e) => e.nickname ?? "").toList();
     list.sort();
     String str = list.join(",");
     String name = str.substring(0, min(14, str.length));
-    return name;
+
+    int cnt1 = name.split(',').length;
+    int cnt2 = info.joined_users!.length + 1 - cnt1;
+    if (cnt2> 1) {
+      return "$name 외 $cnt2명";
+    } else {
+      return name;
+    }
+  }
+
+  Widget makeRoomProfile(List<UserDto> users, double size) {
+    if(users.length == 0){
+      return Image.asset("assets/image/ic_default_user.png", height: size, width: size);
+    }else if(users.length == 1){
+      if((users[0].profile_img ?? "").isEmpty){
+        return Image.asset("assets/image/ic_default_user.png", height: size, width: size);
+      }
+      return ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: users[0].profile_img!,
+          width: 45,
+          height: 45,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => CircularProgressIndicator(),
+          errorWidget: (context, url, error) => Icon(Icons.error),
+        ),
+      );
+    }else{
+      users.sort((a, b) => (a.nickname ?? "").compareTo(b.nickname ?? ""));
+      List<UserDto> profileUsers = [users[0], users[1]];
+      return Container(
+        width: 45,
+        height: 45,
+        child: Stack(
+          children: [
+            Positioned(
+                top: 0,
+                bottom: 0,
+                left: 0,
+                child: makeRoomProfile([profileUsers[0]], 25)
+            ),
+
+            Positioned(
+                top: 0,
+                bottom: 0,
+                right: 0,
+                child: makeRoomProfile([profileUsers[1]], 25)
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override
@@ -31,97 +86,78 @@ class ItemChatRoom extends StatelessWidget {
       onTap: onClick,
       onLongPress: onLongPress,
       child: Container(
-        color: Colors.white,
+        color: ColorConstants.colorBg1,
         child: Column(
           children: [
-            const SizedBox(height: 20),
+            SizedBox(height: 10),
             Row(
               children: [
                 const SizedBox(width: 10),
-                (info.joined_users?.isEmpty ?? false) || (info.joined_users?[0].picture ?? '').isEmpty
-                    ? Image.asset("assets/image/ic_default_user.png", height: 54, width: 54)
-                    : ClipOval(
-                        child: CachedNetworkImage(
-                          imageUrl: info.joined_users?[0].picture ?? '',
-                          width: 54,
-                          height: 54,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => CircularProgressIndicator(),
-                          errorWidget: (context, url, error) => Icon(Icons.error),
-                        ),
-                      ),
+                makeRoomProfile(info.joined_users ?? [], 45),
                 const SizedBox(width: 10),
                 Expanded(
                     child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          (info.joined_users?.isEmpty ?? false)
+                        AppText(
+                          text: (info.joined_users?.isEmpty ?? false)
                               ? 'unknown'.tr()
                               : ((info.has_name ?? false) ? (info.name ?? '') : makeRoomName()),
-                          style: const TextStyle(
-                              color: appColorText1, fontSize: 16, fontWeight: FontWeight.bold),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
                         ),
-                        // const SizedBox(width: 10),
-                        // Visibility(
-                        //   visible: info.joined_users?[0].is_developer == 1,
-                        //   child: Container(
-                        //     decoration:
-                        //         BoxDecoration(color: appColorBlue, borderRadius: BorderRadius.circular(4)),
-                        //     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                        //     child: const Text(
-                        //       'DEV',
-                        //       style: TextStyle(color: Colors.white, fontSize: 10),
-                        //     ),
-                        //   ),
-                        // )
-                        // InkWell(onTap: onDelete, child: Image.asset("assets/image/ic_close_c.png", width: 25))
+
+                        SizedBox(height: 5,),
+
+                        AppText(
+                          text: chatTime(info.last_chat_at ?? ''),
+                          fontSize: 11,
+                          color: ColorConstants.halfWhite,
+                        ),
                       ],
                     ),
-                    Text(
-                      chatContent(info.last_message?.contents ?? '', info.last_message?.type ?? 0),
-                      style: const TextStyle(color: appColorText2, fontSize: 12),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                )),
-                const SizedBox(width: 6),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      chatTime(info.last_chat_at ?? ''),
-                      style: const TextStyle(color: appColorText3, fontSize: 12),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Visibility(
-                      visible: info.unread_count > 0,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(10)),
-                        child: Center(
-                          child: Text(
-                            info.unread_count.toString(),
-                            style: const TextStyle(color: Colors.white, fontSize: 12),
-                          ),
+                    SizedBox(height: 5,),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                            child: AppText(
+                              text: chatContent(info.last_message?.contents ?? 'new_room_msg'.tr(), info.last_message?.type ?? 0),
+                              fontSize: 12,
+                              color: ColorConstants.halfWhite,
+                              maxLine: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                         ),
-                      ),
-                    )
+
+                        SizedBox(height: 5,),
+
+                        if(info.unread_count > 0)
+                          Container(
+                            padding: EdgeInsets.only(left: 5,right: 5,top: 2,bottom: 2),
+                            decoration: BoxDecoration(color: Color(0xffeb5757), borderRadius: BorderRadius.circular(50)),
+                            child: Center(
+                              child: AppText(
+                                text: info.unread_count > 99 ? "+${info.unread_count}" : "${info.unread_count}",
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+
                   ],
+                )
                 ),
                 const SizedBox(width: 10),
               ],
             ),
-            const SizedBox(height: 15),
-            Container(
-              height: 1,
-              color: appColorLightGrey,
-            ),
+            const SizedBox(height: 10),
           ],
         ),
       ),

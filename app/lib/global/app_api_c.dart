@@ -52,6 +52,14 @@ abstract class ApiC {
     @Query("offset") int offset,
   );
 
+  @GET("/user/recom-friends")
+  Future<UserListResModel> userRecommandList(
+      @Header("Authorization") String bearerToken,
+      @Query("username") String username,
+      @Query("limit") int limit,
+      @Query("offset") int offset,
+      );
+
   @POST("/chat/room")
   Future<ChatRoomDto> createChatRoom(
     @Header("Authorization") String bearerToken,
@@ -102,4 +110,18 @@ abstract class ApiC {
     @Path("room_id") int roomId,
     @Header("Authorization") String bearerToken,
   );
+
+  @POST("/chat/invite")
+  Future<Response> userInvite(
+      @Header("Authorization") String bearerToken,
+      @Body() String body
+      );
+
+  @GET("/user/{user_id}/list/following/user")
+  Future<Response> getFollowingList(
+      @Path("user_id") int userId,
+      @Header("Authorization") String bearerToken,
+      );
+
+
 }

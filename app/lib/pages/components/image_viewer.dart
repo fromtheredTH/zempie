@@ -2,17 +2,22 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 
+import 'package:app/Constants/ColorConstants.dart';
+import 'package:app/Constants/ImageConstants.dart';
 import 'package:app/global/app_colors.dart';
 import 'package:app/helpers/common_util.dart';
 import 'package:app/pages/base/base_state.dart';
 import 'package:app/pages/base/page_layout.dart';
+import 'package:app/pages/components/app_text.dart';
 import 'package:app/pages/components/dialog.dart';
+import 'package:app/pages/components/item/item_user_name.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_view/photo_view.dart';
@@ -20,14 +25,18 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 
+import '../../models/dto/user_dto.dart';
+import '../../models/res/btn_bottom_sheet_model.dart';
+import 'BtnBottomSheetWidget.dart';
+
 class ImageViewer extends StatefulWidget {
   final List<String> images;
   final int selected;
   final bool isVideo;
-  final String title;
+  final UserDto? user;
 
   ImageViewer(
-      {super.key, required this.images, this.selected = 0, required this.isVideo, required this.title});
+      {super.key, required this.images, this.selected = 0, required this.isVideo, required this.user});
 
   @override
   State<ImageViewer> createState() => _ImageViewerState();
@@ -103,90 +112,13 @@ class _ImageViewerState extends State<ImageViewer> {
 
   String sizeStr() {
     if (size < 1024) {
-      return '$size B';
+      return '${size}byte';
     } else if (size < 1024 * 1024) {
-      return '${(size / 1024).toStringAsFixed(1)} KB';
+      return '${(size / 1024).toStringAsFixed(1)}kb';
     } else if (size < 1024 * 1024 * 1024) {
-      return '${(size / (1024 * 1024)).toStringAsFixed(1)} MB';
+      return '${(size / (1024 * 1024)).toStringAsFixed(1)}mb';
     }
     return '';
-  }
-
-  void onInfo() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-      ),
-      backgroundColor: appColorGrey2,
-      builder: (BuildContext context) {
-        return StatefulBuilder(builder: (BuildContext context2, setState) {
-          return Wrap(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 30),
-                  Row(
-                    children: [
-                      Container(
-                        width: 120,
-                        margin: const EdgeInsets.only(left: 30),
-                        child: Text(
-                          'kind'.tr(),
-                          style: const TextStyle(fontSize: 20, color: Colors.white),
-                        ),
-                      ),
-                      const Text(
-                        'PNG',
-                        style: TextStyle(fontSize: 20, color: Colors.white),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      Container(
-                        width: 120,
-                        margin: const EdgeInsets.only(left: 30),
-                        child: Text(
-                          'size'.tr(),
-                          style: const TextStyle(fontSize: 20, color: Colors.white),
-                        ),
-                      ),
-                      Text(
-                        sizeStr(),
-                        style: const TextStyle(fontSize: 20, color: Colors.white),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      Container(
-                        width: 120,
-                        margin: const EdgeInsets.only(left: 30),
-                        child: Text(
-                          'dimension'.tr(),
-                          style: const TextStyle(fontSize: 20, color: Colors.white),
-                        ),
-                      ),
-                      Text(
-                        '$width X $height',
-                        style: const TextStyle(fontSize: 20, color: Colors.white),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 30),
-                ],
-              ),
-            ],
-          );
-        });
-      },
-    );
   }
 
   Future<void> download(List<String> files, int idx) async {
@@ -237,72 +169,6 @@ class _ImageViewerState extends State<ImageViewer> {
     download(files, idx + 1);
   }
 
-  void onDownload() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-      ),
-      backgroundColor: Colors.white,
-      builder: (BuildContext context) {
-        return StatefulBuilder(builder: (BuildContext context2, setState) {
-          return Wrap(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 70,
-                      height: 6,
-                      decoration: BoxDecoration(color: appColorGrey2, borderRadius: BorderRadius.circular(6)),
-                    ),
-                  ),
-                  const SizedBox(height: 27),
-                  GestureDetector(
-                    onTap: () async {
-                      Navigator.pop(context);
-                      download(widget.images, 0);
-                    },
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 54,
-                      child: Center(
-                        child: Text(
-                          'download_all'.tr(),
-                          style: const TextStyle(color: Colors.black, fontSize: 20),
-                        ),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      Navigator.pop(context);
-                      download([widget.images[selectedImage]], 0);
-                    },
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 54,
-                      child: Center(
-                        child: Text(
-                          'download_one'.tr(),
-                          style: const TextStyle(color: Colors.black, fontSize: 20),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 50),
-                ],
-              ),
-            ],
-          );
-        });
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return PageLayout(
@@ -311,180 +177,190 @@ class _ImageViewerState extends State<ImageViewer> {
         child: Container(
           width: double.infinity,
           height: double.infinity,
-          color: Colors.black,
-          child: Column(
-            children: [
-              SizedBox(
-                height: 64,
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: onBackPressed,
-                      child: Container(
-                          width: 44,
-                          height: 64,
-                          margin: const EdgeInsets.only(left: 10),
-                          child: Center(
-                            child: Image.asset("assets/image/ic_back_w.png", width: 11, height: 19),
-                          )),
-                    ),
-                    Text(
-                      widget.title,
-                      style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: PhotoViewGallery.builder(
-                  scrollPhysics: const BouncingScrollPhysics(),
-                  builder: (BuildContext context, int index) {
-                    return PhotoViewGalleryPageOptions.customChild(
-                        initialScale: 1.0,
-                        maxScale: widget.isVideo ? 1.0 : 3.0,
-                        minScale: 1.0,
-                        heroAttributes: PhotoViewHeroAttributes(tag: widget.images[index]),
-                        child: widget.isVideo
-                            ? (chewieController != null
-                                ? Chewie(
-                                    controller: chewieController!,
-                                  )
-                                : Container())
-                            : CachedNetworkImage(
-                                imageUrl: widget.images[index],
-                                imageBuilder: (context, imageProvider) {
-                                  imageProvider
-                                      .resolve(const ImageConfiguration())
-                                      .addListener(ImageStreamListener((image, synchronousCall) {
-                                    width = image.image.width;
-                                    height = image.image.height;
-                                    size = image.sizeBytes;
-                                  }));
-                                  return Image(image: imageProvider);
-                                },
-                                fit: BoxFit.contain,
-                                placeholder: (context, url) => const Center(
-                                    child:
-                                        SizedBox(width: 40, height: 40, child: CircularProgressIndicator())),
-                                errorWidget: (context, url, error) => const Icon(Icons.error),
-                              ));
-                  },
-                  itemCount: widget.images.length,
-                  loadingBuilder: (context, event) => Center(
-                    child: SizedBox(
-                      width: 20.0,
-                      height: 20.0,
-                      child: CircularProgressIndicator(
-                        value:
-                            event == null ? 0 : event.cumulativeBytesLoaded / (event.expectedTotalBytes ?? 1),
-                      ),
-                    ),
-                  ),
-                  backgroundDecoration: const BoxDecoration(),
-                  pageController: pageController,
-                  onPageChanged: (value) {
-                    if (selectedImage != value) {
-                      selectedImage = value;
-                      // catController.scrollToIndex(value);
-                      setState(() {});
-                    }
-                  },
-                ),
-              ),
-              Visibility(
-                visible: !widget.isVideo,
-                child: Container(
-                  margin: const EdgeInsets.only(top: 10),
-                  child: Column(
+          color: ColorConstants.colorBg1,
+          child: SafeArea(
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 64,
+                  child: Row(
                     children: [
-                      SizedBox(
-                          height: 60,
-                          child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemBuilder: (BuildContext context, int index) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      selectedImage = index;
-                                      pageController?.jumpToPage(selectedImage);
-                                    });
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                                    child: CachedNetworkImage(
-                                      imageUrl: widget.images[index],
-                                      fit: BoxFit.fill,
-                                      placeholder: (context, url) => CircularProgressIndicator(),
-                                      errorWidget: (context, url, error) => Icon(Icons.error),
-                                      width: 60,
-                                      height: 60,
-                                    ),
-                                  ),
-                                );
-                              },
-                              itemCount: widget.isVideo ? 0 : widget.images.length)),
-                      const SizedBox(height: 6),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            '${widget.images.length}',
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
-                          ),
-                          const Text(
-                            '장 중 ',
-                            style: TextStyle(color: Colors.white, fontSize: 8),
-                          ),
-                          Text(
-                            '${selectedImage + 1}',
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
-                          ),
-                          const Text(
-                            '번',
-                            style: TextStyle(color: Colors.white, fontSize: 8),
-                          )
-                        ],
+                      InkWell(
+                        onTap: onBackPressed,
+                        child: Container(
+                            width: 24,
+                            height: 24,
+                            margin: const EdgeInsets.only(left: 10),
+                            child: Center(
+                              child: Image.asset(ImageConstants.backWhite, width: 24, height: 24),
+                            )
+                        ),
                       ),
+                      SizedBox(width: 10,),
+                      Expanded(
+                          child: UserNameWidget(user: widget.user)
+                      )
                     ],
                   ),
                 ),
-              ),
-              Container(
-                height: 60,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Visibility(
-                      visible: !widget.isVideo,
-                      child: GestureDetector(
-                        onTap: onDownload,
-                        child: Image.asset('assets/image/ic_download.png', width: 40, height: 40),
+                Expanded(
+                  child: PhotoViewGallery.builder(
+                    scrollPhysics: const BouncingScrollPhysics(),
+                    builder: (BuildContext context, int index) {
+                      return PhotoViewGalleryPageOptions.customChild(
+                          initialScale: 1.0,
+                          maxScale: widget.isVideo ? 1.0 : 3.0,
+                          minScale: 1.0,
+                          heroAttributes: PhotoViewHeroAttributes(tag: widget.images[index]),
+                          child: widget.isVideo
+                              ? (chewieController != null
+                              ? Chewie(
+                            controller: chewieController!,
+                          )
+                              : Container())
+                              : CachedNetworkImage(
+                            imageUrl: widget.images[index],
+                            imageBuilder: (context, imageProvider) {
+                              imageProvider
+                                  .resolve(const ImageConfiguration())
+                                  .addListener(ImageStreamListener((image, synchronousCall) {
+                                width = image.image.width;
+                                height = image.image.height;
+                                size = image.sizeBytes;
+                              }));
+                              return Image(image: imageProvider);
+                            },
+                            fit: BoxFit.contain,
+                            placeholder: (context, url) => const Center(
+                                child:
+                                SizedBox(width: 40, height: 40, child: CircularProgressIndicator())),
+                            errorWidget: (context, url, error) => const Icon(Icons.error),
+                          ));
+                    },
+                    itemCount: widget.images.length,
+                    loadingBuilder: (context, event) => Center(
+                      child: SizedBox(
+                        width: 20.0,
+                        height: 20.0,
+                        child: CircularProgressIndicator(
+                          value:
+                          event == null ? 0 : event.cumulativeBytesLoaded / (event.expectedTotalBytes ?? 1),
+                        ),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        AppDialog.showConfirmDialog(context, "", "delete_content".tr(), () {
-                          Navigator.pop(context, "delete");
-                        });
-                      },
-                      child: Image.asset('assets/image/ic_delete.png', width: 40, height: 40),
-                    ),
-                    Visibility(
-                      visible: !widget.isVideo,
-                      child: GestureDetector(
-                        onTap: onInfo,
-                        child: Image.asset('assets/image/ic_info.png', width: 40, height: 40),
-                      ),
-                    ),
-                  ],
+                    backgroundDecoration: const BoxDecoration(),
+                    pageController: pageController,
+                    onPageChanged: (value) {
+                      if (selectedImage != value) {
+                        selectedImage = value;
+                        // catController.scrollToIndex(value);
+                        setState(() {});
+                      }
+                    },
+                  ),
                 ),
-              )
-            ],
-          ),
-        ));
+                Visibility(
+                  visible: !widget.isVideo,
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                            height: Get.width * 0.28,
+                            child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        selectedImage = index;
+                                        pageController?.jumpToPage(selectedImage);
+                                      });
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: index == selectedImage ? ColorConstants.colorMain :Colors.transparent,
+                                            width: 1
+                                          )
+                                        ),
+                                        padding: EdgeInsets.all(1),
+                                        child: CachedNetworkImage(
+                                          imageUrl: widget.images[index],
+                                          fit: BoxFit.fill,
+                                          placeholder: (context, url) => CircularProgressIndicator(),
+                                          errorWidget: (context, url, error) => Icon(Icons.error),
+                                          width: Get.width * 0.28,
+                                          height: Get.width * 0.28,
+                                        ),
+                                      )
+                                    ),
+                                  );
+                                },
+                                itemCount: widget.isVideo ? 0 : widget.images.length)),
+                        const SizedBox(height: 20),
+                        Center(
+                         child: AppText(
+                           text: "${selectedImage + 1} / ${widget.images.length}",
+                           fontSize: 13,
+                         ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Visibility(
+                        visible: !widget.isVideo,
+                        child: GestureDetector(
+                          onTap: (){
+                            List<BtnBottomSheetModel> items = [];
+                            items.add(BtnBottomSheetModel("", "download_all".tr(), 0));
+                            items.add(BtnBottomSheetModel("", "download_one".tr(), 1));
+                            Get.bottomSheet(BtnBottomSheetWidget(
+                              btnItems: items,
+                              onTapItem: (index){
+                                if(index == 0){
+                                  download(widget.images, 0);
+                                }else {
+                                  download([widget.images[selectedImage]], 0);
+                                }
+                              },
+                            ));
+                          },
+                          child: Image.asset(ImageConstants.imgDownload, width: 32, height: 32),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          AppDialog.showConfirmDialog(context, "delete".tr(), "delete_content".tr(), () {
+                            Navigator.pop(context, "delete");
+                          });
+                        },
+                        child: Image.asset(ImageConstants.deleteIcon, width: 32, height: 32),
+                      ),
+                      Visibility(
+                        visible: !widget.isVideo,
+                        child: GestureDetector(
+                          onTap: (){
+                            AppDialog.showImaegInfoDialog(context, "PNG", sizeStr(), width, height);
+                          },
+                          child: Image.asset(ImageConstants.imgInfo, width: 32, height: 32),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          )
+        )
+    );
   }
 }

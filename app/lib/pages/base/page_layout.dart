@@ -1,3 +1,4 @@
+import 'package:app/Constants/ColorConstants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -25,9 +26,9 @@ class PageLayout extends StatefulWidget {
     isAvoidResize ??= true;
     drawer ??= null;
     endDrawer ??= null;
-    bgColor ??= Colors.white;
+    bgColor ??= ColorConstants.colorBg1;
     orientation ??= Orientation.portrait;
-    safeAreaColor ??= Colors.white;
+    safeAreaColor ??= ColorConstants.colorBg1;
   }
 
   Widget child;
@@ -50,7 +51,8 @@ class PageLayout extends StatefulWidget {
 class PageLayoutState extends BaseState<PageLayout> {
   @override
   void initState() {
-    WidgetsBinding.instance.renderView.automaticSystemUiAdjustment = false; //<--
+    WidgetsBinding.instance.renderView.automaticSystemUiAdjustment =
+    false; //<--
     super.initState();
   }
 
@@ -62,8 +64,8 @@ class PageLayoutState extends BaseState<PageLayout> {
         DeviceOrientation.landscapeRight,
       ]);
       SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(
-            statusBarColor: Colors.white,
+        SystemUiOverlayStyle(
+            statusBarColor: ColorConstants.colorBg1,
             statusBarBrightness: Brightness.dark,
             statusBarIconBrightness: Brightness.dark), // Or Brightness.dark
       );
@@ -75,42 +77,49 @@ class PageLayoutState extends BaseState<PageLayout> {
     }
 
     return WillPopScope(
-      onWillPop: widget.onBack,
-      child: Material(
-        type: MaterialType.transparency,
-        child: Container(
-          color: widget.safeAreaColor,
-          child: SafeArea(
-            bottom: false,
-            child: Container(
-              child: Scaffold(
-                key: widget.scaffoldKey,
-                resizeToAvoidBottomInset: widget.isAvoidResize,
-                drawer: widget.drawer,
-                endDrawer: widget.endDrawer,
-                body: ModalProgressHUD(
-                  inAsyncCall: widget.isLoading ?? false,
-                  child: SafeArea(
-                    child: Container(
-                      color: widget.bgColor,
-                      height: MediaQuery.of(context).size.height,
-                      child: GestureDetector(
-                        onTap: widget.onTap ?? hideKeyboard,
-                        child: Center(
-                          child: widget.child,
+        onWillPop: widget.onBack,
+        child: ModalProgressHUD(
+          inAsyncCall: widget.isLoading ?? false,
+          child: Material(
+            type: MaterialType.transparency,
+            child: GestureDetector(
+              onTap: (){
+                FocusManager.instance.primaryFocus?.unfocus();
+              },
+              child: Container(
+                color: widget.safeAreaColor,
+                child: SafeArea(
+                  child: Container(
+                    color: widget.bgColor,
+                    child: Scaffold(
+                      key: widget.scaffoldKey,
+                      resizeToAvoidBottomInset: widget.isAvoidResize,
+                      drawer: widget.drawer,
+                      endDrawer: widget.endDrawer,
+                      body: Container(
+                        color: widget.bgColor,
+                        height: MediaQuery
+                            .of(context)
+                            .size
+                            .height,
+                        child: GestureDetector(
+                          onTap: widget.onTap ?? hideKeyboard,
+                          child: Center(
+                            child: widget.child,
+                          ),
                         ),
                       ),
+                      floatingActionButtonLocation: FloatingActionButtonLocation
+                          .endFloat,
+                      floatingActionButton: widget.floatingButton,
                     ),
+                    // child: ,
                   ),
                 ),
-                floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-                floatingActionButton: widget.floatingButton,
               ),
-              // child: ,
-            ),
+            )
           ),
-        ),
-      ),
+        )
     );
   }
 }

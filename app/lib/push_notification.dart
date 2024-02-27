@@ -186,7 +186,7 @@ class PushNotificationService {
                   channel.id,
                   channel.name,
                   channelDescription: channel.description,
-                  // icon: message.notification?.android?.smallIcon,
+                  // icons: message.notification?.android?.smallIcon,
                   playSound: true,
                 ),
                 iOS: DarwinNotificationDetails(presentAlert: true, presentBadge: true, presentSound: true)),

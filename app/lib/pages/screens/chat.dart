@@ -3,8 +3,12 @@ import 'dart:isolate';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:app/Constants/ColorConstants.dart';
+import 'package:app/Constants/Constants.dart';
+import 'package:app/Constants/FontConstants.dart';
 import 'package:app/global/app_event.dart';
 import 'package:app/models/dto/chat_msg_dto.dart';
+import 'package:app/models/res/btn_bottom_sheet_model.dart';
 import 'package:app/pages/components/dialog.dart';
 import 'package:app/pages/components/report_dialog.dart';
 import 'package:app/pages/screens/chat_add.dart';
@@ -24,7 +28,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../Constants/ImageConstants.dart';
+import '../../utils/ChatRoomUtils.dart';
+import '../components/BtnBottomSheetWidget.dart';
+import '../components/EditRoomNameBottomSheet.dart';
+import '../components/app_text.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -40,12 +51,23 @@ class ChatPageState extends BaseState<ChatPage> {
 
   ScrollController mainController = ScrollController();
   bool hasNextPage = false;
+  int nextPage = 0;
+
+  bool isInit = false;
 
   @override
   void initState() {
     super.initState();
 
     mainController = ScrollController()..addListener(onScroll);
+
+    setState(() {
+      roomAllList = Constants.localChatRooms;
+      if(roomAllList.isNotEmpty){
+        isInit = true;
+      }
+      roomFilterList = roomAllList;
+    });
     getRoomList();
     initPush();
 
@@ -87,8 +109,10 @@ class ChatPageState extends BaseState<ChatPage> {
       if (mounted) {
         if (gCurrentId == event.user_id) {
           setState(() {
+            ChatRoomUtils.deleteChatRoomFromId(event.room_id);
             roomAllList.removeWhere((element) => element.id == event.room_id);
             roomFilterList.removeWhere((element) => element.id == event.room_id);
+
           });
         }
       }
@@ -110,6 +134,7 @@ class ChatPageState extends BaseState<ChatPage> {
         item.last_message = msg;
         roomAllList.removeAt(index);
         roomAllList.insert(0, item);
+        ChatRoomUtils.saveChatRoom(item);
       });
     } else {
       room.last_message = msg;
@@ -173,7 +198,14 @@ class ChatPageState extends BaseState<ChatPage> {
   }
 
   void openChatDetailPage(ChatRoomDto room) {
-    Navigator.push(context, SlideRightTransRoute(builder: (context) => ChatDetailPage(roomDto: room)));
+    Navigator.push(context, SlideRightTransRoute(builder: (context) => ChatDetailPage(roomDto: room,
+      roomRefresh: (room){
+      for(int i=0;i<roomFilterList.length;i++){
+        if(roomFilterList[i].id == room.id){
+          getChatRoomInfo(i);
+        }
+      }
+    },)));
   }
 
   Future<bool> onBackPressed() async {
@@ -198,6 +230,7 @@ class ChatPageState extends BaseState<ChatPage> {
       roomAllList.clear();
       roomFilterList.clear();
     });
+    nextPage = 0;
     getRoomList();
   }
 
@@ -217,6 +250,7 @@ class ChatPageState extends BaseState<ChatPage> {
                 roomAllList[index].last_chat_at = e.last_chat_at;
                 roomAllList[index].unread_count = e.unread_count;
                 roomAllList[index].unread_start_id = e.unread_start_id;
+                ChatRoomUtils.saveChatRoom(roomAllList[index]);
               }
               if (list2.isNotEmpty) {
                 int index = roomFilterList.indexOf(list2.first);
@@ -235,73 +269,25 @@ class ChatPageState extends BaseState<ChatPage> {
     // showLoading();
     apiC
         .chatRoomList(
-            "Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}", 10, roomAllList.length)
-        .then((value) {
+            "Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}", 10, nextPage)
+        .then((value) async {
       // hideLoading();
+      await ChatRoomUtils.saveMultiChatRoom(value.result);
+      List<ChatRoomDto> localDto = await ChatRoomUtils.getChatRooms();
       setState(() {
         // roomAllList.clear();
         // roomFilterList.clear();
+
         hasNextPage = value.pageInfo?.hasNextPage ?? false;
-
-        roomAllList.addAll(value.result);
-
-        List<ChatRoomDto> list = value.result.where((element) => element.last_message != null).toList();
-        roomFilterList.addAll(list);
+        nextPage += 1;
+        roomAllList = localDto;
+        isInit = true;
+        setFilteringList();
       });
     }).catchError((Object obj) {
       // hideLoading();
       showToast("connection_failed".tr());
     });
-  }
-
-  void onSetting() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-      ),
-      backgroundColor: Colors.white,
-      builder: (BuildContext context) {
-        return StatefulBuilder(builder: (BuildContext context2, setState) {
-          return Wrap(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 70,
-                      height: 6,
-                      decoration: BoxDecoration(color: appColorGrey2, borderRadius: BorderRadius.circular(6)),
-                    ),
-                  ),
-                  const SizedBox(height: 27),
-                  GestureDetector(
-                    onTap: () async {
-                      Navigator.pop(context2);
-                      logout();
-                    },
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 54,
-                      child: Center(
-                        child: Text(
-                          'logout'.tr(),
-                          style: const TextStyle(color: Colors.black, fontSize: 20),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 50),
-                ],
-              ),
-            ],
-          );
-        });
-      },
-    );
   }
 
   void onLeave(int index) {}
@@ -310,7 +296,10 @@ class ChatPageState extends BaseState<ChatPage> {
 
   void onChat(int index) {
     Navigator.push(context,
-            SlideRightTransRoute(builder: (context) => ChatDetailPage(roomDto: roomFilterList[index])))
+            SlideRightTransRoute(builder: (context) => ChatDetailPage(roomDto: roomFilterList[index],
+            roomRefresh: (room){
+              getChatRoomInfo(index);
+            },)))
         .then((value) {
       setState(() {
         roomFilterList[index].unread_count = 0;
@@ -319,8 +308,32 @@ class ChatPageState extends BaseState<ChatPage> {
     });
   }
 
-  Future<void> chatRoomLeave(int index) async {
-    ChatRoomDto roomDto = roomFilterList[index];
+  void setFilteringList() {
+    roomFilterList.clear();
+    if (searchController.text.isEmpty) {
+      roomFilterList.addAll(roomAllList);
+    } else {
+      List<ChatRoomDto> list = roomAllList.where((element) =>
+      element.last_message != null).toList();
+      roomFilterList.addAll(list.where((element) {
+        if (element.has_name ?? false) {
+          return (element.name ?? '').toLowerCase().contains(
+              searchController.text.toLowerCase());
+        } else {
+          List<String> list =
+          element.joined_users!.map((e) => e.nickname ?? "").toList();
+          list.sort();
+          String str = list.join(",");
+          String name = str.substring(0, min(14, str.length));
+
+          return name.toLowerCase().contains(
+              searchController.text.toLowerCase());
+        }
+      }).toList());
+    }
+  }
+
+  Future<void> chatRoomLeave(ChatRoomDto roomDto) async {
 
     showLoading();
     apiC
@@ -345,8 +358,20 @@ class ChatPageState extends BaseState<ChatPage> {
       print(value);
 
       setState(() {
-        roomFilterList[index].has_name = true;
-        roomFilterList[index].name = value.name;
+        roomFilterList[index] = value;
+        for(int i=0;i<(roomFilterList[index].joined_users?.length ?? 0);i++){
+          if(roomFilterList[index].joined_users![i].id == Constants.me!.id){
+            roomFilterList[index].joined_users!.removeAt(i);
+            break;
+          }
+        }
+        for(int i=0;i<roomAllList.length;i++){
+          if(roomFilterList[index].id == roomAllList[i].id){
+            roomAllList[i] = roomFilterList[index];
+            break;
+          }
+        }
+        ChatRoomUtils.saveChatRoom(roomFilterList[index]);
       });
     }).catchError((Object obj) {
       hideLoading();
@@ -354,124 +379,6 @@ class ChatPageState extends BaseState<ChatPage> {
     });
   }
 
-  void onMenu(int index) {
-    ChatRoomDto roomDto = roomFilterList[index];
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-      ),
-      backgroundColor: Colors.white,
-      builder: (BuildContext context2) {
-        return StatefulBuilder(builder: (BuildContext context3, setState) {
-          return Wrap(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 70,
-                      height: 6,
-                      decoration: BoxDecoration(color: appColorGrey2, borderRadius: BorderRadius.circular(6)),
-                    ),
-                  ),
-                  const SizedBox(height: 27),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context2);
-                      AppDialog.showConfirmDialog(context, "leave_title".tr(), "leave_content".tr(), () {
-                        chatRoomLeave(index);
-                      });
-                    },
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 54,
-                      child: Center(
-                        child: Text(
-                          'chat_leave'.tr(),
-                          style: const TextStyle(color: Colors.black, fontSize: 20),
-                        ),
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context2);
-                      AppDialog.showConfirmDialog(context, "block_title".tr(), "block_content".tr(), () {});
-                    },
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 54,
-                      child: Center(
-                        child: Text(
-                          'user_block'.tr(),
-                          style: const TextStyle(color: Colors.black, fontSize: 20),
-                        ),
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context2);
-                      showDialog(
-                          context: context,
-                          builder: (context4) {
-                            return ReportDialog(
-                              onConfirm: (reason, type) {
-                                Navigator.pop(context4);
-                                AppDialog.showAlertDialog(context, () {}, "report_success_title".tr(),
-                                    "report_success_content".tr());
-                              },
-                            );
-                          });
-                    },
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 54,
-                      child: Center(
-                        child: Text(
-                          'user_report'.tr(),
-                          style: const TextStyle(color: Colors.black, fontSize: 20),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: roomDto.is_group_room == 1,
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.pop(context2);
-                        Navigator.push(context,
-                                SlideRightTransRoute(builder: (context) => ChatNamePage(roomDto: roomDto)))
-                            .then((value) {
-                          getChatRoomInfo(index);
-                        });
-                      },
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 54,
-                        child: Center(
-                          child: Text(
-                            'change_room_name'.tr(),
-                            style: const TextStyle(color: Colors.black, fontSize: 20),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 50),
-                ],
-              ),
-            ],
-          );
-        });
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -482,65 +389,92 @@ class ChatPageState extends BaseState<ChatPage> {
           width: double.infinity,
           height: double.infinity,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
                 height: 64,
                 child: Row(
                   children: [
                     Container(
-                        width: 44,
-                        height: 64,
+                        width: 24,
+                        height: 24,
                         margin: const EdgeInsets.only(left: 10),
                         child: Center(
-                          child: Image.asset("assets/image/ic_back.png", width: 11, height: 19),
-                        )),
-                    Text(
-                      'direct_message'.tr(),
-                      style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+                          child: Image.asset(ImageConstants.backWhite, width: 24, height: 24),
+                        )
+                    ),
+                    SizedBox(width: 10,),
+                    AppText(
+                      text: 'direct_message'.tr(),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
                     ),
                     const Spacer(),
                     InkWell(
                       onTap: () {
                         Navigator.push(
-                            context, SlideRightTransRoute(builder: (context) => const ChatAddPage()));
+                            context, SlideRightTransRoute(builder: (context) => ChatAddPage()));
                       },
                       child: SizedBox(
-                          width: 44,
-                          height: 64,
+                          width: 24,
+                          height: 24,
                           child: Center(
-                            child: Image.asset("assets/image/ic_plus.png", width: 17, height: 17),
+                            child: Image.asset(ImageConstants.chatPlusWhite, width: 24, height: 24),
                           )),
                     ),
+                    SizedBox(width: 15,),
                     GestureDetector(
-                      onTap: onSetting,
+                      onTap: (){
+                        List<BtnBottomSheetModel> items = [];
+                        items.add(BtnBottomSheetModel("", "logout".tr(), 0));
+                        Get.bottomSheet(BtnBottomSheetWidget(
+                          btnItems: items,
+                          onTapItem: (item) async {
+                            showLoading();
+                            await ChatRoomUtils.deleteAllRooms();
+                            hideLoading();
+                            logout();
+                          },
+                        ));
+                      },
                       child: Container(
-                          width: 44,
-                          height: 64,
+                          width: 24,
+                          height: 24,
                           margin: const EdgeInsets.only(right: 10),
                           child: Center(
-                            child: Image.asset("assets/image/ic_setting.png", width: 32, height: 32),
+                            child: Image.asset(ImageConstants.chatSettingWhite, width: 24, height: 24),
                           )),
                     ),
                   ],
                 ),
               ),
               Container(
-                height: 75,
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                height: 65,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4)
+                ),
+                padding: const EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 12),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: appColorGrey),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(4),
+                      color: ColorConstants.white10Percent
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Image.asset("assets/image/ic_search.png", height: 33, width: 33),
+                      Image.asset(ImageConstants.chatSearchWhite, height: 24, width: 24),
                       const SizedBox(width: 10),
                       Expanded(
                         child: TextField(
                           controller: searchController,
                           cursorColor: Colors.black,
-                          style: const TextStyle(color: appColorText1, fontSize: 14),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w400,
+                              fontFamily: FontConstants.AppFont,
+                              fontSize: 14,
+                          ),
                           onEditingComplete: () => {},
                           keyboardType: TextInputType.text,
                           textAlign: TextAlign.start,
@@ -552,30 +486,16 @@ class ChatPageState extends BaseState<ChatPage> {
                               floatingLabelBehavior: FloatingLabelBehavior.never,
                               hintText: 'search'.tr(),
                               isDense: true,
-                              hintStyle: const TextStyle(color: appColorHint, fontSize: 14),
+                              hintStyle: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: FontConstants.AppFont,
+                                  color: ColorConstants.halfWhite,
+                                  fontSize: 14
+                              ),
                               border: InputBorder.none),
                           onChanged: (text) {
                             setState(() {
-                              roomFilterList.clear();
-                              List<ChatRoomDto> list =
-                                  roomAllList.where((element) => element.last_message != null).toList();
-                              if (text.isEmpty) {
-                                roomFilterList.addAll(list);
-                              } else {
-                                roomFilterList.addAll(list.where((element) {
-                                  if (element.has_name ?? false) {
-                                    return (element.name ?? '').toLowerCase().contains(text.toLowerCase());
-                                  } else {
-                                    List<String> list =
-                                        element.joined_users!.map((e) => e.nickname!).toList();
-                                    list.sort();
-                                    String str = list.join(",");
-                                    String name = str.substring(0, min(14, str.length));
-
-                                    return name.toLowerCase().contains(text.toLowerCase());
-                                  }
-                                }).toList());
-                              }
+                              setFilteringList();
                             });
                           },
                         ),
@@ -584,8 +504,10 @@ class ChatPageState extends BaseState<ChatPage> {
                   ),
                 ),
               ),
+              isInit ?
               Expanded(
                 child: Container(
+                  color: ColorConstants.colorBg1,
                   child: Stack(
                     children: [
                       Visibility(
@@ -602,7 +524,82 @@ class ChatPageState extends BaseState<ChatPage> {
                                     onChat(index);
                                   },
                                   onLongPress: () {
-                                    onMenu(index);
+                                    ChatRoomDto roomDto = roomFilterList[index];
+                                    List<BtnBottomSheetModel> items = [];
+                                    if((roomDto.joined_users?.length ?? 0) >= 1)
+                                      items.add(BtnBottomSheetModel(ImageConstants.addChatUserIcon, "add_room_member".tr(), 0));
+                                    if((roomDto.joined_users?.length ?? 0) >= 1)
+                                      items.add(BtnBottomSheetModel(ImageConstants.editRoomIcon, "change_room_name".tr(), 1));
+                                    if((roomDto.joined_users?.length ?? 0) == 1)
+                                      items.add(BtnBottomSheetModel(ImageConstants.banUserIcon, "user_block".tr(), 2));
+                                    if((roomDto.joined_users?.length ?? 0) == 1)
+                                      items.add(BtnBottomSheetModel(ImageConstants.reportUserIcon, "report_title".tr(), 3));
+                                    items.add(BtnBottomSheetModel(ImageConstants.exitRoomIcon, "chat_leave".tr(), 4));
+                                    Get.bottomSheet(BtnBottomSheetWidget(
+                                      btnItems: items,
+                                      onTapItem: (menuIndex){
+                                        if(menuIndex == 0){
+                                          Navigator.push(context, SlideRightTransRoute(builder: (context) => ChatAddPage(existUsers: roomDto.joined_users ?? [], roomIdx: roomDto.id,
+                                          refresh: (){
+                                            getChatRoomInfo(index);
+                                          },)));
+                                        }else if(menuIndex == 1){
+                                          Get.bottomSheet(EditRoomNameBottomSheet(
+                                            roomDto: roomDto,
+                                            inputName: (name) async {
+                                              if (name.isEmpty) {
+                                                return;
+                                              }
+                                              Map<String, dynamic> body = {
+                                                "name": name,
+                                                "room_id": roomDto.id,
+                                              };
+                                              apiC
+                                                  .changeRoomName("Bearer ${await FirebaseAuth
+                                                  .instance.currentUser?.getIdToken()}",
+                                              jsonEncode(body))
+                                                  .then((value) {
+                                                hideLoading();
+                                                setState(() {
+                                                  List<ChatRoomDto> list = roomAllList.where((element) => element.id == roomDto.id).toList();
+                                                  if (list.isNotEmpty) {
+                                                    int index = roomAllList.indexOf(list.first);
+                                                    ChatRoomDto item = roomAllList[index];
+                                                    item.name = name;
+                                                    item.has_name = true;
+                                                    roomAllList.removeAt(index);
+                                                    roomAllList.insert(index, item);
+                                                    ChatRoomUtils.saveChatRoom(item);
+                                                  }
+
+                                                  List<ChatRoomDto> list1 = roomFilterList.where((element) => element.id == roomDto.id).toList();
+                                                  if (list1.isNotEmpty) {
+                                                    int index = roomFilterList.indexOf(list1.first);
+                                                    ChatRoomDto item = roomFilterList[index];
+                                                    item.name = name;
+                                                    item.has_name = true;
+                                                    roomFilterList.removeAt(index);
+                                                    roomFilterList.insert(index, item);
+                                                  }
+                                                });
+                                              }).catchError((Object obj) {
+                                                hideLoading();
+                                                showToast("connection_failed".tr());
+                                              });
+                                            },
+                                          ));
+                                        }else if(menuIndex == 2){
+                                          AppDialog.showConfirmDialog(context, "block_title".tr(), "block_content".tr(), () {});
+                                        }else if(menuIndex == 3){
+                                          AppDialog.showAlertDialog(context, () {}, "report_success_title".tr(),
+                                              "report_success_content".tr());
+                                        }else {
+                                          AppDialog.showConfirmDialog(context, "leave_title".tr(), "leave_content".tr(), () {
+                                            chatRoomLeave(roomDto);
+                                          });
+                                        }
+                                      },
+                                    ));
                                   },
                                   onDelete: () {
                                     onDelete(index);
@@ -625,9 +622,21 @@ class ChatPageState extends BaseState<ChatPage> {
                     ],
                   ),
                 ),
-              )
+              ) : Expanded(
+                child: Center(
+                  child: SizedBox(
+                    child: Center(
+                        child: CircularProgressIndicator(
+                            color: ColorConstants.colorMain)
+                    ),
+                    height: 20.0,
+                    width: 20.0,
+                  ),
+                ),
+              ),
             ],
           ),
-        ));
+        )
+    );
   }
 }

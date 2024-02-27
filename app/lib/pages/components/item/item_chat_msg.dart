@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:app/Constants/ColorConstants.dart';
+import 'package:app/Constants/ImageConstants.dart';
 import 'package:app/models/dto/user_dto.dart';
 import 'package:image/image.dart' as img;
 import 'package:app/global/global.dart';
@@ -16,7 +18,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:app/write_log.dart';
 
+import '../app_text.dart';
 import '../image_viewer.dart';
+import 'package:get/get.dart' hide Trans;
 
 class ItemChatMsg extends StatelessWidget {
   List<UserDto> users;
@@ -34,6 +38,7 @@ class ItemChatMsg extends StatelessWidget {
   final onReply;
   final onLongPress;
 
+  UserDto me;
   bool mine = true;
   bool paragraphStart = false;
   bool paragraphEnd = false;
@@ -49,6 +54,7 @@ class ItemChatMsg extends StatelessWidget {
       this.next,
       this.parentNick,
       this.bNewMsg,
+       required this.me,
       required this.setState,
       required this.playerModule,
       required this.onProfile,
@@ -69,11 +75,11 @@ class ItemChatMsg extends StatelessWidget {
 
     getUnreadCount(info);
     if (info.type == eChatType.VIDEO.index) {}
-    if (info.type == eChatType.AUDIO.index) {
-      if ((info.audioTime ?? 0) == 0) {
-        loadAudio();
-      }
-    }
+    // if (info.type == eChatType.AUDIO.index) {
+    //   if ((info.audioTime ?? 0) == 0) {
+    //     loadAudio();
+    //   }
+    // }
   }
 
   void getUnreadCount(dynamic info) 
@@ -82,23 +88,29 @@ class ItemChatMsg extends StatelessWidget {
     if (unread.isEmpty) return;
     int count = 0;
     for (var e in unread) {
-      if (e.last_read_id != null) {
+      if (e.last_read_id != null && users.map((e) => e.id).contains(e.user_id)) {
         if (e.last_read_id! < info.id) {
           count++;
         }
       }
     }
     info.unread_count = count;
-    WriteLog.renderingEndTime = DateTime.now();     
-    WriteLog.write("unread chat id : ${info.id}, timetime : ${DateTime.now()}\n ",fileName: 'getUnreadCountFunc.txt');
-    WriteLog.write("unread chat id : ${info.id}, timetime : ${DateTime.now()}\n ",fileName: 'AllInOne.txt');
-    WriteLog.write(' clientRenderingTime chat id : ${info.id} : ${WriteLog.TimeDifferenceClientRendering()} \n',fileName: 'clitent_Rendering_Span.txt');
-    WriteLog.write(' clientRenderingTime chat id : ${info.id} : ${WriteLog.TimeDifferenceClientRendering()} \n',fileName: 'AllInOne.txt');
-    WriteLog.write(' overall_Span time: ${WriteLog.TimeDifferenceOverall()} \n',fileName: 'overall_Span.txt');
-    WriteLog.write(' overall_Span time: ${WriteLog.TimeDifferenceOverall()} \n',fileName: 'AllInOne.txt');
+    // WriteLog.renderingEndTime = DateTime.now();
+    // WriteLog.write("unread chat id : ${info.id}, timetime : ${DateTime.now()}\n ",fileName: 'getUnreadCountFunc.txt');
+    // WriteLog.write("unread chat id : ${info.id}, timetime : ${DateTime.now()}\n ",fileName: 'AllInOne.txt');
+    // WriteLog.write(' clientRenderingTime chat id : ${info.id} : ${WriteLog.TimeDifferenceClientRendering()} \n',fileName: 'clitent_Rendering_Span.txt');
+    // WriteLog.write(' clientRenderingTime chat id : ${info.id} : ${WriteLog.TimeDifferenceClientRendering()} \n',fileName: 'AllInOne.txt');
+    // WriteLog.write(' overall_Span time: ${WriteLog.TimeDifferenceOverall()} \n',fileName: 'overall_Span.txt');
+    // WriteLog.write(' overall_Span time: ${WriteLog.TimeDifferenceOverall()} \n',fileName: 'AllInOne.txt');
   }
 
   Future<void> loadAudio() async {
+
+    if(info.audioTime != null) {
+      print("오디오 로드 실패");
+      return;
+    }
+    print("오디오 로드");
     await playerModule?.closePlayer();
     await playerModule?.openPlayer();
 
@@ -111,12 +123,14 @@ class ItemChatMsg extends StatelessWidget {
     setState();
   }
 
-  String getNick() {
+  UserDto? getUser() {
     List<UserDto> list = users.where((element) => element.id == info.sender_id).toList();
-    if (list.isEmpty) {
-      return 'unknown'.tr();
+    if (list.isEmpty && me.id == info.sender_id) {
+      return me;
+    }else if(list.isEmpty){
+      return null;
     }
-    return info.sender?.nickname ?? '';
+    return info.sender;
   }
 
   void fullView(BuildContext context, int index) {
@@ -127,7 +141,7 @@ class ItemChatMsg extends StatelessWidget {
                   images: (info.contents ?? '').split(","),
                   selected: index,
                   isVideo: false,
-                  title: getNick(),
+              user: getUser(),
                 ))).then((value) {
       if (value == "delete") {
         onDelete();
@@ -137,15 +151,16 @@ class ItemChatMsg extends StatelessWidget {
 
   Widget textTile() {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 200),
+      constraints: BoxConstraints(maxWidth: Get.width*0.65),
       decoration: BoxDecoration(
-          color: (info.chat_idx == -1 || !mine) ? Colors.white : appColorGrey4,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: (info.chat_idx == -1 || !mine) ? appColorGrey4 : Colors.transparent)),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Text(
-        info.chat_idx == -1 ? 'deleted_msg'.tr() : (info.contents ?? ''),
-        style: TextStyle(color: info.chat_idx == -1 ? appColorText4 : Colors.black, fontSize: 14),
+          color: mine ? ColorConstants.colorOptionBrown : ColorConstants.white5Percent,
+          borderRadius: BorderRadius.circular(info.chat_idx == -1 ? 0 : 8),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+      child: AppText(
+        text: info.chat_idx == -1 ? 'deleted_msg'.tr() : (info.contents ?? ''),
+        fontSize:  info.chat_idx == -1 ? 12 : 14,
+        fontWeight: FontWeight.w400,
       ),
     );
   }
@@ -204,7 +219,7 @@ class ItemChatMsg extends StatelessWidget {
                       images: (info.contents ?? '').split(","),
                       selected: 0,
                       isVideo: true,
-                      title: getNick(),
+                      user: getUser(),
                     ))).then((value) {
           if (value == "delete") {
             onDelete();
@@ -227,7 +242,7 @@ class ItemChatMsg extends StatelessWidget {
               Positioned.fill(
                 child: Align(
                   alignment: Alignment.center,
-                  child: Image.asset('assets/image/ic_video.png', width: 40, height: 40),
+                  child: Image.asset(ImageConstants.playVideo, width: 40, height: 40),
                 ),
               )
             ],
@@ -260,21 +275,23 @@ class ItemChatMsg extends StatelessWidget {
         }
       },
       child: Container(
-        width: 120,
         height: 36,
         decoration:
-            BoxDecoration(borderRadius: BorderRadius.circular(6), border: Border.all(color: appColorGrey4)),
+            BoxDecoration(borderRadius: BorderRadius.circular(8),
+              color: mine ? ColorConstants.colorOptionBrown : ColorConstants.white5Percent,
+            ),
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Image.asset(
-                (info.isPlayAudio ?? false) ? 'assets/image/ic_pause.png' : 'assets/image/ic_play.png',
+                (info.isPlayAudio ?? false) ? ImageConstants.pauseBtn : ImageConstants.playBtn,
                 width: 20,
                 height: 20),
-            Text(
-              "${pad2(Duration(seconds: info.audioTime ?? 0).inMinutes.remainder(60))}:${pad2((Duration(seconds: info.audioTime ?? 0).inSeconds.remainder(60)))}",
-              style: const TextStyle(fontSize: 14, color: Colors.black),
+            SizedBox(width: 5,),
+            AppText(
+              text: "${pad2(Duration(seconds: info.audioTime ?? 0).inMinutes.remainder(60))}:${pad2((Duration(seconds: info.audioTime ?? 0).inSeconds.remainder(60)))}",
+              fontSize: 14,
             ),
           ],
         ),
@@ -294,23 +311,25 @@ class ItemChatMsg extends StatelessWidget {
       },
       child: Column(
         children: [
-          Visibility(
-            visible: bNewMsg!,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 5),
+          if(bNewMsg!)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(child: Container(height: 1, color: appColorOrange4)),
+                  Expanded(child: Container(height: 0.5, color: ColorConstants.colorMain)),
                   const SizedBox(width: 20),
-                  Text('new_msg'.tr(), style: const TextStyle(fontSize: 8, color: appColorOrange4)),
+                  AppText(
+                    text: 'new_msg'.tr(),
+                    fontSize: 10,
+                    color: ColorConstants.colorMain,
+                  ),
                   const SizedBox(width: 20),
-                  Expanded(child: Container(height: 1, color: appColorOrange4)),
+                  Expanded(child: Container(height:0.51, color: ColorConstants.colorMain)),
                 ],
               ),
             ),
-          ),
           Stack(
             children: [
               Visibility(
@@ -325,23 +344,21 @@ class ItemChatMsg extends StatelessWidget {
                         Visibility(
                           visible: info.parent_id > 0 && info.chat_idx != -1,
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                "reply_from_me".tr(args: [parentNick ?? '']),
-                                style: const TextStyle(color: appColorText4, fontSize: 12),
+                              AppText(
+                                text: "reply_from_me".tr(args: [parentNick ?? '']),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w400,
+                                color: ColorConstants.halfWhite,
                               ),
                               Container(
                                 constraints: const BoxConstraints(maxWidth: 200),
                                 margin: const EdgeInsets.only(bottom: 4),
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: appColorGrey4)),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                child: Text(
-                                  chatContent(info.parent_chat?.contents ?? '', info.parent_chat?.type ?? 0),
-                                  style: const TextStyle(color: appColorText4, fontSize: 14),
+                                child: AppText(
+                                  text: info.parent_chat?.unsended_at != null ? "deleted_msg".tr() : chatContent(info.parent_chat?.contents ?? '', info.parent_chat?.type ?? 0),
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 12,
                                 ),
                               )
                             ],
@@ -356,24 +373,26 @@ class ItemChatMsg extends StatelessWidget {
                               children: [
                                 Visibility(
                                   visible: (info.unread_count ?? 0) > 0,
-                                  child: Text(
-                                    '${info.unread_count}',
-                                    style: const TextStyle(color: appColorOrange4, fontSize: 10),
+                                  child: AppText(
+                                    text:'${info.unread_count}',
+                                    color: ColorConstants.colorMain,
+                                    fontSize: 10,
                                   ),
                                 ),
-                                Opacity(
-                                  opacity: paragraphEnd ? 1 : 0,
-                                  child: info.id == -2
+                                if(paragraphEnd)
+                                  info.id == -2
                                       ? const SizedBox(
-                                          width: 12,
-                                          height: 12,
-                                          child: CircularProgressIndicator(strokeWidth: 2),
-                                        )
-                                      : Text(
-                                          chatTime2(info.created_at ?? ''),
-                                          style: const TextStyle(color: Colors.black, fontSize: 8),
-                                        ),
-                                ),
+                                    width: 12,
+                                    height: 12,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2
+                                    ),
+                                  )
+                                      : AppText(
+                                    text: chatTime2(info.created_at ?? ''),
+                                    fontSize: 10,
+                                    color: ColorConstants.halfWhite,
+                                  ),
                               ],
                             ),
                             const SizedBox(width: 4),
@@ -394,9 +413,9 @@ class ItemChatMsg extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.only(left: 6),
                         child: Image.asset(
-                          'assets/image/ic_fail.png',
-                          width: 25,
-                          height: 25,
+                          ImageConstants.chatFail,
+                          width: 20,
+                          height: 20,
                         ),
                       ),
                     )
@@ -443,25 +462,20 @@ class ItemChatMsg extends StatelessWidget {
                                       children: [
                                         Padding(
                                           padding: const EdgeInsets.only(left: 6),
-                                          child: Text(
-                                            "reply_from_other".tr(args: [getNick(), parentNick ?? '']),
-                                            style: TextStyle(
-                                                color: info.parent_id > 0 ? appColorText4 : Colors.black,
-                                                fontSize: 12),
+                                          child: AppText(
+                                            text: "reply_from_other".tr(args: [getUser()?.nickname ?? "unknown".tr(), parentNick ?? '']),
+                                            fontSize: 10,
+                                            color: ColorConstants.halfWhite,
                                           ),
                                         ),
                                         Container(
                                           constraints: const BoxConstraints(maxWidth: 200),
                                           margin: const EdgeInsets.only(bottom: 4),
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(20),
-                                              border: Border.all(color: appColorGrey4)),
                                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                          child: Text(
-                                            chatContent(info.parent_chat?.contents ?? '',
+                                          child: AppText(
+                                            text: chatContent(info.parent_chat?.contents ?? '',
                                                 info.parent_chat?.type ?? 0),
-                                            style: const TextStyle(color: appColorText4, fontSize: 14),
+                                            fontSize: 12,
                                           ),
                                         )
                                       ],
@@ -470,11 +484,10 @@ class ItemChatMsg extends StatelessWidget {
                                       visible: paragraphStart,
                                       child: Padding(
                                         padding: const EdgeInsets.only(left: 6),
-                                        child: Text(
-                                          getNick(),
-                                          style: TextStyle(
-                                              color: info.parent_id > 0 ? appColorText4 : Colors.black,
-                                              fontSize: 12),
+                                        child: AppText(
+                                          text: getUser()?.nickname ?? "unknown".tr(),
+                                          fontSize: 13,
+                                          color: ColorConstants.halfWhite,
                                         ),
                                       ),
                                     ),
@@ -489,9 +502,9 @@ class ItemChatMsg extends StatelessWidget {
                                       else if (info.type == eChatType.IMAGE.index)
                                         imageTile(context)
                                       else if (info.type == eChatType.VIDEO.index)
-                                        videoTile(context)
-                                      else if (info.type == eChatType.AUDIO.index)
-                                        audioTile()
+                                          videoTile(context)
+                                        else if (info.type == eChatType.AUDIO.index)
+                                            audioTile()
                                     ],
                                   ),
                                   const SizedBox(width: 4),
@@ -500,18 +513,18 @@ class ItemChatMsg extends StatelessWidget {
                                     children: [
                                       Visibility(
                                         visible: (info.unread_count ?? 0) > 0,
-                                        child: Text(
-                                          '${info.unread_count}',
-                                          style: const TextStyle(color: appColorOrange4, fontSize: 10),
+                                        child: AppText(
+                                          text:'${info.unread_count}',
+                                          color: ColorConstants.colorMain,
+                                          fontSize: 10,
                                         ),
                                       ),
-                                      Opacity(
-                                        opacity: paragraphEnd ? 1 : 0,
-                                        child: Text(
-                                          chatTime2(info.created_at ?? ''),
-                                          style: const TextStyle(color: Colors.black, fontSize: 8),
+                                      if(paragraphEnd)
+                                        AppText(
+                                          text: chatTime2(info.created_at ?? ''),
+                                          fontSize: 10,
+                                          color: ColorConstants.halfWhite,
                                         ),
-                                      ),
                                     ],
                                   ),
                                 ],

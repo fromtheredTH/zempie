@@ -1,3 +1,5 @@
+import 'package:app/Constants/ColorConstants.dart';
+import 'package:app/pages/components/app_text.dart';
 import 'package:easy_localization/src/public_ext.dart';
 import 'package:app/global/app_colors.dart';
 import 'package:app/helpers/common_util.dart';
@@ -55,41 +57,86 @@ class AppDialog {
     );
   }
 
-  static showConfirmDialog(BuildContext context, String title, String content, Function() onConfirm,
-      {String confirmLabel = "", String cancelLabel = ""}) {
+  static showImaegInfoDialog(BuildContext context, String extension, String size, int pixelX, int pixelY) {
     showDialog(
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           elevation: 0.0,
+          backgroundColor: ColorConstants.colorSub,
           contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 35),
-              if (title.isNotEmpty)
-                Text(
-                  title,
-                  style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-              if (title.isNotEmpty) const SizedBox(height: 20),
-              Text(
-                content,
-                style: const TextStyle(
-                  color: appColorText4,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+              const SizedBox(height: 25),
+              AppText(
+                text: "file_info_title".tr(),
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 30),
+
+              SizedBox(height: 20,),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  AppText(
+                    text: "image_type".tr(),
+                    fontSize: 16,
+                  ),
+
+                  AppText(
+                    text: "${extension}",
+                    fontSize: 16,
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 10,),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  AppText(
+                    text: "image_size".tr(),
+                    fontSize: 16,
+                  ),
+
+                  AppText(
+                    text: "${size}",
+                    fontSize: 16,
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 10,),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  AppText(
+                    text: "image_resolution".tr(),
+                    fontSize: 16,
+                  ),
+
+                  AppText(
+                    text: "${pixelX}x${pixelY}",
+                    fontSize: 16,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 10),
             ],
           ),
           buttonPadding: EdgeInsets.zero,
-          actionsPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          actionsPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
           actionsAlignment: MainAxisAlignment.start,
           actionsOverflowButtonSpacing: 1,
           actions: <Widget>[
@@ -106,17 +153,105 @@ class AppDialog {
                       child: Container(
                         height: 48,
                         decoration:
-                            BoxDecoration(borderRadius: BorderRadius.circular(5), color: appColorGrey3),
+                        BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: ColorConstants.colorMain
+                        ),
                         child: Center(
-                          child: Text(
-                            cancelLabel.isEmpty ? "cancel".tr() : cancelLabel,
-                            style: const TextStyle(color: Colors.white, fontSize: 20),
+                          child: AppText(
+                            text: "close".tr(),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 4),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  static showConfirmDialog(BuildContext context, String title, String content, Function() onConfirm,
+      {String confirmLabel = "", String cancelLabel = ""}) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          elevation: 0.0,
+          backgroundColor: ColorConstants.colorSub,
+          contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 25),
+              if (title.isNotEmpty)
+                Column(
+                  children: [
+                    AppText(
+                      text: title,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      textAlign: TextAlign.center,
+                    ),
+
+                    SizedBox(height: 10,),
+
+                    Container(
+                      color: ColorConstants.white30Percent,
+                      height: 0.3,
+                    )
+                  ],
+                ),
+
+              if (title.isNotEmpty) const SizedBox(height: 10),
+              AppText(
+                text: content,
+                fontSize: 16,
+                textAlign: TextAlign.left,
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+          buttonPadding: EdgeInsets.zero,
+          actionsPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+          actionsAlignment: MainAxisAlignment.start,
+          actionsOverflowButtonSpacing: 1,
+          actions: <Widget>[
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Container(
+                        height: 48,
+                        decoration:
+                            BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: ColorConstants.gray3
+                            ),
+                        child: Center(
+                          child: AppText(
+                            text: cancelLabel.isEmpty ? "cancel".tr() : cancelLabel,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: InkWell(
                       onTap: () {
@@ -126,11 +261,15 @@ class AppDialog {
                       child: Container(
                         height: 48,
                         decoration:
-                            BoxDecoration(borderRadius: BorderRadius.circular(5), color: appColorOrange2),
+                            BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: ColorConstants.colorMain
+                            ),
                         child: Center(
-                          child: Text(
-                            confirmLabel.isEmpty ? "confirm".tr() : confirmLabel,
-                            style: const TextStyle(color: Colors.white, fontSize: 20),
+                          child: AppText(
+                            text: confirmLabel.isEmpty ? "confirm".tr() : confirmLabel,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
@@ -138,7 +277,7 @@ class AppDialog {
                   ),
                 ],
               ),
-            )
+            ),
           ],
         );
       },

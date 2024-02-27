@@ -1,0 +1,56 @@
+{
+	"project_info": {
+	  "project_number": "235654438895",
+	  "firebase_url": "https://zempie.firebaseio.com",
+	  "project_id": "zempie",
+	  "storage_bucket": "zempie.appspot.com"
+	},
+	"client": [
+	  {
+		"client_info": {
+		  "mobilesdk_app_id": "1:235654438895:android:58b2d6bfc385ca41c9601a",
+		  "android_client_info": {
+			"package_name": "com.fromthered.zempie"
+		  }
+		},
+		"oauth_client": [
+		  {
+			"client_id": "235654438895-irm36ldeoqfd1sr96gpqjgsu28pcnk25.apps.googleusercontent.com",
+			"client_type": 1,
+			"android_info": {
+			  "package_name": "com.fromthered.zempie",
+			  "certificate_hash": "57ddd822bfd8b6d2453daab8c008880f09360184"
+			}
+		  },
+		  {
+			"client_id": "235654438895-t974cpme76jq2lqsbu58a4i7cgku10gk.apps.googleusercontent.com",
+			"client_type": 1,
+			"android_info": {
+			  "package_name": "com.fromthered.zempie",
+			  "certificate_hash": "eac82a06a3a50099e3060ea0f0c7508294deb3b9"
+			}
+		  },
+		  {
+			"client_id": "235654438895-89ri9kp138tjvpuio3mp2damaqfab24a.apps.googleusercontent.com",
+			"client_type": 3
+		  }
+		],
+		"api_key": [
+		  {
+			"current_key": "AIzaSyBCF4z98WQSffmn7ZWkHR9nzNfL2-0VxnI"
+		  }
+		],
+		"services": {
+		  "appinvite_service": {
+			"other_platform_oauth_client": [
+			  {
+				"client_id": "235654438895-89ri9kp138tjvpuio3mp2damaqfab24a.apps.googleusercontent.com",
+				"client_type": 3
+			  }
+			]
+		  }
+		}
+	  }
+	],
+	"configuration_version": "1"
+  }

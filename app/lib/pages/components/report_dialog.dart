@@ -65,7 +65,7 @@ class ReportDialogState extends State<ReportDialog> {
                   const SizedBox(height: 15),
                   Row(
                     children: [
-                      Image.asset('assets/image/ic_radio_off.png', width: 20, height: 20),
+                      Image.asset('assets/image/ic_chat_add_radio_off.png', width: 20, height: 20),
                       const SizedBox(width: 8),
                       Text(
                         "report_reason_1".tr(),
@@ -76,7 +76,7 @@ class ReportDialogState extends State<ReportDialog> {
                   ),
                   Row(
                     children: [
-                      Image.asset('assets/image/ic_radio_off.png', width: 20, height: 20),
+                      Image.asset('assets/image/ic_chat_add_radio_off.png', width: 20, height: 20),
                       const SizedBox(width: 8),
                       Text(
                         "report_reason_2".tr(),
@@ -87,7 +87,7 @@ class ReportDialogState extends State<ReportDialog> {
                   ),
                   Row(
                     children: [
-                      Image.asset('assets/image/ic_radio_off.png', width: 20, height: 20),
+                      Image.asset('assets/image/ic_chat_add_radio_off.png', width: 20, height: 20),
                       const SizedBox(width: 8),
                       Text(
                         "report_reason_3".tr(),
@@ -98,7 +98,7 @@ class ReportDialogState extends State<ReportDialog> {
                   ),
                   Row(
                     children: [
-                      Image.asset('assets/image/ic_radio_off.png', width: 20, height: 20),
+                      Image.asset('assets/image/ic_chat_add_radio_off.png', width: 20, height: 20),
                       const SizedBox(width: 8),
                       Text(
                         "report_reason_4".tr(),
@@ -109,7 +109,7 @@ class ReportDialogState extends State<ReportDialog> {
                   ),
                   Row(
                     children: [
-                      Image.asset('assets/image/ic_radio_off.png', width: 20, height: 20),
+                      Image.asset('assets/image/ic_chat_add_radio_off.png', width: 20, height: 20),
                       const SizedBox(width: 8),
                       Text(
                         "report_reason_5".tr(),

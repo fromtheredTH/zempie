@@ -57,7 +57,7 @@ android {
         release {
             keyAlias 'zempie_dev'
             keyPassword 'HrCh#Op0'
-            storeFile file('D:\\zempie_app_20240131\\app\\keys\\zempie.dev.keystore')
+            storeFile file('../../keys/zempie.dev.keystore')
             storePassword 'HrCh#Op0'
         }
     }
