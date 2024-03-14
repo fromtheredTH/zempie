@@ -2,8 +2,9 @@
 import 'package:app/Constants/ColorConstants.dart';
 import 'package:app/Constants/ImageUtils.dart';
 import 'package:app/pages/components/app_text.dart';
+import 'package:app/pages/screens/discover/discoverPostingListScreen.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 import 'package:html/parser.dart';
 
@@ -44,6 +45,7 @@ class _DiscoverWidget extends State<DiscoverWidget> {
 
     return GestureDetector(
       onTap: (){
+        Get.to(DiscsoverPostingListScreen(post: post));
       },
       child: Padding(
         padding:  EdgeInsets.only(
@@ -68,7 +70,7 @@ class _DiscoverWidget extends State<DiscoverWidget> {
                       Get.height*0.38,
                     ),
                   ),
-                  if(post.contents.isNotEmpty)
+                  if(post.contents.isNotEmpty && image != null && image!.isNotEmpty)
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Container(
@@ -108,12 +110,19 @@ class _DiscoverWidget extends State<DiscoverWidget> {
                       ImageUtils.ProfileImage(post.user.picture, 24, 24),
                     ),
                     SizedBox(width: Get.width*0.01,),
-                    AppText(
-                      text: post.user.nickname,
-                      fontSize: 12,
-                      color: ColorConstants.white,
-                      fontWeight: FontWeight.w700,
+                    GestureDetector(
+                      onTap: (){
+                        Get.to(ProfileScreen(user: post.user));
+                      },
+                      child:
+                      AppText(
+                        text: post.user.nickname,
+                        fontSize: 12,
+                        color: ColorConstants.white,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
+
                   ],
                 ),
 
@@ -125,19 +134,23 @@ class _DiscoverWidget extends State<DiscoverWidget> {
                             post.liked = !post.liked;
                           });
                           if(post.liked){
-                            try{
-                              var response = await DioClient.unLikePost(post.id);
-                            }catch(e){
-                              setState(() {
-                                post.liked = !post.liked;
-                              });
-                            }
-                          }else{
+                            post.likeCount = post.likeCount + 1;
                             try{
                               var response = await DioClient.likePost(post.id);
                             }catch(e){
                               setState(() {
                                 post.liked = !post.liked;
+                                post.likeCount = post.likeCount - 1;
+                              });
+                            }
+                          }else{
+                            post.likeCount = post.likeCount - 1;
+                            try{
+                              var response = await DioClient.unLikePost(post.id);
+                            }catch(e){
+                              setState(() {
+                                post.liked = !post.liked;
+                                post.likeCount = post.likeCount + 1;
                               });
                             }
                           }

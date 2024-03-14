@@ -6,11 +6,12 @@ import 'package:app/models/User.dart';
 import 'package:app/pages/components/BtnBottomSheetWidget.dart';
 import 'package:app/pages/components/app_text.dart';
 import 'package:app/pages/components/report_user_dialog.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 
 import '../../Constants/ColorConstants.dart';
@@ -137,9 +138,11 @@ class _UserListItemWidget extends BaseState<UserListItemWidget> {
               !user.isFollowing ?
                   GestureDetector(
                     onTap: () async {
-                      var response = await DioClient.postUserFollow(user.id);
                       setState(() {
                         user.isFollowing = true;
+                      });
+                      var response = await DioClient.postUserFollow(user.id);
+                      setState(() {
                         if(widget.followUser != null){
                           widget.followUser!();
                         }
@@ -167,18 +170,20 @@ class _UserListItemWidget extends BaseState<UserListItemWidget> {
                             return ReportUserDialog(onConfirm: (reportList, reason) async {
                               var response = await DioClient.reportUser(user.id, reportList, reason);
                               widget.deleteUser();
-                              Utils.showToast("신고가 완료되었습니다");
+                              Utils.showToast("report_complete".tr());
                             },);
                           }
                       );
                     }else if(menuIndex == 1){
                       var response = await DioClient.postUserBlock(user.id);
                       widget.deleteUser();
-                      Utils.showToast("차단이 완료되었습니다");
+                      Utils.showToast("ban_complete".tr());
                     }else {
-                      var response = await DioClient.postUserUnFollow(user.id);
                       setState(() {
                         user.isFollowing = false;
+                      });
+                      var response = await DioClient.postUserUnFollow(user.id);
+                      setState(() {
                         if(widget.unFollowUser != null){
                           widget.unFollowUser!();
                         }

@@ -1,4 +1,5 @@
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -78,7 +79,7 @@ class ForgetScreen extends StatelessWidget {
                     cursorColor: Colors.grey,
                   decoration: InputDecoration(
                     border:UnderlineInputBorder(),
-                    hintText: "이메일 주소",
+                    hintText: "email_address".tr(),
                     hintStyle: TextStyle(
                       color: Color(0xFFFFFFFFF).withOpacity(0.7),
                     ),

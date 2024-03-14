@@ -9,6 +9,7 @@ import 'package:app/Constants/ImageUtils.dart';
 import 'package:app/global/DioClient.dart';
 import 'package:app/models/User.dart';
 import 'package:app/pages/screens/setting/setting_remove_account.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -91,7 +92,7 @@ class _SettingAccountScreen extends BaseState<SettingAccountScreen> {
                               child: Icon(Icons.arrow_back_ios, color:Colors.white)),
 
                           AppText(
-                            text: "계정",
+                            text: "account".tr(),
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                           )
@@ -103,7 +104,7 @@ class _SettingAccountScreen extends BaseState<SettingAccountScreen> {
                           Get.to(SettingRemoveAccountScreen());
                         },
                         child: AppText(
-                          text: "계정 삭제",
+                          text: "remove_account".tr(),
                           fontSize: 14,
                           color: ColorConstants.halfWhite,
                         ),
@@ -121,7 +122,7 @@ class _SettingAccountScreen extends BaseState<SettingAccountScreen> {
                       children: [
 
                         AppText(
-                          text: "이메일",
+                          text: "email".tr(),
                           fontWeight: FontWeight.w700,
                         ),
                         SizedBox(height: 10,),
@@ -158,14 +159,14 @@ class _SettingAccountScreen extends BaseState<SettingAccountScreen> {
                         Row(
                           children: [
                             AppText(
-                              text: "이름",
+                              text: "name".tr(),
                               fontWeight: FontWeight.w700,
                             ),
                             SizedBox(width: 5,),
 
                             GestureDetector(
                               onTap: (){
-                                Utils.showToast("프로필에서 사용자의 본명 또는 활동명을 나타내는 공간입니다.");
+                                Utils.showToast("name_guide".tr());
                               },
                               child: ImageUtils.setImage(ImageConstants.accountEditQuestion, 16, 16),
                             )
@@ -212,8 +213,8 @@ class _SettingAccountScreen extends BaseState<SettingAccountScreen> {
 
                         Obx(() => AppText(
                           text:
-                          !isNameCorrect.value || isNameEmpty.value ? "이름은 최소 2자이상으로 작성해 주세요." :
-                          "사용할 수 있는 이름입니다.",
+                          !isNameCorrect.value || isNameEmpty.value ? "name_incorrect".tr() :
+                          "name_enable".tr(),
                           color: isNameEmpty.value && isTapNameOkBtn.value ? ColorConstants.red :
                           !isNameCorrect.value ? ColorConstants.red
                               : ColorConstants.halfWhite,
@@ -227,14 +228,14 @@ class _SettingAccountScreen extends BaseState<SettingAccountScreen> {
                         Row(
                           children: [
                             AppText(
-                              text: "닉네임",
+                              text: "nickname".tr(),
                               fontWeight: FontWeight.w700,
                             ),
                             SizedBox(width: 5,),
 
                             GestureDetector(
                               onTap: (){
-                                Utils.showToast("각 사용자를 고유하게 식별하는 아이디입니다. 다른 사람들은 이 닉네임을 사용하여 여러분을 찾을 수 있습니다.");
+                                Utils.showToast("nickname_guide".tr());
                               },
                               child: ImageUtils.setImage(ImageConstants.accountEditQuestion, 16, 16),
                             )
@@ -282,10 +283,10 @@ class _SettingAccountScreen extends BaseState<SettingAccountScreen> {
 
                         Obx(() => AppText(
                           text:
-                          isNicknameCorrect.value && isNicknameNotDuplicate.value && isNicknameEmpty.value ? "닉네임은 4자이상 15자이내의 영문, 숫자, ‘_’, ‘.’ 로 작성해 주세요." :
-                          isNicknameCorrect.value && isNicknameNotDuplicate.value ? "사용할 수 있는 닉네임입니다." :
-                          !isNicknameCorrect.value ? "사용자 닉네임은 4자 이상이어야 합니다."
-                              : "이미 사용중인 닉네임 입니다.",
+                          isNicknameCorrect.value && isNicknameNotDuplicate.value && isNicknameEmpty.value ? "nickname_incorrect".tr() :
+                          isNicknameCorrect.value && isNicknameNotDuplicate.value ? "nickname_enable".tr() :
+                          !isNicknameCorrect.value ? "nickname_length".tr()
+                              : "nickname_disable".tr(),
                           color: isNicknameCorrect.value && isNicknameNotDuplicate.value && isNicknameEmpty.value ? isTapNicknameOkBtn.value ? ColorConstants.red : ColorConstants.halfWhite :
                           isNicknameCorrect.value && isNicknameNotDuplicate.value ? ColorConstants.halfWhite :
                           !isNicknameCorrect.value ? ColorConstants.red
@@ -318,7 +319,7 @@ class _SettingAccountScreen extends BaseState<SettingAccountScreen> {
 
                 var response = await DioClient.updateAccount(nameController.text, nicknameController.text);
                 Constants.user = UserModel.fromJson(response.data["result"]["user"]);
-                Utils.showToast("계정 수정이 완료되었습니다.");
+                Utils.showToast("edit_account_complete".tr());
                 Get.back();
               },
               child: Container(
@@ -330,7 +331,7 @@ class _SettingAccountScreen extends BaseState<SettingAccountScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      "저장",
+                      "save".tr(),
                       style: TextStyle(
                           color: Color(0xFFFFFFFFF),
                           fontWeight: FontWeight.w700,

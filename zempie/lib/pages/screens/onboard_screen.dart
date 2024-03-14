@@ -100,7 +100,7 @@ class OnBoardItem extends StatelessWidget {
             height: Get.height * 0.4,
             width: double.infinity,
             color: ColorConstants.colorBg1,
-            child: SvgPicture.asset(image!),
+            child: Image.asset(image!),
           ),
           Container(
             height: Get.height * 0.3,

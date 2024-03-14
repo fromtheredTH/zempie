@@ -9,6 +9,7 @@ import 'package:app/models/PostReplyModel.dart';
 import 'package:app/models/User.dart';
 import 'package:app/pages/components/PostReplyWidget.dart';
 import 'package:app/pages/screens/discover/PostReCommentScreen.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -324,7 +325,7 @@ class _PostDetailScreen extends BaseState<PostDetailScreen> {
                   ),
 
                 Padding(
-                  padding: EdgeInsets.only(right: 5, left: 10, top: 15, bottom: MediaQuery.of(context).padding.bottom+15),
+                  padding: EdgeInsets.only(right: 15, left: 10, top: 15, bottom: MediaQuery.of(context).padding.bottom+15),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -335,7 +336,7 @@ class _PostDetailScreen extends BaseState<PostDetailScreen> {
                         child: ImageUtils.ProfileImage(Constants.user.picture, 30, 30),
                       ),
                       SizedBox(width: 15,),
-                      Container(
+                      Flexible(child: Container(
                         decoration: BoxDecoration(color: ColorConstants.backGry,
                             borderRadius: BorderRadius.all(Radius.circular(5.0))),
                         child: Row(
@@ -343,72 +344,69 @@ class _PostDetailScreen extends BaseState<PostDetailScreen> {
                             SizedBox(
                               width: Get.width * 0.025,
                             ),
-                            SizedBox(
-                                width: Get.width*0.7,
-                                child: MentionableTextField(
-                                  maxLines: 4,
-                                  minLines: 1,
-                                  focusNode: _node,
-                                  style: TextStyle(
+                            Flexible(child: MentionableTextField(
+                              maxLines: 4,
+                              minLines: 1,
+                              focusNode: _node,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontFamily: FontConstants.AppFont,
+                                  color: ColorConstants.white
+                              ),
+                              decoration: InputDecoration(
+                                  hintText: "recomment_hint".tr(),
+                                  hintStyle: TextStyle(
                                       fontSize: 14,
                                       fontFamily: FontConstants.AppFont,
-                                      color: ColorConstants.white
+                                      color: ColorConstants.halfWhite
                                   ),
-                                  decoration: InputDecoration(
-                                      hintText: "댓글 달기...",
-                                      hintStyle: TextStyle(
-                                          fontSize: 14,
-                                          fontFamily: FontConstants.AppFont,
-                                          color: ColorConstants.halfWhite
-                                      ),
-                                      border: InputBorder.none,
-                                      contentPadding: EdgeInsets.zero
-                                  ),
-                                  onControllerReady: (value) {
-                                    mentionController = value;
-                                  },
-                                  mentionables: Constants.myFollowings,
-                                  onChanged: (text){
-                                    replyText = text;
-                                  },
-                                  mentionStyle: TextStyle(
-                                      fontSize: 14,
-                                      fontFamily: FontConstants.AppFont,
-                                      color: ColorConstants.blue1
-                                  ),
-                                  onMentionablesChanged: (users) {
-                                    if(users.length == 0 && !replyText.endsWith("@")) {
-                                      setState(() {
-                                        mentionUsers.clear();
-                                      });
-                                      return;
-                                    }
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.zero
+                              ),
+                              onControllerReady: (value) {
+                                mentionController = value;
+                              },
+                              mentionables: Constants.myFollowings,
+                              onChanged: (text){
+                                replyText = text;
+                              },
+                              mentionStyle: TextStyle(
+                                  fontSize: 14,
+                                  fontFamily: FontConstants.AppFont,
+                                  color: ColorConstants.blue1
+                              ),
+                              onMentionablesChanged: (users) {
+                                if(users.length == 0 && !replyText.endsWith("@")) {
+                                  setState(() {
                                     mentionUsers.clear();
-                                    for(int i=0;i<users.length;i++){
-                                      UserModel model = users[i] as UserModel;
-                                      mentionUsers.add(model);
-                                    }
-                                    List<int> followIdList = mentionUsers.map((e) => e.id).toList();
-                                    for(int i=0;i<Constants.myFollowings.length;i++){
-                                      if(!followIdList.contains(Constants.myFollowings[i].id)){
-                                        mentionUsers.add(Constants.myFollowings[i]);
-                                      }
-                                    }
-                                    setState(() {
+                                  });
+                                  return;
+                                }
+                                mentionUsers.clear();
+                                for(int i=0;i<users.length;i++){
+                                  UserModel model = users[i] as UserModel;
+                                  mentionUsers.add(model);
+                                }
+                                List<int> followIdList = mentionUsers.map((e) => e.id).toList();
+                                for(int i=0;i<Constants.myFollowings.length;i++){
+                                  if(!followIdList.contains(Constants.myFollowings[i].id)){
+                                    mentionUsers.add(Constants.myFollowings[i]);
+                                  }
+                                }
+                                setState(() {
 
-                                    });
-                                  },
-                                )
-                            ),
+                                });
+                              },
+                            ))
                           ],
                         ),
-                      ),
+                      ),),
                       SizedBox(width: 15,),
                       GestureDetector(
                         onTap: () async {
                           String replyContent = mentionController.buildMentionedValue();
                           if(replyContent.isEmpty){
-                            Utils.showToast("댓글을 입력해 주세요");
+                            Utils.showToast("input_reply".tr());
                             return;
                           }
 
@@ -427,7 +425,7 @@ class _PostDetailScreen extends BaseState<PostDetailScreen> {
                                 }
                               }
                             });
-                            Utils.showToast("댓글이 수정되었습니다");
+                            Utils.showToast("edited_reply".tr());
                           }else {
                             var response = await DioClient.sendPostComment(
                                 post.id, replyContent, null);
@@ -437,7 +435,7 @@ class _PostDetailScreen extends BaseState<PostDetailScreen> {
                               replies.insert(0, result);
                               post.commentCount += 1;
                             });
-                            Utils.showToast("댓글이 추가되었습니다");
+                            Utils.showToast("complete_reply".tr());
                           }
                           replyText = "";
                           mentionController.text = "";

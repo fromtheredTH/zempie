@@ -89,8 +89,9 @@ class ChatDetailPage extends StatefulWidget {
 class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingObserver {
   List<ChatMsgDto> msgList = [];
   AutoScrollController mainController = AutoScrollController();
-  String strChatText = '';
+  // String strChatText = '';
   TextEditingController msgController = TextEditingController();
+  String tempString = "";
   bool hasNextPage = false;
 
   late ChatRoomDto roomDto;
@@ -112,6 +113,8 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
   Offset? micFirstX;
   RxDouble? changedX;
   RxDouble? changedY;
+  RxDouble? lockX;
+  RxDouble? lockY;
   bool _isRecordingFinish = false;
 
   FlutterSoundPlayer playerModule = FlutterSoundPlayer();
@@ -130,6 +133,8 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
   bool bPreview = false;
   bool otherMsg = false;
   int unread_start_id = 0;
+
+  FocusNode myFocusNode = FocusNode();
 
   PositionRetainedScrollPhysics physics = PositionRetainedScrollPhysics();
 
@@ -174,7 +179,6 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
           await playerModule?.stopPlayer();
           await playerModule?.closePlayer();
           msg.audioTime = audioTime;
-          print("오디오 완료");
         }
       }catch(e){
         print("에러 발생");
@@ -182,6 +186,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
       }
       setState(() {
 
+        print("어디 1");
         receiveMsg(room, msg);
         if(room.id != -2) {
           ChatUtils.saveChat(room.id, msg);
@@ -190,18 +195,16 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
       });
     });
 
-    setState(() {
-      roomDto = widget.roomDto;
-      unread_start_id = roomDto.unread_start_id;
+    roomDto = widget.roomDto;
+    unread_start_id = roomDto.unread_start_id;
 
-      if ((roomDto.joined_users ?? []).isEmpty) {
-        closeRoom = true;
-      }
+    if ((roomDto.joined_users ?? []).isEmpty) {
+      closeRoom = true;
+    }
 
-      if (!closeRoom) {
-        startUnreadTimer();
-      }
-    });
+    if (!closeRoom) {
+      startUnreadTimer();
+    }
     mainController = AutoScrollController()..addListener(onScroll);
     getChatList(isFirst: true);
 
@@ -284,6 +287,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
   void receiveMsg(ChatRoomDto room, ChatMsgDto msg) {
     if (gChatRoomUid == room.id) {
       //현재 입장한 채팅방의 채팅 푸시면 추가
+      print("콘텐츠 추가22 ${msg.id} ${msg.contents}");
       setState(() {
         List<ChatMsgDto> list = msgList
             .where((e) =>
@@ -295,10 +299,8 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
         if (list.isNotEmpty) {
           int index = msgList.indexOf(list.first);
           msgList.removeAt(index);
-          print("두번? ${msg.id}");
           msgList.insert(index, msg);
         }else{
-          print("두번? ${msg.id}");
           msgList.insert(0, msg);
         }
 
@@ -374,9 +376,9 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
         ((unread_start_id > 0 && initOffset > 0) || otherMsg)) {
       //재그리기 방지
       if (!bPreview) {
-        setState(() {
+        // setState(() {
           // bPreview = true;
-        });
+        // });
       }
     } else {
       if (bPreview) {
@@ -463,7 +465,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
     });
 
     addFailedChat(-2, content, type, parent_id);
-
+    print("콘텐츠 추가 ${content}");
     Map<String, dynamic> body = {
       "contents": content,
       "receiver_ids": roomDto.joined_users?.map((e) => e.id).toList(),
@@ -481,7 +483,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
         .addChat("Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}", jsonEncode(body))
         .then((value) {
 
-
+      print("콘텐츠 추가 ${value.message.id} ${value.message.contents}");
           if(value.room_id == roomDto.id){
             receiveMsg(roomDto, value.message);
             ChatUtils.saveChat(roomDto.id, value.message);
@@ -875,6 +877,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
   }
 
   void stopRecorder() async {
+    print("스탑");
     try {
       await recorderModule.stopRecorder();
       recorderModule.logger.d('stopRecorder');
@@ -1026,9 +1029,12 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
 
   @override
   Widget build(BuildContext context) {
+    print("재구성되나?");
     return PageLayout(
         onBack: onBackPressed,
         onTap: onHide,
+        isKeyboardHide: false,
+        isAvoidResize: false,
         isLoading: isLoading,
         child: SizedBox(
           width: double.infinity,
@@ -1128,6 +1134,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                                       if (name.isEmpty) {
                                         return;
                                       }
+                                      showLoading();
                                       Map<String, dynamic> body = {
                                         "name": name,
                                         "room_id": roomDto.id,
@@ -1179,6 +1186,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                       children: [
                         Expanded(
                           child: ListView.builder(
+                            cacheExtent: double.infinity,
                             padding: const EdgeInsets.all(10),
                             controller: mainController,
                             itemCount: msgList.length,
@@ -1191,111 +1199,125 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                               if(msgList[index].type >= 5){
                                 return Container();
                               }
+                              Key key = Key(msgList[index].id.toString());
+                              return SwipeTo(
+                                key: key,
+                                  onLeftSwipe: (details){
+                                    print("스와이프 인덱스 ${index}번째 ${msgList[index].contents}");
+                                    if (msgList[index].id == -1) return;
+                                    setState(() {
+                                      replyIdx = index;
+                                    });
+                                    myFocusNode.requestFocus();
+                                  },
+                                  swipeSensitivity: 5,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(top: msgList.length-1 > index && msgList[index+1].sender_id != msgList[index].sender_id ? 15 : 0),
+                                    child: AutoScrollTag(
+                                      key: ValueKey(index),
+                                      controller: mainController,
+                                      index: index,
+                                      child: ItemChatMsg(
+                                          users: roomDto.joined_users!,
+                                          info: msgList[index],
+                                          unread: unreadList,
+                                          me: me!,
+                                          before: index == msgList.length - 1 ? null : msgList[index + 1],
+                                          next: index == 0 ? null : msgList[index - 1],
+                                          parentNick: parentChatNick(
+                                              roomDto.joined_users!, me, msgList, msgList[index].parent_chat?.id ?? 0),
+                                          bNewMsg: msgList[index].id == unread_start_id,
+                                          playerModule:
+                                          msgList[index].type != eChatType.AUDIO.index ? null : playerModule,
+                                          setState: () {
+                                            setState(() {
 
-                              return Padding(
-                                padding: EdgeInsets.only(top: msgList.length-1 > index && msgList[index+1].sender_id != msgList[index].sender_id ? 15 : 0),
-                                child: AutoScrollTag(
-                                  key: ValueKey(index),
-                                  controller: mainController,
-                                  index: index,
-                                  child: ItemChatMsg(
-                                      users: roomDto.joined_users!,
-                                      info: msgList[index],
-                                      unread: unreadList,
-                                      me: me!,
-                                      before: index == msgList.length - 1 ? null : msgList[index + 1],
-                                      next: index == 0 ? null : msgList[index - 1],
-                                      parentNick: parentChatNick(
-                                          roomDto.joined_users!, me, msgList, msgList[index].parent_chat?.id ?? 0),
-                                      bNewMsg: msgList[index].id == unread_start_id,
-                                      playerModule:
-                                      msgList[index].type != eChatType.AUDIO.index ? null : playerModule,
-                                      setState: () {
-                                        setState(() {});
-                                      },
-                                      onProfile: () {},
-                                      onDelete: () {
-                                        if (msgList[index].id == -1) return;
-                                        deleteChat(index);
-                                      },
-                                      onTap: () {
-                                        if (msgList[index].id == -1) {
-                                          List<BtnBottomSheetModel> items = [];
-                                          items.add(BtnBottomSheetModel(ImageConstants.resendIcon, "resend".tr(), 0));
-                                          items.add(BtnBottomSheetModel(ImageConstants.cancelSendIcon, "send_cancel".tr(), 1));
+                                            });
+                                          },
+                                          onProfile: () {},
+                                          onDelete: () {
+                                            if (msgList[index].id == -1) return;
+                                            deleteChat(index);
+                                          },
+                                          onTap: () {
+                                            if (msgList[index].id == -1) {
+                                              List<BtnBottomSheetModel> items = [];
+                                              items.add(BtnBottomSheetModel(ImageConstants.resendIcon, "resend".tr(), 0));
+                                              items.add(BtnBottomSheetModel(ImageConstants.cancelSendIcon, "send_cancel".tr(), 1));
 
-                                          Get.bottomSheet(BtnBottomSheetWidget(
-                                            btnItems: items,
-                                            onTapItem: (menuIndex) async {
-                                              if(menuIndex == 0){
-                                                this.setState(() {
-                                                  ChatMsgDto dto = msgList[index];
-                                                  msgList.removeAt(index);
+                                              Get.bottomSheet(BtnBottomSheetWidget(
+                                                btnItems: items,
+                                                onTapItem: (menuIndex) async {
+                                                  if(menuIndex == 0){
+                                                    this.setState(() {
+                                                      ChatMsgDto dto = msgList[index];
+                                                      msgList.removeAt(index);
 
-                                                  addChat(dto.contents ?? '', dto.type, dto.parent_id);
-                                                });
-                                              }else {
-                                                this.setState(() {
-                                                  msgList.removeAt(index);
-                                                });
+                                                      addChat(dto.contents ?? '', dto.type, dto.parent_id);
+                                                    });
+                                                  }else {
+                                                    this.setState(() {
+                                                      msgList.removeAt(index);
+                                                    });
+                                                  }
+                                                },
+                                              ));
+                                              return;
+                                            }
+                                            if (msgList[index].parent_id > 0) {
+                                              List<ChatMsgDto> list = msgList
+                                                  .where((element) => element.id == msgList[index].parent_id)
+                                                  .toList();
+                                              if (list.isNotEmpty) {
+                                                mainController.scrollToIndex(msgList.indexOf(list.first));
                                               }
-                                            },
-                                          ));
-                                          return;
-                                        }
-                                        if (msgList[index].parent_id > 0) {
-                                          List<ChatMsgDto> list = msgList
-                                              .where((element) => element.id == msgList[index].parent_id)
-                                              .toList();
-                                          if (list.isNotEmpty) {
-                                            mainController.scrollToIndex(msgList.indexOf(list.first));
-                                          }
-                                        }
-                                      },
-                                      onReply: () {
-                                        if (msgList[index].id == -1) return;
-                                        setState(() {
-                                          replyIdx = index;
-                                        });
-                                      },
-                                      onLongPress: () {
-                                        if (msgList[index].id == -1) return;
-                                        List<BtnBottomSheetModel> items = [];
-                                        if(msgList[index].type == eChatType.IMAGE.index) {
-                                          items.add(BtnBottomSheetModel(
-                                              ImageConstants.copyIcon,
-                                              "save".tr(), 0));
-                                        }else{
-                                          items.add(BtnBottomSheetModel(
-                                              ImageConstants.copyIcon,
-                                              "copy".tr(), 0));
-                                        }
-                                        items.add(BtnBottomSheetModel(ImageConstants.replyIcon, "reply".tr(), 1));
-                                        if(msgList[index].sender_id == me!.id)
-                                          items.add(BtnBottomSheetModel(ImageConstants.deleteIcon, "delete".tr(), 2));
-
-                                        Get.bottomSheet(BtnBottomSheetWidget(
-                                          btnItems: items,
-                                          onTapItem: (sheetIdx) async {
-                                            if(sheetIdx == 0){
-                                              if(msgList[index].type == eChatType.IMAGE.index) {
-                                                List<String> images = (msgList[index].contents ?? '').split(",");
-                                                download(images, 0);
-                                              }else{
-                                                await Clipboard.setData(
-                                                    ClipboardData(text: (msgList[index].contents ?? '')));
-                                              }
-                                            }else if(sheetIdx == 1){
-                                              this.setState(() {
-                                                replyIdx = index;
-                                              });
-                                            }else{
-                                              deleteChat(index);
                                             }
                                           },
-                                        ));
-                                      }),
-                                ),
+                                          onReply: () {
+                                            if (msgList[index].id == -1) return;
+                                            setState(() {
+                                              replyIdx = index;
+                                            });
+                                          },
+                                          onLongPress: () {
+                                            if (msgList[index].id == -1) return;
+                                            List<BtnBottomSheetModel> items = [];
+                                            if(msgList[index].type == eChatType.IMAGE.index) {
+                                              items.add(BtnBottomSheetModel(
+                                                  ImageConstants.copyIcon,
+                                                  "save".tr(), 0));
+                                            }else{
+                                              items.add(BtnBottomSheetModel(
+                                                  ImageConstants.copyIcon,
+                                                  "copy".tr(), 0));
+                                            }
+                                            items.add(BtnBottomSheetModel(ImageConstants.replyIcon, "reply".tr(), 1));
+                                            if(msgList[index].sender_id == me!.id)
+                                              items.add(BtnBottomSheetModel(ImageConstants.deleteIcon, "delete".tr(), 2));
+
+                                            Get.bottomSheet(BtnBottomSheetWidget(
+                                              btnItems: items,
+                                              onTapItem: (sheetIdx) async {
+                                                if(sheetIdx == 0){
+                                                  if(msgList[index].type == eChatType.IMAGE.index) {
+                                                    List<String> images = (msgList[index].contents ?? '').split(",");
+                                                    download(images, 0);
+                                                  }else{
+                                                    await Clipboard.setData(
+                                                        ClipboardData(text: (msgList[index].contents ?? '')));
+                                                  }
+                                                }else if(sheetIdx == 1){
+                                                  this.setState(() {
+                                                    replyIdx = index;
+                                                  });
+                                                }else{
+                                                  deleteChat(index);
+                                                }
+                                              },
+                                            ));
+                                          }),
+                                    ),
+                                  )
                               );
                             },
                           ),
@@ -1378,7 +1400,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 AppText(
-                                  text: '${msgList[replyIdx].sender?.nickname}님에게 답장 보내는중',
+                                  text: "replied_top_message".tr(args: ["${msgList[replyIdx].sender?.nickname ?? ""}"]),
                                   fontSize: 10,
                                   color: ColorConstants.halfWhite,
                                 ),
@@ -1401,328 +1423,345 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                         ],
                       ),
                     ),
-                  StatefulBuilder(
-                    builder: (BuildContext context, StateSetter setState) {
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                              child: Container(
-                                  constraints: BoxConstraints(
-                                      minHeight: 50),
-                                  margin: const EdgeInsets.only(left: 10, top: 15, bottom: 15, right: 5),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4),
-                                      color: ColorConstants.white10Percent
-                                  ),
-                                  width: double.infinity,
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
+                  Padding(
+                      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                    child: StatefulBuilder(
+                      builder: (BuildContext context, StateSetter setState) {
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                                child: Container(
+                                    constraints: BoxConstraints(
+                                        minHeight: 50),
+                                    margin: const EdgeInsets.only(left: 10, top: 15, bottom: 15, right: 5),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(4),
+                                        color: ColorConstants.white10Percent
+                                    ),
+                                    width: double.infinity,
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
 
-                                      Obx(() => _isRecording.value || _isRecordLock.value ?
-                                      Container(
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            SizedBox(width: 10),
-                                            Container(
-                                              width: 6,
-                                              height: 6,
-                                              decoration: BoxDecoration(
-                                                  color: Color(0xffeb5757),
-                                                  borderRadius: BorderRadius.circular(3)
-                                              ),
-                                            ),
-                                            SizedBox(width: 5,),
-                                            Obx(() => AppText(
-                                              text: durationString.value,
-                                              color: ColorConstants.halfWhite,
-                                              fontSize: 14,
-                                            ))
-                                          ],
-                                        ),
-                                      )
-                                          : Container(
-                                        width: double.maxFinite,
-                                        margin: EdgeInsets.only(right: 30),
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            const SizedBox(width: 7),
-                                            InkWell(
-                                              onTap: (){
-                                                if (closeRoom) return;
+                                        Container(
+                                          width: double.maxFinite,
+                                          margin: EdgeInsets.only(right: 30),
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
 
-                                                List<BtnBottomSheetModel> items = [];
-                                                items.add(BtnBottomSheetModel(ImageConstants.cameraIcon, "camera".tr(), 0));
-                                                items.add(BtnBottomSheetModel(ImageConstants.albumIcon, "gallery".tr(), 1));
+                                            Obx(() => _isRecording.value || _isRecordLock.value ?
+                                                Row(
+                                                  children:[
+                                                    SizedBox(width: 10),
+                                                    Container(
+                                                      width: 6,
+                                                      height: 6,
+                                                      decoration: BoxDecoration(
+                                                          color: Color(0xffeb5757),
+                                                          borderRadius: BorderRadius.circular(3)
+                                                      ),
+                                                    ),
 
-                                                Get.bottomSheet(BtnBottomSheetWidget(
-                                                  btnItems: items,
-                                                  onTapItem: (sheetIdx) async {
-                                                    if(sheetIdx == 0){
-                                                      AssetEntity? assets = await MyAssetPicker.pickCamera(context);
-                                                      if (assets != null) {
-                                                        procAssets([assets]);
-                                                      }
-                                                    }else {
-                                                      if (await _promptPermissionSetting()) {
-                                                        showModalBottomSheet(
-                                                            context: context,
-                                                            isScrollControlled: true,
-                                                            isDismissible: true,
-                                                            backgroundColor: Colors.transparent,
-                                                            constraints: BoxConstraints(
-                                                              minHeight: 0.8,
-                                                              maxHeight: Get.height*0.95,
-                                                            ),
-                                                            builder: (BuildContext context) {
-                                                              return DraggableScrollableSheet(
-                                                                  initialChildSize: 0.5,
-                                                                  minChildSize: 0.4,
-                                                                  maxChildSize: 0.9,
-                                                                  expand: false,
-                                                                  builder: (_, controller) => GalleryBottomSheet(
-                                                                    controller: controller,
-                                                                    onTapSend: (results){
-                                                                      procAssetsWithGallery(results);
-                                                                    },
-                                                                  )
-                                                              );
-                                                            }
-                                                        );
-                                                      }
-                                                    }
+                                                    SizedBox(width: 5,),
+                                                    Obx(() => AppText(
+                                                      text: durationString.value,
+                                                      color: ColorConstants.halfWhite,
+                                                      fontSize: 14,
+                                                    ))
+                                                  ]
+                                                ) : Row(
+                                              children: [
+                                                const SizedBox(width: 7),
+                                                InkWell(
+                                                  onTap: (){
+                                                    if (closeRoom) return;
+
+                                                    List<BtnBottomSheetModel> items = [];
+                                                    items.add(BtnBottomSheetModel(ImageConstants.cameraIcon, "camera".tr(), 0));
+                                                    items.add(BtnBottomSheetModel(ImageConstants.albumIcon, "gallery".tr(), 1));
+
+                                                    Get.bottomSheet(BtnBottomSheetWidget(
+                                                      btnItems: items,
+                                                      onTapItem: (sheetIdx) async {
+                                                        if(sheetIdx == 0){
+                                                          AssetEntity? assets = await MyAssetPicker.pickCamera(context);
+                                                          if (assets != null) {
+                                                            procAssets([assets]);
+                                                          }
+                                                        }else {
+                                                          if (await _promptPermissionSetting()) {
+                                                            showModalBottomSheet(
+                                                                context: context,
+                                                                isScrollControlled: true,
+                                                                isDismissible: true,
+                                                                backgroundColor: Colors.transparent,
+                                                                constraints: BoxConstraints(
+                                                                  minHeight: 0.8,
+                                                                  maxHeight: Get.height*0.95,
+                                                                ),
+                                                                builder: (BuildContext context) {
+                                                                  return DraggableScrollableSheet(
+                                                                      initialChildSize: 0.5,
+                                                                      minChildSize: 0.4,
+                                                                      maxChildSize: 0.9,
+                                                                      expand: false,
+                                                                      builder: (_, controller) => GalleryBottomSheet(
+                                                                        controller: controller,
+                                                                        onTapSend: (results){
+                                                                          procAssetsWithGallery(results);
+                                                                        },
+                                                                      )
+                                                                  );
+                                                                }
+                                                            );
+                                                          }
+                                                        }
+                                                      },
+                                                    ));
                                                   },
-                                                ));
-                                              },
-                                              child: Container(
-                                                width: 35,
-                                                height: 35,
-                                                child: Center(
-                                                  child: Image.asset(
-                                                    closeRoom ? "assets/image/ic_add_disable.png" : ImageConstants.chatPlus,
-                                                    width: 20,
-                                                    height: 20,
+                                                  child: Container(
+                                                    width: 35,
+                                                    height: 35,
+                                                    child: Center(
+                                                      child: Image.asset(
+                                                        closeRoom ? "assets/image/ic_add_disable.png" : ImageConstants.chatPlus,
+                                                        width: 20,
+                                                        height: 20,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
+                                                const SizedBox(width: 10),
+                                              ],
+                                            )
                                             ),
-                                            const SizedBox(width: 10),
-                                            Expanded(
-                                              child: TextField(
-                                                maxLines: 4,
-                                                minLines: 1,
-                                                maxLength: 5000,
-                                                enabled: !closeRoom,
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontFamily: FontConstants.AppFont,
-                                                    fontSize: 14
+
+                                              Expanded(
+                                                child:
+                                                Obx(() => TextField(
+                                                  focusNode: myFocusNode,
+                                                  maxLines: 4,
+                                                  minLines: 1,
+                                                  maxLength: 5000,
+                                                  enabled: !closeRoom,
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontFamily: FontConstants.AppFont,
+                                                      fontSize: 14
+                                                  ),
+                                                  showCursor: !_isRecording.value && !_isRecordLock.value,
+                                                  controller: msgController,
+                                                  decoration: InputDecoration(
+                                                      counterText: "",
+                                                      hintText: closeRoom ? "disable_chat".tr() : "input_msg".tr(),
+                                                      hintStyle: TextStyle(
+                                                          color: ColorConstants.halfWhite,
+                                                          fontSize: 14,
+                                                          fontFamily: FontConstants.AppFont,
+                                                          fontWeight: FontWeight.w400
+                                                      ),
+                                                      border: InputBorder.none,
+                                                      contentPadding: const EdgeInsets.only(bottom: 5)
+                                                  ),
+                                                  onChanged: (text) {
+                                                  },
+                                                ))
+                                              ),
+                                              const SizedBox(width: 10),
+                                            ],
+                                          ),
+                                        ),
+
+                                        Container(
+                                          width: double.maxFinite,
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children:[
+                                              Container(),
+
+                                              Obx(() => GestureDetector(
+                                                child: Container(
+                                                    width: 200,
+                                                    height: 30,
+                                                    child: Stack(
+                                                      children: [
+                                                        if(_isRecording.value)
+                                                          Positioned(
+                                                            top:0,
+                                                            bottom: 0,
+                                                            left: 0,
+                                                            child: Image.asset(ImageConstants.micSlideGuide, fit: BoxFit.cover,
+                                                              height: 45,),
+                                                          ),
+
+                                                        if(!_isRecording.value || _isRecordLock.value)
+                                                          Positioned(
+                                                              top: 0,
+                                                              bottom:0,
+                                                              right: 10,
+                                                              child: Container(
+                                                                width: 30,
+                                                                height: 30,
+                                                                key: _recorderKey,
+                                                                child: Image.asset(closeRoom ? ImageConstants.chatMicDisable : !_isRecording.value ? ImageConstants.chatMic : ImageConstants.micPressed, width: 30, height: 30),
+                                                              )
+                                                          )
+                                                      ],
+                                                    )
                                                 ),
-                                                controller: msgController,
-                                                decoration: InputDecoration(
-                                                    counterText: "",
-                                                    hintText: closeRoom ? "disable_chat".tr() : "input_msg".tr(),
-                                                    hintStyle: TextStyle(
-                                                        color: ColorConstants.halfWhite,
-                                                        fontSize: 14,
-                                                        fontFamily: FontConstants.AppFont,
-                                                        fontWeight: FontWeight.w400
-                                                    ),
-                                                    border: InputBorder.none,
-                                                    contentPadding: const EdgeInsets.only(bottom: 5)
-                                                ),
-                                                onChanged: (text) {
-                                                  setState(() {
-                                                    strChatText = text;
-                                                  });
+                                                onLongPressMoveUpdate: (detail) {
+                                                  if(closeRoom)
+                                                    return;
+                                                  if (micFirstX != null) {
+                                                    // 왼쪽 취소부터 체크
+                                                    if (micFirstX!.dx -
+                                                        detail.globalPosition.dx >= 10) {
+                                                      if (micFirstX!.dx -
+                                                          detail.globalPosition.dx <=
+                                                          80) {
+                                                        print("이동");
+                                                        changedX!.value = detail.globalPosition.dx;
+                                                        changedY!.value = micFirstX!.dy;
+                                                      }
+                                                      print("${micFirstX!.dx -
+                                                          detail.globalPosition
+                                                              .dx}만큼 왼쪽으로 움직임");
+                                                      // 취소
+                                                      if (micFirstX!.dx -
+                                                          detail.globalPosition.dx >=
+                                                          80) {
+                                                        _isRecording.value = false;
+                                                        _isRecordLock.value = false;
+                                                        _isRecordCancel = true;
+                                                        changedX = null;
+                                                        changedY = null;
+                                                        micFirstX = null;
+                                                        cancelRecorder();
+                                                        msgController.text = tempString;
+                                                      }
+                                                    } else if (micFirstX!.dy -
+                                                        detail.globalPosition.dy >= 10) {
+                                                      print("${micFirstX!.dy -
+                                                          detail.globalPosition
+                                                              .dy}만큼 위쪽으로 움직임");
+                                                      if(micFirstX!.dy -
+                                                          detail.globalPosition
+                                                              .dy <= 100) {
+                                                        print("이동");
+                                                        changedX!.value = micFirstX!.dx;
+                                                        changedY!.value = detail.globalPosition.dy;
+                                                      }else {
+                                                        _isRecordLock.value = true;
+                                                        changedX = null;
+                                                        changedY = null;
+                                                        print("녹음 락");
+                                                      }
+                                                    }
+                                                  }
                                                 },
-                                              ),
-                                            ),
-                                            const SizedBox(width: 10),
-                                          ],
-                                        ),
-                                      ),),
+                                                onTap: (){
+                                                  if(closeRoom)
+                                                    return;
+                                                  if(!_isRecordLock.value && !_isRecordCancel) {
+                                                    showToast("audio_tap_toast".tr());
+                                                  }else{
 
-                                      Container(
-                                        width: double.maxFinite,
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children:[
-                                            Obx(() => _isRecording.value ? Container() : Container()),
-
-                                            Obx(() => GestureDetector(
-                                              child: Container(
-                                                  width: 200,
-                                                  height: 30,
-                                                  child: Stack(
-                                                    children: [
-                                                      if(_isRecording.value)
-                                                        Positioned(
-                                                          top:0,
-                                                          bottom: 0,
-                                                          left: 0,
-                                                          child: Image.asset(ImageConstants.micSlideGuide, fit: BoxFit.cover,
-                                                            height: 45,),
-                                                        ),
-
-                                                      if(!_isRecording.value || _isRecordLock.value)
-                                                        Positioned(
-                                                            top: 0,
-                                                            bottom:0,
-                                                            right: 10,
-                                                            child: Container(
-                                                              width: 30,
-                                                              height: 30,
-                                                              key: _recorderKey,
-                                                              child: Image.asset(closeRoom ? ImageConstants.chatMicDisable : !_isRecording.value ? ImageConstants.chatMic : ImageConstants.micPressed, width: 30, height: 30),
-                                                            )
-                                                        )
-                                                    ],
-                                                  )
-                                              ),
-                                              onLongPressMoveUpdate: (detail) {
-                                                if(closeRoom)
-                                                  return;
-                                                if (micFirstX != null) {
-                                                  // 왼쪽 취소부터 체크
-                                                  if (micFirstX!.dx -
-                                                      detail.globalPosition.dx >= 10) {
-                                                    if (micFirstX!.dx -
-                                                        detail.globalPosition.dx <=
-                                                        80) {
-                                                      print("이동");
-                                                      changedX!.value = detail.globalPosition.dx;
-                                                      changedY!.value = micFirstX!.dy;
-                                                    }
-                                                    print("${micFirstX!.dx -
-                                                        detail.globalPosition
-                                                            .dx}만큼 왼쪽으로 움직임");
-                                                    // 취소
-                                                    if (micFirstX!.dx -
-                                                        detail.globalPosition.dx >=
-                                                        80) {
-                                                      _isRecording.value = false;
-                                                      _isRecordLock.value = false;
-                                                      _isRecordCancel = true;
-                                                      changedX = null;
-                                                      changedY = null;
-                                                      micFirstX = null;
-                                                      cancelRecorder();
-                                                    }
-                                                  } else if (micFirstX!.dy -
-                                                      detail.globalPosition.dy >= 10) {
-                                                    print("${micFirstX!.dy -
-                                                        detail.globalPosition
-                                                            .dy}만큼 위쪽으로 움직임");
-                                                    if(micFirstX!.dy -
-                                                        detail.globalPosition
-                                                            .dy <= 100) {
-                                                      print("이동");
-                                                      changedX!.value = micFirstX!.dx;
-                                                      changedY!.value = detail.globalPosition.dy;
+                                                  }
+                                                },
+                                                onLongPressStart: (detail){
+                                                  if(closeRoom)
+                                                    return;
+                                                  if(_isRecordCancel) {
+                                                    return;
+                                                  }
+                                                  if(!_isRecording.value){
+                                                    voiceDuration = const Duration();
+                                                    durationString.value = "00:00:0";
+                                                    openTheRecorder();
+                                                    _isRecording.value = true;
+                                                    _isRecordLock.value = false;
+                                                    print("글로벌 포지션 ${micFirstX}");
+                                                    Offset? recorderOffset = _getRecorderOffset();
+                                                    if(recorderOffset != null){
+                                                      changedX = recorderOffset!.dx.obs;
+                                                      changedY = recorderOffset!.dy.obs;
+                                                      lockX = recorderOffset!.dx.obs;
+                                                      lockY = recorderOffset!.dy.obs;
+                                                      micFirstX = recorderOffset!;
                                                     }else {
-                                                      _isRecordLock.value = true;
-                                                      changedX = null;
-                                                      changedY = null;
-                                                      print("녹음 락");
+                                                      changedX =
+                                                          detail.globalPosition.dx
+                                                              .obs;
+                                                      changedY =
+                                                          detail.globalPosition.dy
+                                                              .obs;
+                                                      lockX = detail.globalPosition.dx
+                                                          .obs;
+                                                      lockY = detail.globalPosition.dy
+                                                          .obs;
+                                                      micFirstX = detail.globalPosition;
                                                     }
                                                   }
-                                                }
-                                              },
-                                              onTap: (){
-                                                if(closeRoom)
-                                                  return;
-                                                if(!_isRecordLock.value && !_isRecordCancel) {
-                                                  showToast("audio_tap_toast".tr());
-                                                }else{
-
-                                                }
-                                              },
-                                              onLongPressStart: (detail){
-                                                if(closeRoom)
-                                                  return;
-                                                if(_isRecordCancel) {
-                                                  return;
-                                                }
-                                                if(!_isRecording.value){
-                                                  voiceDuration = const Duration();
-                                                  durationString.value = "00:00:0";
-                                                  openTheRecorder();
-                                                  _isRecording.value = true;
-                                                  _isRecordLock.value = false;
-                                                  print("글로벌 포지션 ${micFirstX}");
-                                                  Offset? recorderOffset = _getRecorderOffset();
-                                                  if(recorderOffset != null){
-                                                    changedX = recorderOffset!.dx.obs;
-                                                    changedY = recorderOffset!.dy.obs;
-                                                    micFirstX = recorderOffset!;
-                                                  }else {
-                                                    changedX =
-                                                        detail.globalPosition.dx
-                                                            .obs;
-                                                    changedY =
-                                                        detail.globalPosition.dy
-                                                            .obs;
-                                                    micFirstX = detail.globalPosition;
+                                                  tempString = msgController.text;
+                                                  msgController.text = " ";
+                                                },
+                                                onLongPressEnd: (detail){
+                                                  if(closeRoom)
+                                                    return;
+                                                  if(_isRecordCancel) {
+                                                    _isRecordCancel = false;
+                                                    return;
                                                   }
-                                                }
-                                              },
-                                              onLongPressEnd: (detail){
-                                                if(closeRoom)
-                                                  return;
-                                                if(_isRecordCancel) {
-                                                  _isRecordCancel = false;
-                                                  return;
-                                                }
-                                                if(!_isRecordLock.value) {
-                                                  _isRecording.value = false;
-                                                  stopRecorder();
-                                                }
-                                              },
-                                              onTapDown: (detail){
-                                                if(closeRoom)
-                                                  return;
-                                                if(_isRecordLock.value){
-                                                  _isRecording.value = false;
-                                                  _isRecordLock.value = false;
-                                                  micFirstX = null;
-                                                  changedX = null;
-                                                  changedY = null;
-                                                  _isRecordCancel = true;
-                                                  stopRecorder();
-                                                }
-                                              },
-                                            )
-                                            )
+                                                  if(!_isRecordLock.value) {
+                                                    _isRecording.value = false;
+                                                    stopRecorder();
+                                                  }
+                                                  msgController.text = tempString;
+                                                },
+                                                onTapDown: (detail){
+                                                  if(closeRoom)
+                                                    return;
+                                                  if(_isRecordLock.value){
+                                                    _isRecording.value = false;
+                                                    _isRecordLock.value = false;
+                                                    micFirstX = null;
+                                                    changedX = null;
+                                                    changedY = null;
+                                                    _isRecordCancel = true;
+                                                    stopRecorder();
+                                                  }
+                                                },
+                                              )
+                                              )
 
 
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  )
-                              )
-                          ),
+                                      ],
+                                    )
+                                )
+                            ),
 
-                          GestureDetector(
-                            onTap: onTextSend,
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              child: Center(
-                                  child: msgController.text.replaceAll(" ", "").isNotEmpty ? Image.asset(ImageConstants.sendChatBnt, width: 30, height: 30) : Image.asset(ImageConstants.sendChatDisableBnt, width: 30, height: 30)
+                            GestureDetector(
+                              onTap: onTextSend,
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                child: Center(
+                                    child: msgController.text.replaceAll(" ", "").isNotEmpty ? Image.asset(ImageConstants.sendChatBnt, width: 30, height: 30) : Image.asset(ImageConstants.sendChatDisableBnt, width: 30, height: 30)
+                                ),
                               ),
                             ),
-                          ),
 
-                          SizedBox(width: 5,)
-                        ],
-                      );
-                    },
+                            SizedBox(width: 5,)
+                          ],
+                        );
+                      },
+                    )
                   )
                 ],
               ),
@@ -1737,6 +1776,19 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                     width: 30,
                     height: 30,
                     child: Image.asset(ImageConstants.micPressed, width: 30, height: 30),
+                  )
+              ) : Container()),
+
+              Obx(() => (_isRecording.value && lockX != null && lockY != null && !_isRecordLock.value) ?
+              Transform.translate(
+                  offset: Offset(
+                    lockX!.value,
+                    lockY!.value - MediaQuery.of(context).padding.top - 80,
+                  ),
+                  child: Container(
+                    width: 30,
+                    height: 60,
+                    child: Image.asset(ImageConstants.audioLock, width: 30, height: 60),
                   )
               ) : Container())
             ],

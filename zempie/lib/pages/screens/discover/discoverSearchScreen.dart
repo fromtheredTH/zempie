@@ -4,6 +4,7 @@ import 'package:app/pages/components/GameWidget.dart';
 import 'package:app/pages/components/UserListItemWidget.dart';
 import 'package:app/pages/components/loading_widget.dart';
 import 'package:app/pages/screens/discover/DiscoverGameDetails.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -251,11 +252,10 @@ class _DiscoverSearchScreenState extends BaseState<DiscoverSearchScreen> {
                         Navigator.of(context).pop();
                       },
                       child: Icon(Icons.arrow_back_ios, color: Colors.white)),
-                  Padding(
+                  Flexible(child: Padding(
                     padding: EdgeInsets.only(
                         right: Get.width * 0.02, left: Get.width * 0.02),
                     child: Container(
-                        width: Get.width*0.82, // Set width according to your needs
                         decoration: BoxDecoration(
                           color: ColorConstants.searchBackColor,
                           borderRadius:
@@ -280,7 +280,7 @@ class _DiscoverSearchScreenState extends BaseState<DiscoverSearchScreen> {
                                 ),
                                 textInputAction: TextInputAction.search,
                                 decoration: InputDecoration(
-                                  hintText: 'Search...',
+                                  hintText: 'search_hint'.tr(),
                                   contentPadding: EdgeInsets.symmetric(
                                       horizontal: 16.0,
                                       vertical: 12.0), // Adjust vertical padding
@@ -321,7 +321,7 @@ class _DiscoverSearchScreenState extends BaseState<DiscoverSearchScreen> {
                                         ),
                                         child: Container(
                                           width: Get.width * 0.6,
-                                          height: Get.width * 0.8,
+                                          height: Get.width * 0.4 + 180,
                                           padding: EdgeInsets.only(
                                               left: 15, right: 15),
                                           child: Column(
@@ -401,7 +401,7 @@ class _DiscoverSearchScreenState extends BaseState<DiscoverSearchScreen> {
                           ],
                         )
                     ),
-                  ),
+                  ),)
                 ],
               ),
             ),
@@ -417,10 +417,10 @@ class _DiscoverSearchScreenState extends BaseState<DiscoverSearchScreen> {
               labelStyle: TextStyle(
                   fontSize: 14, fontWeight: FontWeight.w700),
               tabs: [
-                Tab(text: '포스트'),
-                Tab(text: '유저'),
-                Tab(text: '게임'),
-                Tab(text: '커뮤니티'),
+                Tab(text: 'post'.tr()),
+                Tab(text: 'user'.tr()),
+                Tab(text: 'game'.tr()),
+                Tab(text: 'community'.tr()),
               ],
               onTap: (index) {
                 setState(() {
@@ -645,7 +645,7 @@ class _DiscoverSearchScreenState extends BaseState<DiscoverSearchScreen> {
               );
             }
             Key key = Key(communities[index].id.toString());
-            return CommunityWidget(key:key, community: communities[index]);
+            return CommunityWidget(key:key, community: communities[index], onSubscribe: (community){},);
           },
         )
     );

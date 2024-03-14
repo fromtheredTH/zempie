@@ -1,7 +1,6 @@
 import 'package:app/global/DioClient.dart';
 import 'package:app/models/CommunityModel.dart';
 import 'package:app/pages/components/loading_widget.dart';
-import 'package:app/pages/screens/communityScreens/nicknameScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';

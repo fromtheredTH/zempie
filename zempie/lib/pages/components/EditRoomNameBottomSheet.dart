@@ -20,10 +20,12 @@ class EditRoomNameBottomSheet extends StatelessWidget {
   ChatRoomDto roomDto;
 
   TextEditingController nameController = TextEditingController();
+  RxString countText = "0".obs;
 
   @override
   Widget build(BuildContext context) {
     nameController.text = roomDto.name ?? "";
+    countText.value = nameController.text.length.toString();
     return Container(
       height: MediaQuery.of(context).padding.bottom + 240,
       decoration: BoxDecoration(
@@ -75,7 +77,7 @@ class EditRoomNameBottomSheet extends StatelessWidget {
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.only(bottom: -10.0),
-                        hintText: "변경할 이름을 입력 해주세요.",
+                        hintText: "input".tr(),
                         hintStyle: TextStyle(
                           color: ColorConstants.halfWhite,
                           fontSize: 14,
@@ -83,7 +85,11 @@ class EditRoomNameBottomSheet extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                         hintMaxLines: 1,
+                        counter: null
                       ),
+                      onChanged: (text){
+                        countText.value = text.length.toString();
+                      },
                       keyboardType: TextInputType.text,
                       maxLines: 1,
                       textAlign: TextAlign.center,
@@ -99,12 +105,12 @@ class EditRoomNameBottomSheet extends StatelessWidget {
 
                 SizedBox(height: 10,),
 
-                AppText(
-                  text: "글자 수 등 명칭 제약 조건 설명...",
+                Obx(() => AppText(
+                  text: "${countText.value} / 20",
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
                   color: ColorConstants.halfWhite,
-                ),
+                ),),
 
                 SizedBox(height: 10,),
 

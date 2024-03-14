@@ -7,10 +7,11 @@ import 'package:app/models/CommunityModel.dart';
 import 'package:app/models/GameModel.dart';
 import 'package:app/pages/base/base_state.dart';
 import 'package:app/pages/components/app_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 
 import '../../Constants/ColorConstants.dart';
@@ -71,12 +72,12 @@ class _BottomCountryWidget extends BaseState<BottomCountryWidget> {
           ),
           SizedBox(height: Get.height * 0.02,),
           AppText(
-            text: "국가 / 도시",
+            text: "country_city_title".tr(),
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
           AppText(
-            text: "거주 국가를 선택하고 도시명을 입력해 주세요",
+            text: "country_city_description".tr(),
             fontSize: 12,
             color: ColorConstants.halfWhite,
           ),
@@ -175,7 +176,7 @@ class _BottomCountryWidget extends BaseState<BottomCountryWidget> {
                       ),
                       textInputAction: TextInputAction.search,
                       decoration: InputDecoration(
-                        hintText: '도시명 입력...',
+                        hintText: "input_city_name_hint".tr(),
                         contentPadding: EdgeInsets.symmetric(
                             horizontal: 16.0,
                             vertical: 12.0), // Adjust vertical padding
@@ -232,7 +233,7 @@ class _BottomCountryWidget extends BaseState<BottomCountryWidget> {
                       ),
                       child: Center(
                         child: AppText(
-                          text: "취소",
+                          text: "cancel".tr(),
                           fontSize: 0.016,
                           color: ColorConstants.white,
                           fontFamily: FontConstants.AppFont,
@@ -247,7 +248,7 @@ class _BottomCountryWidget extends BaseState<BottomCountryWidget> {
                   child: GestureDetector(
                     onTap: (){
                       if(controller.text.isEmpty){
-                        Utils.showToast("도시를 입력해 주세요");
+                        Utils.showToast("please_input_city".tr());
                         return;
                       }
                       Get.back();
@@ -261,7 +262,7 @@ class _BottomCountryWidget extends BaseState<BottomCountryWidget> {
                       ),
                       child: Center(
                         child: AppText(
-                          text: "확인",
+                          text: "confirm".tr(),
                           fontSize: 0.016,
                           color: ColorConstants.white,
                           fontFamily: FontConstants.AppFont,

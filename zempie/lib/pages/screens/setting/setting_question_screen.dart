@@ -98,7 +98,7 @@ class _SettingQuestionScreen extends BaseState<SettingQuestionScreen> {
                           child: Icon(Icons.arrow_back_ios, color:Colors.white)),
 
                       AppText(
-                        text: "문의하기",
+                        text: "qna".tr(),
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       )
@@ -120,7 +120,7 @@ class _SettingQuestionScreen extends BaseState<SettingQuestionScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           AppText(
-                            text: "문의 내용",
+                            text: "qna_title".tr(),
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                           ),
@@ -139,7 +139,7 @@ class _SettingQuestionScreen extends BaseState<SettingQuestionScreen> {
                             controller: msgController,
                             decoration: InputDecoration(
                                 counterText: "",
-                                hintText: "입력...",
+                                hintText: "input".tr(),
                                 hintStyle: TextStyle(
                                     color: ColorConstants.halfWhite,
                                     fontSize: 13,
@@ -174,7 +174,7 @@ class _SettingQuestionScreen extends BaseState<SettingQuestionScreen> {
                           SizedBox(height:20),
 
                           AppText(
-                            text: "회신 이메일",
+                            text: "return_email".tr(),
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                           ),
@@ -193,7 +193,7 @@ class _SettingQuestionScreen extends BaseState<SettingQuestionScreen> {
                             controller: emailController,
                             decoration: InputDecoration(
                                 counterText: "",
-                                hintText: "입력...",
+                                hintText: "input".tr(),
                                 hintStyle: TextStyle(
                                     color: ColorConstants.halfWhite,
                                     fontSize: 13,
@@ -241,10 +241,10 @@ class _SettingQuestionScreen extends BaseState<SettingQuestionScreen> {
                             disabled: msgController.text.isEmpty,
                             disableColor: ColorConstants.textGry,
                             margin: 0,
-                            text: "보내기",
+                            text: "send".tr(),
                             onTap: () async {
                               var response = await DioClient.settingQuestion(msgController.text, emailController.text);
-                              Utils.showToast("문의를 전송했습니다");
+                              Utils.showToast("send_qna_complete".tr());
                               Get.back();
                             }
                         ),

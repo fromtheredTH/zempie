@@ -20,6 +20,7 @@ class PageLayout extends StatefulWidget {
       this.safeAreaColor,
       this.floatingButton,
       this.orientation,
+        this.isKeyboardHide = true,
       this.scaffoldKey})
       : super(key: key) {
     isLoading ??= false;
@@ -39,6 +40,7 @@ class PageLayout extends StatefulWidget {
   Widget? drawer;
   Widget? endDrawer;
   Widget? floatingButton;
+  bool isKeyboardHide;
   Color? bgColor;
   Color? safeAreaColor;
   Orientation? orientation;
@@ -84,7 +86,8 @@ class PageLayoutState extends BaseState<PageLayout> {
             type: MaterialType.transparency,
             child: GestureDetector(
               onTap: (){
-                FocusManager.instance.primaryFocus?.unfocus();
+                if(widget.isKeyboardHide)
+                  FocusManager.instance.primaryFocus?.unfocus();
               },
               child: Container(
                 color: widget.safeAreaColor,

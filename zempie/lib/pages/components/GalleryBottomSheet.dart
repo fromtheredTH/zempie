@@ -21,7 +21,8 @@ class GalleryBottomSheet extends StatefulWidget {
   ScrollController? controller;
   Function(List<Medium>) onTapSend;
   int limitCnt;
-  GalleryBottomSheet({Key? key, this.controller, required this.onTapSend, this.limitCnt = 10}) : super(key: key);
+  String sendText;
+  GalleryBottomSheet({Key? key, this.controller, required this.onTapSend, this.limitCnt = 10 , this.sendText = ""}) : super(key: key);
 
   @override
   State<GalleryBottomSheet> createState() => _GalleryBottomSheet();
@@ -39,6 +40,9 @@ class _GalleryBottomSheet extends BaseState<GalleryBottomSheet> {
   int? startTarget;
   bool isStart = false;
   final Set<int> _trackTaped = Set<int>();
+
+  int page = 0;
+  bool isLast = false;
 
   _detectTapedItem(PointerEvent event) {
     if(!isStart || getSelectedCount() >= widget.limitCnt)
@@ -113,11 +117,13 @@ class _GalleryBottomSheet extends BaseState<GalleryBottomSheet> {
     albumFuture = initAsync();
     super.initState();
     gridController.addListener(scheduleRebuild);
+    widget.controller?.addListener(getNextPhotos);
   }
 
   @override
   void dispose() {
     gridController.removeListener(scheduleRebuild);
+    widget.controller?.removeListener(getNextPhotos);
     super.dispose();
   }
 
@@ -134,9 +140,29 @@ class _GalleryBottomSheet extends BaseState<GalleryBottomSheet> {
       }
     }
     album = albums[maxAlbumindex];
-    MediaPage mediaPage = await album.listMedia();
+    MediaPage mediaPage = await album.listMedia(
+      take: 30
+    );
+    isLast = mediaPage.isLast;
+    page = 1;
     _media.addAll(mediaPage.items);
     return _media;
+  }
+
+  Future<void> getNextPhotos() async {
+    if(!isLoading && (widget.controller?.position.extentAfter ?? 201) < 200) {
+      isLoading = true;
+      MediaPage mediaPage = await album.listMedia(
+          skip: 30 * page,
+          take: 30
+      );
+      page += 1;
+      setState(() {
+        _media.addAll(mediaPage.items);
+      });
+      isLast = mediaPage.isLast;
+      isLoading = false;
+    }
   }
 
   @override
@@ -267,7 +293,7 @@ class _GalleryBottomSheet extends BaseState<GalleryBottomSheet> {
 
           if(getSelectedCount() != 0)
           AppButton(
-              text: "send_image".tr(args: ["${getSelectedCount()}"]),
+              text: widget.sendText.isEmpty ? "send_image".tr(args: ["${getSelectedCount()}"]) : widget.sendText,
               disabled: getSelectedCount() == 0,
               onTap: (){
                 List<Medium> results = [];

@@ -66,8 +66,8 @@ class MentionTextEditingController extends TextEditingController {
     List<Mentionable> mentionables,
   ) {
     final candidate = _getMentionCandidate(value);
-    if (candidate != null) {
-      final isMentioningRegexp = RegExp(r'^@[a-zA-Z ]*$');
+    if (candidate != null && !candidate.contains(" ")) {
+      final isMentioningRegexp = RegExp(r'^@[a-zA-Z가-힣ㄱ-ㅎㅏ-ㅣ0-9]*$');
       final mention = isMentioningRegexp.stringMatch(candidate)?.substring(1);
       if (mention != null) {
         final perfectMatch = mentionables.firstWhereOrNull(
@@ -79,7 +79,12 @@ class MentionTextEditingController extends TextEditingController {
         } else {
           final matchList =
               mentionables.where((element) => element.match(mention)).toList();
-          _onMentionablesChanged(matchList);
+          final notMatchList =
+          mentionables.where((element) => !element.match(mention)).toList();
+          List<Mentionable> result = [];
+          result.addAll(matchList);
+          result.addAll(notMatchList);
+          _onMentionablesChanged(result);
         }
       }
     } else {

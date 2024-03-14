@@ -5,7 +5,7 @@ import 'package:app/models/GameModel.dart';
 import 'package:app/pages/components/app_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 import 'package:html/parser.dart';
 

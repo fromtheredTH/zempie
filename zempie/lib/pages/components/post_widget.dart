@@ -10,15 +10,18 @@ import 'package:app/pages/components/item/TagCreator.dart';
 import 'package:app/pages/components/item/TagDev.dart';
 import 'package:app/pages/components/report_dialog.dart';
 import 'package:app/pages/components/report_user_dialog.dart';
+import 'package:app/pages/screens/communityScreens/community_detal_screen.dart';
+import 'package:app/pages/screens/discover/DiscoverGameDetails.dart';
 import 'package:app/pages/screens/discover/PostCommentScreen.dart';
 import 'package:app/pages/screens/postLikeScreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 import 'package:html/dom.dart';
 import 'package:html/dom.dart';
@@ -29,6 +32,7 @@ import '../../Constants/ColorConstants.dart';
 import '../../Constants/FontConstants.dart';
 import '../../Constants/ImageConstants.dart';
 import '../../Constants/utils.dart';
+import '../../models/User.dart';
 import '../../models/res/btn_bottom_sheet_model.dart';
 import '../base/base_state.dart';
 import '../screens/bottomnavigationscreen/bottomNavBarScreen.dart';
@@ -71,14 +75,13 @@ class _PostWidget extends BaseState<PostWidget> {
     // TODO: implement build
     return Container(
       margin: EdgeInsets.only(bottom: 15),
-      decoration: BoxDecoration(
-          image: post.backgroundId == -1 ? DecorationImage(
-              image: AssetImage(ImageConstants.homeBg),
-              fit: BoxFit.fill
-          ) : DecorationImage(
+      decoration: post.backgroundId == -1 ? BoxDecoration(
+          image: DecorationImage(
               image: NetworkImage(Constants.getBg(post.backgroundId).imgUrl),
-              fit: BoxFit.fill
+              fit: BoxFit.cover
           )
+      ) : BoxDecoration(
+        color: ColorConstants.colorBg1
       ),
       child: Padding(
         padding: EdgeInsets.all(Get.height*0.022),
@@ -88,59 +91,59 @@ class _PostWidget extends BaseState<PostWidget> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: (){
-                        Get.to(ProfileScreen(user: post.user));
-                      },
-                      child: ClipOval(
-                      child: Container(
-                        width: Get.height*0.045,
-                        height: Get.height*0.045,
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle
-                        ),
-                        child: ImageUtils.ProfileImage(
-                            post.user.picture,
-                            Get.height*0.045,
-                            Get.height*0.045
+                GestureDetector(
+                  onTap: (){
+                    Get.to(ProfileScreen(user: post.user));
+                  },
+                  child: Row(
+                    children: [
+                      ClipOval(
+                        child: Container(
+                          width: Get.height*0.045,
+                          height: Get.height*0.045,
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle
+                          ),
+                          child: ImageUtils.ProfileImage(
+                              post.user.picture,
+                              Get.height*0.045,
+                              Get.height*0.045
+                          ),
                         ),
                       ),
-                    ),
-                    ),
-                    SizedBox(width: Get.width*0.03),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AppText(text: post.user.nickname,
-                            fontSize: 13,
-                            color: ColorConstants.white,
-                            textAlign: TextAlign.start,
-                            fontFamily: FontConstants.AppFont,
-                            fontWeight: FontWeight.w700),
+                      SizedBox(width: Get.width*0.03),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AppText(text: post.user.nickname,
+                              fontSize: 13,
+                              color: ColorConstants.white,
+                              textAlign: TextAlign.start,
+                              fontFamily: FontConstants.AppFont,
+                              fontWeight: FontWeight.w700),
 
-                        SizedBox(height: Get.height*0.005),
-                        Row(
-                          children: [
-                            if(post.user.profile.jobGroup == "1")
-                              TagCreatorWidget(),
-                            SizedBox(width: Get.width*0.01),
-                            if(post.user.profile.jobPosition == "0")
-                              TagDevWidget()
-                          ],
-                        ),
-                        SizedBox(height: Get.height*0.005),
-                        AppText(
-                            text: Utils.getTimePost(post.createdAt),
-                            fontSize: 12,
-                            color: ColorConstants.halfWhite,
-                            fontWeight: FontWeight.w400),
-                      ],
+                          SizedBox(height: Get.height*0.005),
+                          Row(
+                            children: [
+                              if(post.user.profile.jobGroup == "1")
+                                TagCreatorWidget(),
+                              SizedBox(width: Get.width*0.01),
+                              if(post.user.profile.jobPosition == "0")
+                                TagDevWidget()
+                            ],
+                          ),
+                          SizedBox(height: Get.height*0.005),
+                          AppText(
+                              text: Utils.getTimePost(post.createdAt),
+                              fontSize: 12,
+                              color: ColorConstants.halfWhite,
+                              fontWeight: FontWeight.w400),
+                        ],
 
 
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
                 GestureDetector(
                   onTap: (){
@@ -170,9 +173,9 @@ class _PostWidget extends BaseState<PostWidget> {
                         }, post: post,
                         ));
                       }else if(menuIndex == 1){
-                        AppDialog.showConfirmDialog(context, "포스트 삭제", "정말로 삭제하시겠습니까?", () async {
+                        AppDialog.showConfirmDialog(context, "delete_post".tr(), "delete_description".tr(), () async {
                           var response = await DioClient.removePost(post.id);
-                          Utils.showToast("삭제가 완료되었습니다");
+                          Utils.showToast("delete_complete".tr());
                           widget.onPostDeleteAction(post, "delete");
                         });
                       }else if(menuIndex == 2){
@@ -185,7 +188,7 @@ class _PostWidget extends BaseState<PostWidget> {
                               return ReportDialog(type: "post", onConfirm: (reportList, reason) async {
                                 var response = await DioClient.reportPost(post.id, reportList, reason);
                                 widget.onPostDeleteAction(post, "delete");
-                                Utils.showToast("신고가 완료되었습니다");
+                                Utils.showToast("report_complete".tr());
                               },);
                             }
                         );
@@ -193,7 +196,7 @@ class _PostWidget extends BaseState<PostWidget> {
                       }else if(menuIndex == 3){
                         var response = await DioClient.postUserBlock(post.user.id);
                         widget.onPostDeleteAction(post, "userBlock");
-                        Utils.showToast("차단이 완료되었습니다");
+                        Utils.showToast("ban_complete".tr());
                       }else{
                         showModalBottomSheet<dynamic>(
                             isScrollControlled: true,
@@ -204,7 +207,7 @@ class _PostWidget extends BaseState<PostWidget> {
                               return ReportUserDialog(onConfirm: (reportList, reason) async {
                                 var response = await DioClient.reportUser(post.user.id, reportList, reason);
                                 widget.onPostDeleteAction(post, "userBlock");
-                                Utils.showToast("신고가 완료되었습니다");
+                                Utils.showToast("report_complete".tr());
                               },);
                             }
                         );
@@ -289,8 +292,8 @@ class _PostWidget extends BaseState<PostWidget> {
                       text: isTranslation ? translationContents : contents,
                       maxLines: 4,
                       truncate: true,
-                      viewLessText: '줄이기',
-                  viewMoreText: '더 보기',
+                      viewLessText: 'less'.tr(),
+                  viewMoreText: 'more'.tr(),
                   viewMoreLessStyle : TextStyle(
                       fontSize: 13,
                       color: ColorConstants.halfWhite,
@@ -311,8 +314,13 @@ class _PostWidget extends BaseState<PostWidget> {
                       ),
                       supportedTypes: [
                         MentionParser(
-                            onTap: (mention) {
-
+                            onTap: (mention)  async {
+                              if(mention.value!.length != 0){
+                                String nickname = mention.value!.substring(1,mention.value!.length);
+                                var response = await DioClient.getUser(nickname);
+                                UserModel user = UserModel.fromJson(response.data["result"]["target"]);
+                                Get.to(ProfileScreen(user: user));
+                              }
                             } ),
                         HashTagParser(
                             onTap: (hashtag) {
@@ -371,25 +379,32 @@ class _PostWidget extends BaseState<PostWidget> {
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (context,index){
-                            return  Container(
-                              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-                              margin: EdgeInsets.only(right: 10),
-                              decoration: BoxDecoration(
-                                  color: ColorConstants.white10Percent,
-                                  borderRadius: BorderRadius.circular(20.0)),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  // SizedBox(width: Get.width*0.01),
-                                  SvgPicture.asset(ImageConstants.communityLogo,height: 16, width: 16),
-                                  SizedBox(width: Get.width*0.015),
-                                  Center(
-                                    child: AppText(text: "${post.postedAt.communities[index].name}",
-                                      fontSize: 12,
+                            return  GestureDetector(
+                              onTap: (){
+                                Get.to(CommunityDetailScreen(community: post.postedAt.communities[index], refreshCommunity: (community){
+
+                                }));
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+                                margin: EdgeInsets.only(right: 10),
+                                decoration: BoxDecoration(
+                                    color: ColorConstants.white10Percent,
+                                    borderRadius: BorderRadius.circular(20.0)),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    // SizedBox(width: Get.width*0.01),
+                                    SvgPicture.asset(ImageConstants.communityLogo,height: 16, width: 16),
+                                    SizedBox(width: Get.width*0.015),
+                                    Center(
+                                      child: AppText(text: "${post.postedAt.communities[index].name}",
+                                        fontSize: 12,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             );
                           }),
@@ -401,6 +416,8 @@ class _PostWidget extends BaseState<PostWidget> {
             if(post.postedAt.games.length != 0)
               Column(
                 children: [
+                  SizedBox(height: 8,),
+
                   Container(
                     width: double.maxFinite,
                     height: 30,
@@ -409,21 +426,29 @@ class _PostWidget extends BaseState<PostWidget> {
                         shrinkWrap: true,
                         scrollDirection: Axis.horizontal,
                         itemBuilder: (context,index){
-                          return  Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(10.0)),
-                                child: Image.asset(ImageConstants.leagueOfLegends, width: Get.height*0.026, height: Get.height*0.026,),
-                              ),
-                              SizedBox(width: Get.width*0.015),
-                              Center(
-                                child: AppText(
-                                    text: post.postedAt.games[index].title,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700),
-                              ),
-                            ],
+                          return  GestureDetector(
+                            onTap: (){
+                              Get.to(DiscoverGameDetails(game: post.postedAt.games[index], refreshGame: (game){
+
+                              }));
+                            },
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(10.0)),
+                                  child: ImageUtils.setGameListSmallNetworkImage(post.postedAt.games[index].urlThumb)
+                                  // Image.asset(ImageConstants.leagueOfLegends, width: Get.height*0.026, height: Get.height*0.026,),
+                                ),
+                                SizedBox(width: Get.width*0.015),
+                                Center(
+                                  child: AppText(
+                                      text: post.postedAt.games[index].title,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ],
+                            ),
                           );
                         }
                         ),
@@ -447,11 +472,11 @@ class _PostWidget extends BaseState<PostWidget> {
                         if(post.liked){
                           setState(() {
                             post.liked = !post.liked;
+                            post.likeCount -= 1;
                           });
                           try{
                             var response = await DioClient.unLikePost(post.id);
                             print(response);
-                            post.likeCount -= 1;
                           }catch(e){
                             setState(() {
                               post.liked = !post.liked;

@@ -304,11 +304,11 @@ class ItemChatMsg extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       onLongPress: onLongPress,
-      onHorizontalDragEnd: (details) {
-        if ((details.primaryVelocity ?? 0) > 20) {
-          onReply();
-        }
-      },
+      // onHorizontalDragEnd: (details) {
+      //   if ((details.primaryVelocity ?? 0) > 20) {
+      //     onReply();
+      //   }
+      // },
       child: Column(
         children: [
           if(bNewMsg!)

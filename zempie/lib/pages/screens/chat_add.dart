@@ -126,6 +126,7 @@ class ChatAddPageState extends BaseState<ChatAddPage> {
         .then((value) {
       setState(() {
         hasNextPage = value.pageInfo?.hasNextPage ?? false;
+        followUserList.clear();
         followUserList.addAll(value.result);
         isInit = true;
       });
@@ -165,9 +166,9 @@ class ChatAddPageState extends BaseState<ChatAddPage> {
     apiC
         .userInvite("Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}", jsonEncode(body))
         .then((value) {
-          print("초대 ${value.data}");
+          print("${"invite".tr()} ${value.data}");
           hideLoading();
-          showToast("초대가 완료되었습니다");
+          showToast("invite_complete".tr());
           Get.back();
           if(widget.refresh != null){
             widget.refresh!();
@@ -352,7 +353,7 @@ class ChatAddPageState extends BaseState<ChatAddPage> {
               selectList.length >= 1 ?
                 Container(
                   height: 25,
-                  margin: EdgeInsets.symmetric(horizontal: 15),
+                  margin: EdgeInsets.only(left: 15, right: 15, bottom: 15),
                   child: Row(
                     children: [
                       Expanded(

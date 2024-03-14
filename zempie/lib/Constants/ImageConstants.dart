@@ -94,6 +94,16 @@ class ImageConstants {
   static const String chatRadioOn = "assets/icons/ic_chat_add_radio_on.png";
   static const String chatRadioOnDisabled = "assets/icons/ic_chat_add_radio_on_disabled.png";
 
+  static const String bottomHome = "assets/icons/ic_home.png";
+  static const String bottomHomeUnselect = "assets/icons/ic_home_unselect.png";
+  static const String bottomDiscover = "assets/icons/ic_discover.png";
+  static const String bottomDiscoverUnselect = "assets/icons/ic_discover_unselect.png";
+  static const String bottomCommunity = "assets/icons/ic_community.png";
+  static const String bottomCommunityUnselect = "assets/icons/ic_community_unselect.png";
+  static const String bottomZemTown = "assets/icons/ic_zemtown.png";
+  static const String bottomZemTownUnselect = "assets/icons/ic_zemtown_unselect.png";
+  static const String bottomNotification = "assets/icons/ic_notification.png";
+  static const String bottomNotificationUnselect = "assets/icons/ic_notification_unselect.png";
 
   //바텀 시트
   static const String copyIcon = "assets/icons/ic_copy.png";
@@ -120,6 +130,8 @@ class ImageConstants {
   static const String imageChecked = "assets/icons/ic_image_checked.png";
   static const String imageUnChecked = "assets/icons/ic_image_unChecked.png";
 
+  static const String audioLock = "assets/icons/ic_audio_lock.png";
+
   static const String searchX = "assets/icons/ic_search_x.png";
   static const String searchQR = "assets/icons/ic_search_qr.png";
   static const String report = "assets/icons/ic_report.png";
@@ -127,12 +139,15 @@ class ImageConstants {
   static const String followUser = "assets/icons/ic_follow_user.png";
   static const String unSubscribe = "assets/icons/ic_unsubscribe.png";
 
+  static const String userProfile = "assets/icons/ic_user_basic_profile.png";
+
   static const profileIcon="assets/icons/ic_top_profile.png";
   static const chatIcon="assets/icons/ic_chat_white.png";
 
   static const appLogo="assets/image/svg/zp_logo.svg";
-  static const onBoardingImage1="assets/image/svg/on_boarding1.svg";
-  static const onBoardingImage="assets/image/svg/on_boarding_screen.svg";
+  static const onBoardingImage1="assets/image/on_boarding_screen_1.png";
+  static const onBoardingImage2="assets/image/on_boarding_screen_2.png";
+  static const onBoardingImage3="assets/image/on_boarding_screen_3.png";
   static const homeIcon="assets/image/svg/home.svg";
   static const discoverIcon="assets/image/svg/discover.svg";
   static const communityIcon="assets/image/svg/community.svg";

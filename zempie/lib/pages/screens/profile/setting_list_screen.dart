@@ -93,24 +93,28 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                               widget.onChangedUser(user);
                             },));
                           },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  ImageUtils.setImage(ImageConstants.settingAccount, 20, 20),
-                                  SizedBox(width: 5,),
-                                  AppText(
-                                    text: "계정",
-                                    fontSize: 14,
-                                  )
-                                ],
-                              ),
+                          child:Container(
+                            height: 30,
+                            color: Colors.transparent,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    ImageUtils.setImage(ImageConstants.settingAccount, 20, 20),
+                                    SizedBox(width: 5,),
+                                    AppText(
+                                      text: "계정",
+                                      fontSize: 14,
+                                    )
+                                  ],
+                                ),
 
-                              Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
-                            ],
+                                Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
+                              ],
+                            ),
                           ),
                         ),
 
@@ -124,25 +128,29 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                           onTap: (){
                             Get.to(SettingSecurityScreen());
                           },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  ImageUtils.setImage(ImageConstants.settingSecurity, 20, 20),
-                                  SizedBox(width: 5,),
-                                  AppText(
-                                    text: "보안",
-                                    fontSize: 14,
-                                  )
-                                ],
-                              ),
+                          child: Container(
+                            color: Colors.transparent,
+                            height: 30,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    ImageUtils.setImage(ImageConstants.settingSecurity, 20, 20),
+                                    SizedBox(width: 5,),
+                                    AppText(
+                                      text: "보안",
+                                      fontSize: 14,
+                                    )
+                                  ],
+                                ),
 
-                              Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
-                            ],
-                          ),
+                                Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
+                              ],
+                            ),
+                          )
                         ),
 
                         Container(
@@ -153,27 +161,33 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
 
                         GestureDetector(
                           onTap: (){
-                            Get.to(ProfileEditScreen());
+                            Get.to(ProfileEditScreen(onRefreshUser: (user){
+                              widget.onChangedUser(user);
+                            },));
                           },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  ImageUtils.setImage(ImageConstants.settingProfile, 20, 20),
-                                  SizedBox(width: 5,),
-                                  AppText(
-                                    text: "프로필",
-                                    fontSize: 14,
-                                  )
-                                ],
-                              ),
+                          child: Container(
+                            height: 30,
+                            color: Colors.transparent,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    ImageUtils.setImage(ImageConstants.settingProfile, 20, 20),
+                                    SizedBox(width: 5,),
+                                    AppText(
+                                      text: "프로필",
+                                      fontSize: 14,
+                                    )
+                                  ],
+                                ),
 
-                              Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
-                            ],
-                          ),
+                                Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
+                              ],
+                            ),
+                          )
                         ),
 
                         Container(
@@ -186,25 +200,29 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                           onTap: (){
                             Get.to(SettingTermsScreen());
                           },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  ImageUtils.setImage(ImageConstants.settingTerms, 20, 20),
-                                  SizedBox(width: 5,),
-                                  AppText(
-                                    text: "운영약관",
-                                    fontSize: 14,
-                                  )
-                                ],
-                              ),
+                          child: Container(
+                            height: 30,
+                            color: Colors.transparent,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    ImageUtils.setImage(ImageConstants.settingTerms, 20, 20),
+                                    SizedBox(width: 5,),
+                                    AppText(
+                                      text: "운영약관",
+                                      fontSize: 14,
+                                    )
+                                  ],
+                                ),
 
-                              Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
-                            ],
-                          ),
+                                Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
+                              ],
+                            ),
+                          )
                         ),
 
                         Container(
@@ -217,25 +235,29 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                           onTap: (){
                             Get.to(SettingAlarmScreen());
                           },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  ImageUtils.setImage(ImageConstants.settingAlarm, 20, 20),
-                                  SizedBox(width: 5,),
-                                  AppText(
-                                    text: "알림 설정",
-                                    fontSize: 14,
-                                  )
-                                ],
-                              ),
+                          child: Container(
+                            height: 30,
+                            color: Colors.transparent,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    ImageUtils.setImage(ImageConstants.settingAlarm, 20, 20),
+                                    SizedBox(width: 5,),
+                                    AppText(
+                                      text: "알림 설정",
+                                      fontSize: 14,
+                                    )
+                                  ],
+                                ),
 
-                              Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
-                            ],
-                          ),
+                                Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
+                              ],
+                            ),
+                          )
                         ),
 
                         Container(
@@ -248,25 +270,29 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                           onTap: (){
                             Get.to(SettingBlockScreen());
                           },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  ImageUtils.setImage(ImageConstants.settingBlock, 20, 20),
-                                  SizedBox(width: 5,),
-                                  AppText(
-                                    text: "차단 관리",
-                                    fontSize: 14,
-                                  )
-                                ],
-                              ),
+                          child: Container(
+                            height: 30,
+                            color: Colors.transparent,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    ImageUtils.setImage(ImageConstants.settingBlock, 20, 20),
+                                    SizedBox(width: 5,),
+                                    AppText(
+                                      text: "차단 관리",
+                                      fontSize: 14,
+                                    )
+                                  ],
+                                ),
 
-                              Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
-                            ],
-                          ),
+                                Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
+                              ],
+                            ),
+                          )
                         ),
 
                         Container(
@@ -279,25 +305,29 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                           onTap: (){
                             Get.to(SettingMessageScreen());
                           },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  ImageUtils.setImage(ImageConstants.settingMsg, 20, 20),
-                                  SizedBox(width: 5,),
-                                  AppText(
-                                    text: "메시지 관리",
-                                    fontSize: 14,
-                                  )
-                                ],
-                              ),
+                          child: Container(
+                            color: Colors.transparent,
+                            height: 30,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    ImageUtils.setImage(ImageConstants.settingMsg, 20, 20),
+                                    SizedBox(width: 5,),
+                                    AppText(
+                                      text: "메시지 관리",
+                                      fontSize: 14,
+                                    )
+                                  ],
+                                ),
 
-                              Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
-                            ],
-                          ),
+                                Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
+                              ],
+                            ),
+                          )
                         ),
 
                         Container(
@@ -310,25 +340,29 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                           onTap: (){
                             Get.to(SettingQuestionScreen());
                           },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  ImageUtils.setImage(ImageConstants.settingQuestion, 20, 20),
-                                  SizedBox(width: 5,),
-                                  AppText(
-                                    text: "문의하기",
-                                    fontSize: 14,
-                                  )
-                                ],
-                              ),
+                          child: Container(
+                            height: 30,
+                            color: Colors.transparent,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    ImageUtils.setImage(ImageConstants.settingQuestion, 20, 20),
+                                    SizedBox(width: 5,),
+                                    AppText(
+                                      text: "문의하기",
+                                      fontSize: 14,
+                                    )
+                                  ],
+                                ),
 
-                              Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
-                            ],
-                          ),
+                                Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
+                              ],
+                            ),
+                          )
                         ),
 
                         Container(
@@ -339,38 +373,37 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
 
                         GestureDetector(
                           onTap: (){
-
+                            Get.bottomSheet(BottomLanguageWidget(onTapLanguage: (code){
+                              AndroidOptions _getAndroidOptions() => const AndroidOptions(
+                                encryptedSharedPreferences: true,
+                              );
+                              final _storage = new FlutterSecureStorage(aOptions: _getAndroidOptions());
+                              _storage.write(key: "language", value: code);
+                              setState(() {
+                                Constants.languageCode = code;
+                              });
+                            }));
                           },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  ImageUtils.setImage(ImageConstants.settingLanguage, 20, 20),
-                                  SizedBox(width: 5,),
-                                  AppText(
-                                    text: "언어",
-                                    fontSize: 14,
-                                  )
-                                ],
-                              ),
+                          child: Container(
+                            height: 30,
+                            color: Colors.transparent,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    ImageUtils.setImage(ImageConstants.settingLanguage, 20, 20),
+                                    SizedBox(width: 5,),
+                                    AppText(
+                                      text: "언어",
+                                      fontSize: 14,
+                                    )
+                                  ],
+                                ),
 
-                              GestureDetector(
-                                onTap: (){
-                                  Get.bottomSheet(BottomLanguageWidget(onTapLanguage: (code){
-                                    AndroidOptions _getAndroidOptions() => const AndroidOptions(
-                                      encryptedSharedPreferences: true,
-                                    );
-                                    final _storage = new FlutterSecureStorage(aOptions: _getAndroidOptions());
-                                    _storage.write(key: "language", value: code);
-                                    setState(() {
-                                      Constants.languageCode = code;
-                                    });
-                                  }));
-                                },
-                                child: Row(
+                                Row(
                                   children: [
                                     AppText(
                                       text: "${Constants.languageCode == "en" ? "English" : "한국어"}",
@@ -380,9 +413,9 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                                     Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
                                   ],
                                 ),
-                              )
-                            ],
-                          ),
+                              ],
+                            ),
+                          )
                         ),
 
                         Container(
@@ -393,42 +426,41 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
 
                         GestureDetector(
                           onTap: (){
+                            Get.bottomSheet(BottomTranslationWidget(onTapLanguage: (code) async {
+                              AndroidOptions _getAndroidOptions() => const AndroidOptions(
+                                encryptedSharedPreferences: true,
+                              );
+                              final _storage = new FlutterSecureStorage(aOptions: _getAndroidOptions());
 
+                              Constants.translationCode = code.code.substring(0,2);
+                              Constants.translationName = code.origin;
+
+                              await _storage.write(key: "translationCode", value: Constants.translationCode);
+                              await _storage.write(key: "translationName", value: Constants.translationName);
+                              setState(() {
+                              });
+                            }));
                           },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  ImageUtils.setImage(ImageConstants.settingTransfer, 20, 20),
-                                  SizedBox(width: 5,),
-                                  AppText(
-                                    text: "기본 번역 언어",
-                                    fontSize: 14,
-                                  )
-                                ],
-                              ),
+                          child: Container(
+                            height: 30,
+                            color: Colors.transparent,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    ImageUtils.setImage(ImageConstants.settingTransfer, 20, 20),
+                                    SizedBox(width: 5,),
+                                    AppText(
+                                      text: "기본 번역 언어",
+                                      fontSize: 14,
+                                    )
+                                  ],
+                                ),
 
-                              GestureDetector(
-                                onTap: (){
-                                  Get.bottomSheet(BottomTranslationWidget(onTapLanguage: (code) async {
-                                    AndroidOptions _getAndroidOptions() => const AndroidOptions(
-                                      encryptedSharedPreferences: true,
-                                    );
-                                    final _storage = new FlutterSecureStorage(aOptions: _getAndroidOptions());
-
-                                    Constants.translationCode = code.code.substring(0,2);
-                                    Constants.translationName = code.origin;
-
-                                    await _storage.write(key: "translationCode", value: Constants.translationCode);
-                                    await _storage.write(key: "translationName", value: Constants.translationName);
-                                    setState(() {
-                                    });
-                                  }));
-                                },
-                                child: Row(
+                                Row(
                                   children: [
                                     AppText(
                                       text: "${Constants.translationName}",
@@ -438,9 +470,9 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                                     Icon(Icons.arrow_forward_ios_rounded, color: ColorConstants.white, size: 14,)
                                   ],
                                 ),
-                              )
-                            ],
-                          ),
+                              ],
+                            ),
+                          )
                         ),
 
                         Container(
@@ -453,28 +485,32 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                           onTap: (){
 
                           },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  ImageUtils.setImage(ImageConstants.settingVersion, 20, 20),
-                                  SizedBox(width: 5,),
-                                  AppText(
-                                    text: "버전정보",
-                                    fontSize: 14,
-                                  )
-                                ],
-                              ),
+                          child: Container(
+                            height: 30,
+                            color: Colors.transparent,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    ImageUtils.setImage(ImageConstants.settingVersion, 20, 20),
+                                    SizedBox(width: 5,),
+                                    AppText(
+                                      text: "버전정보",
+                                      fontSize: 14,
+                                    )
+                                  ],
+                                ),
 
-                              AppText(
-                                text: Constants.versionName,
-                                fontSize: 14,
-                              )
-                            ],
-                          ),
+                                AppText(
+                                  text: Constants.versionName,
+                                  fontSize: 14,
+                                )
+                              ],
+                            ),
+                          )
                         ),
 
                         SizedBox(height: 25,)

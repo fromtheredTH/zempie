@@ -10,12 +10,13 @@ import 'package:app/pages/components/item/TagCreator.dart';
 import 'package:app/pages/components/item/TagDev.dart';
 import 'package:app/pages/components/report_dialog.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 import 'package:html/dom.dart';
 import 'package:html/dom.dart';
@@ -26,6 +27,7 @@ import '../../Constants/ColorConstants.dart';
 import '../../Constants/FontConstants.dart';
 import '../../Constants/ImageConstants.dart';
 import '../../Constants/utils.dart';
+import '../../models/User.dart';
 import '../../models/res/btn_bottom_sheet_model.dart';
 import '../base/base_state.dart';
 import '../screens/bottomnavigationscreen/bottomNavBarScreen.dart';
@@ -49,10 +51,24 @@ class _ReplyWidget extends BaseState<ReplyWidget> {
 
   late ReplyModel reply;
 
+  String contents = "";
+  String translationContents = "";
+  bool isTranslation = false;
+
   @override
   void initState() {
     reply = widget.reply;
+    contents = reply.content;
     super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant ReplyWidget oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
+    contents = reply.content;
+    isTranslation = false;
+    translationContents = "";
   }
 
   @override
@@ -156,7 +172,7 @@ class _ReplyWidget extends BaseState<ReplyWidget> {
                                   var response = await DioClient.reportComment(
                                       reply.id, reportList, reason);
                                 }
-                                Utils.showToast("신고가 완료되었습니다");
+                                Utils.showToast("report_complete".tr());
                               },);
                             }
                         );
@@ -175,7 +191,7 @@ class _ReplyWidget extends BaseState<ReplyWidget> {
             Container(
                 width: Get.width,
                 child: RichTextView(
-                    text: reply.content,
+                    text: isTranslation ? translationContents : contents,
                     truncate: false,
                     style: TextStyle(
                         fontSize: 14,
@@ -192,8 +208,13 @@ class _ReplyWidget extends BaseState<ReplyWidget> {
 
                     supportedTypes: [
                       MentionParser(
-                          onTap: (mention) {
-
+                          onTap: (mention) async {
+                            if(mention.value!.length != 0){
+                              String nickname = mention.value!.substring(1,mention.value!.length);
+                              var response = await DioClient.getUser(nickname);
+                              UserModel user = UserModel.fromJson(response.data["result"]["target"]);
+                              Get.to(ProfileScreen(user: user));
+                            }
                           }),
                       HashTagParser(
                           onTap: (hashtag) {
@@ -279,11 +300,22 @@ class _ReplyWidget extends BaseState<ReplyWidget> {
               ),
 
               GestureDetector(
-                onTap: (){
-
+                onTap: () async {
+                  if(!isTranslation){
+                    if(contents.isNotEmpty && translationContents.isEmpty) {
+                      var response = await DioClient.translate(contents);
+                      List<dynamic> results = response.data["result"]["translations"];
+                      if(results.isNotEmpty){
+                        translationContents = results[0]["translatedText"];
+                      }
+                    }
+                  }
+                  setState(() {
+                    isTranslation = !isTranslation;
+                  });
                 },
                 child: AppText(
-                    text: "번역보기",
+                    text: isTranslation ? "원문보기" : "번역보기",
                     fontSize: 12,
                     color: ColorConstants.white
                 ),

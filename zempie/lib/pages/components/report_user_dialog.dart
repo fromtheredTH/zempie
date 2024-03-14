@@ -4,7 +4,7 @@ import 'package:app/global/app_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 import '../../Constants/ColorConstants.dart';
 import '../../Constants/Constants.dart';
@@ -37,7 +37,7 @@ class _ReportUserDialog extends BaseState<ReportUserDialog> {
 
   void onConfirm() {
     if(selectedIndex.isEmpty){
-      Utils.showToast("신고 사유를 선택해 주세요");
+      Utils.showToast("please_report_reason".tr());
       return;
     }
     String result = "${selectedIndex[0]}";
@@ -52,7 +52,7 @@ class _ReportUserDialog extends BaseState<ReportUserDialog> {
   Widget build(BuildContext context) {
     return Container(
       width: Get.width,
-      height: 520,
+      height: 520+MediaQuery.of(context).viewInsets.bottom,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.only(topLeft: Radius.circular(30),
               topRight: Radius.circular(30)),
@@ -89,10 +89,12 @@ class _ReportUserDialog extends BaseState<ReportUserDialog> {
 
           SizedBox(height: 10,),
 
-          Expanded(
+          Container(
+            height: 200,
             child: ListView.builder(
                 itemCount: Constants.reportUserLists.length,
                 shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
                 padding: EdgeInsets.only(top: 0,left: 20, right: 0),
                 itemBuilder: (context,index){
                   return GestureDetector(
@@ -155,7 +157,7 @@ class _ReportUserDialog extends BaseState<ReportUserDialog> {
               controller: infoController,
               decoration: InputDecoration(
                   counterText: "",
-                  hintText: "추가적인 정보를 입력해 주세요...",
+                  hintText: "please_input_more_info".tr(),
                   fillColor: ColorConstants.white10Percent,
                   filled: true,
                   hintStyle: TextStyle(
@@ -208,7 +210,7 @@ class _ReportUserDialog extends BaseState<ReportUserDialog> {
                       ),
                       child: Center(
                         child: AppText(
-                          text: "취소",
+                          text: "cancel".tr(),
                           fontSize: 0.016,
                           color: ColorConstants.white,
                           fontFamily: FontConstants.AppFont,
@@ -232,7 +234,7 @@ class _ReportUserDialog extends BaseState<ReportUserDialog> {
                       ),
                       child: Center(
                         child: AppText(
-                          text: "확인",
+                          text: "confirm".tr(),
                           fontSize: 0.016,
                           color: ColorConstants.white,
                           fontFamily: FontConstants.AppFont,

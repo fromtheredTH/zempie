@@ -539,6 +539,7 @@ class ChatPageState extends BaseState<ChatPage> {
                                                 "name": name,
                                                 "room_id": roomDto.id,
                                               };
+                                              showLoading();
                                               apiC
                                                   .changeRoomName("Bearer ${await FirebaseAuth
                                                   .instance.currentUser?.getIdToken()}",

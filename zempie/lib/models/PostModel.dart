@@ -5,7 +5,7 @@ import 'package:app/models/AttatchmentFile.dart';
 import 'package:app/models/CommunityModel.dart';
 import 'package:app/models/GameModel.dart';
 import 'package:app/models/User.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 
 class PostModel {
   late bool liked;

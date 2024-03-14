@@ -12,6 +12,7 @@ import 'package:app/pages/components/post_widget.dart';
 import 'package:app/pages/screens/newPostScreen.dart';
 import 'package:app/pages/screens/profile/profile_edit_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/svg.dart';
@@ -20,6 +21,7 @@ import 'package:get/get.dart' hide Trans;
 import '../../../Constants/ColorConstants.dart';
 import '../../../Constants/FontConstants.dart';
 import '../../../Constants/ImageConstants.dart';
+import '../../../Constants/utils.dart';
 import '../../../models/NotificationModel.dart';
 import '../../../models/PostModel.dart';
 import '../../base/base_state.dart';
@@ -29,7 +31,8 @@ import '../../components/fucus_detector.dart';
 import '../profile/profile_screen.dart';
 
 class NotificationScreen extends StatefulWidget {
-  NotificationScreen({super.key});
+  NotificationScreen({super.key, required this.onTapLogo});
+  Function() onTapLogo;
 
   @override
   State<NotificationScreen> createState() => _NotificationScreen();
@@ -43,9 +46,18 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
   List<NotificationModel> monthLists = [];
   List<NotificationModel> previousLists = [];
 
+  bool isLoading = true;
+
   @override
   void initState() {
     super.initState();
+  }
+
+  bool isEmptyAlarm(){
+    if(unReadLists.isEmpty && todayLists.isEmpty && weekLists.isEmpty && monthLists.isEmpty && previousLists.isEmpty){
+      return true;
+    }
+    return false;
   }
 
   void changeUesrFollowing(int userId){
@@ -94,6 +106,12 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
 
       },
       onFocusGained: () async {
+        if(!isEmptyAlarm() && unReadLists.isEmpty){
+          return;
+        }
+        setState(() {
+          isLoading = true;
+        });
         DateTime now = DateTime.now();
         unReadLists.clear();
         todayLists.clear();
@@ -121,7 +139,7 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
           }
         }
         setState(() {
-
+          isLoading = false;
         });
       },
       child: PageLayout(
@@ -133,6 +151,8 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
                   padding: EdgeInsets.only(left: 10, right: 10),
                   child: CustomTitleBar(callBack: (){
                     Get.to(ProfileScreen(user: Constants.user,));
+                  }, onTapLogo: (){
+                    widget.onTapLogo();
                   },)),
               SizedBox(height: 18),
               Padding(
@@ -160,7 +180,26 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
               SizedBox(height: 15),
 
               Expanded(
-                child: SingleChildScrollView(
+                child: isLoading ?
+                    Center(
+                      child: SizedBox(
+                        child: Center(
+                            child: CircularProgressIndicator(
+                                color: ColorConstants.colorMain)
+                        ),
+                        height: 20.0,
+                        width: 20.0,
+                      ),
+                    )
+                    : isEmptyAlarm() ?
+                    Center(
+                      child: AppText(
+                        text: "알람 리스트가 없습니다.",
+                        color: ColorConstants.textGry,
+                        fontSize: 12,
+                      ),
+                    )
+                    : SingleChildScrollView(
                   child: Column(
                     children: [
 
@@ -207,6 +246,7 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
                                               onTap: (handler) {
                                                 showDeleteAlert(unReadLists[index], () async {
                                                   var response = await DioClient.deleteNotification(unReadLists[index].id);
+                                                  Utils.showToast("alarm_remove_complete".tr());
                                                   setState(() {
                                                     unReadLists.removeAt(index);
                                                   });
@@ -267,6 +307,7 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
                                               onTap: (handler) {
                                                 showDeleteAlert(todayLists[index], () async {
                                                   var response = await DioClient.deleteNotification(todayLists[index].id);
+                                                  Utils.showToast("alarm_remove_complete".tr());
                                                   setState(() {
                                                     todayLists.removeAt(index);
                                                   });
@@ -327,6 +368,7 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
                                               onTap: (handler) {
                                                 showDeleteAlert(weekLists[index], () async {
                                                   var response = await DioClient.deleteNotification(weekLists[index].id);
+                                                  Utils.showToast("alarm_remove_complete".tr());
                                                   setState(() {
                                                     weekLists.removeAt(index);
                                                   });
@@ -387,6 +429,7 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
                                               onTap: (handler) {
                                                 showDeleteAlert(monthLists[index], () async {
                                                   var response = await DioClient.deleteNotification(monthLists[index].id);
+                                                  Utils.showToast("alarm_remove_complete".tr());
                                                   setState(() {
                                                     monthLists.removeAt(index);
                                                   });
@@ -447,6 +490,7 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
                                               onTap: (handler) {
                                                 showDeleteAlert(previousLists[index], () async {
                                                   var response = await DioClient.deleteNotification(previousLists[index].id);
+                                                  Utils.showToast("alarm_remove_complete".tr());
                                                   setState(() {
                                                     previousLists.removeAt(index);
                                                   });
@@ -544,7 +588,7 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
                                 ),
                                 child: Center(
                                   child: AppText(
-                                    text: "취소",
+                                    text: "cancel".tr(),
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,),
                                 )
@@ -565,7 +609,7 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
                                     color: ColorConstants.colorMain
                                 ),
                                 child: Center(
-                                  child: AppText(text: "확인",
+                                  child: AppText(text: "confirm".tr(),
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700
                                   ),

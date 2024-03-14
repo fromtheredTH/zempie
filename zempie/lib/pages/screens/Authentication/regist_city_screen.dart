@@ -5,10 +5,11 @@ import 'package:app/models/User.dart';
 import 'package:app/pages/components/app_text.dart';
 import 'package:app/pages/screens/Authentication/regist_game_genre_screen.dart';
 import 'package:app/pages/screens/Authentication/regist_genre_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -66,7 +67,7 @@ class _RegistCityScreen extends BaseState<RegistCityScreen> {
                           Container(
                             width: double.maxFinite,
                             child: AppText(
-                              text: "도시",
+                              text: "city".tr(),
                               fontSize: 18,
                             ),
                           ),
@@ -74,7 +75,7 @@ class _RegistCityScreen extends BaseState<RegistCityScreen> {
                           Container(
                             width: double.maxFinite,
                             child: AppText(
-                              text: "도시명을 입력해 주세요.",
+                              text: "city_select_description".tr(),
                               fontSize: 14,
                               color: ColorConstants.halfWhite,
                             ),
@@ -105,7 +106,7 @@ class _RegistCityScreen extends BaseState<RegistCityScreen> {
                                       ),
                                       textInputAction: TextInputAction.search,
                                       decoration: InputDecoration(
-                                        hintText: '입력해 주세요',
+                                        hintText: 'city_select_description'.tr(),
                                         contentPadding: EdgeInsets.symmetric(
                                             horizontal: 16.0,
                                             vertical: 12.0), // Adjust vertical padding
@@ -155,7 +156,7 @@ class _RegistCityScreen extends BaseState<RegistCityScreen> {
                             }else if(user.profile.stateMsg.isEmpty){
                               Get.to(RegistGenreScreen(user: user));
                             }else {
-                              Constants.getUserInfo(context, apiP);
+                              Constants.getUserInfo(true,context, apiP);
                             }
                           }
                         },
@@ -169,7 +170,7 @@ class _RegistCityScreen extends BaseState<RegistCityScreen> {
                             width: Get.width ,
                             child: Center(
                               child: AppText(
-                                text: "다음",
+                                text: "next".tr(),
                                 fontSize: 16,
                                 fontFamily: FontConstants.AppFont,
                                 fontWeight: FontWeight.w700,

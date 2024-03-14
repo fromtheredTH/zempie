@@ -1,6 +1,7 @@
 import 'package:app/Constants/Constants.dart';
 import 'package:app/pages/components/loading_widget.dart';
 import 'package:app/pages/screens/profile/profile_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -15,17 +16,35 @@ import '../../components/CommunityWidget.dart';
 import '../../components/CutomTitleBar.dart';
 import '../../components/app_text.dart';
 import '../communityScreens/community_detal_screen.dart';
+import 'bottomNavBarScreen.dart';
 
 
 class CommunityScreen extends StatefulWidget {
-  CommunityScreen({Key? key}) : super(key: key);
+  CommunityScreen({Key? key, required this.onTapLogo, required this.communityController}) : super(key: key);
+  Function() onTapLogo;
+  HomeController communityController;
 
   @override
-  State<CommunityScreen> createState() => _CommunityScreen();
+  State<CommunityScreen> createState() => _CommunityScreen(communityController);
 }
 
-class _CommunityScreen extends BaseState<CommunityScreen> {
+class _CommunityScreen extends BaseState<CommunityScreen> with TickerProviderStateMixin {
 
+  _CommunityScreen(HomeController communityController){
+    communityController.initHome = initHome;
+  }
+
+  late TabController tabController;
+
+  void initHome(){
+    setState(() {
+      tabController.index = 0;
+      _selectedIndex = 0;
+      _selectedAllSubIndex = 0;
+      _selectedMySubIndex = 0;
+      allRecommandController.animateTo(0, duration: Duration(milliseconds: 200), curve: Curves.bounceOut);
+    });
+  }
   int _selectedIndex = 0;
   int _selectedAllSubIndex = 0;
   int _selectedMySubIndex = 0;
@@ -112,6 +131,85 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
     setState(() {
       isInitialLoading = false;
     });
+  }
+
+  void setSubscribe(CommunityModel community) {
+    for(int i=0;i<allRecommands.length;i++){
+      if(allRecommands[i].id == community.id){
+        allRecommands[i].isSubscribed = community.isSubscribed;
+      }
+    }
+
+    for(int i=0;i<allNews.length;i++){
+      if(allNews[i].id == community.id){
+        allNews[i].isSubscribed = community.isSubscribed;
+      }
+    }
+
+    for(int i=0;i<allMembers.length;i++){
+      if(allMembers[i].id == community.id){
+        allMembers[i].isSubscribed = community.isSubscribed;
+      }
+    }
+
+    for(int i=0;i<allVisits.length;i++){
+      if(allVisits[i].id == community.id){
+        allVisits[i].isSubscribed = community.isSubscribed;
+      }
+    }
+
+    if(!community.isSubscribed){
+      for(int i=0;i<myRecents.length;i++){
+        if(myRecents[i].id == community.id){
+          myRecents.removeAt(i);
+        }
+      }
+
+      for(int i=0;i<myMembers.length;i++){
+        if(myMembers[i].id == community.id){
+          myMembers.removeAt(i);
+        }
+      }
+
+      for(int i=0;i<myVisits.length;i++){
+        if(myVisits[i].id == community.id){
+          myVisits.removeAt(i);
+        }
+      }
+    }else{
+      bool isExistRecent = false;
+      for(int i=0;i<myRecents.length;i++){
+        if(myRecents[i].id == community.id){
+          myRecents[i] = community;
+          isExistRecent = true;
+        }
+      }
+      if(!isExistRecent){
+        myRecents.add(community);
+      }
+
+      bool isExistMember = false;
+      for(int i=0;i<myMembers.length;i++){
+        if(myMembers[i].id == community.id){
+          myMembers[i] = community;
+          isExistMember = true;
+        }
+      }
+      if(!isExistMember){
+        myMembers.add(community);
+      }
+
+      bool isExistVisit = false;
+      for(int i=0;i<myVisits.length;i++){
+        if(myVisits[i].id == community.id){
+          myVisits[i] = community;
+          isExistVisit = true;
+        }
+      }
+      if(!isExistVisit){
+        myVisits.add(community);
+      }
+    }
   }
 
 
@@ -238,6 +336,7 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
   void initState() {
     initCommunities();
     super.initState();
+    tabController = TabController(length: 2,vsync: this);
     allRecommandController.addListener(getAllRecommandNextPage);
     allNewController.addListener(getAllNewNextPage);
     allMemberController.addListener(getAllMemberNextPage);
@@ -263,6 +362,8 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
 
                 child: CustomTitleBar(callBack: (){
                   Get.to(ProfileScreen(user: Constants.user));
+                },onTapLogo: (){
+                  widget.onTapLogo();
                 },)),
             SizedBox(height: Get.height*0.02),
             TabBar(
@@ -270,6 +371,7 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
               indicatorSize: TabBarIndicatorSize.tab,
               indicatorWeight: 2,
               labelColor: Colors.white,
+              controller: tabController,
               dividerColor: ColorConstants.tabDividerColor,
               unselectedLabelColor: ColorConstants.tabTextColor,
               labelStyle: TextStyle(
@@ -277,8 +379,8 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
                   fontFamily: FontConstants.AppFont,
                   fontWeight: FontWeight.w700),
               tabs: [
-                Tab(text: '모든 커뮤니티'),
-                Tab(text: '내 커뮤니티'),
+                Tab(text: 'allCommunity'.tr()),
+                Tab(text: 'myCommunity'.tr()),
 
               ],
               onTap: (index) {
@@ -394,7 +496,7 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
                 _selectedMySubIndex == 1 ? myMemberWidget() :
                 myVisitWidget(),
 
-            SizedBox(height: Get.height*0.07,),
+            SizedBox(height: Get.height*0.1,),
 
 
 
@@ -418,7 +520,7 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
             padding: EdgeInsets.only(top: 50,bottom: 50),
             child: Center(
               child: AppText(
-                text: "커뮤니티가 없습니다",
+                text: "empty_community".tr(),
                 fontSize: 14,
                 color: ColorConstants.halfWhite,
               ),
@@ -458,7 +560,9 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
                   );
                 }
                 Key key = Key("0_0_${allRecommands[index].id}");
-                return CommunityWidget(key: key, community: allRecommands[index]);
+                return CommunityWidget(key: key, community: allRecommands[index], onSubscribe: (community){
+                  setSubscribe(community);
+                },);
               },
             )
         )
@@ -475,7 +579,7 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
             padding: EdgeInsets.only(top: 50,bottom: 50),
             child: Center(
               child: AppText(
-                text: "커뮤니티가 없습니다",
+                text: "empty_community".tr(),
                 fontSize: 14,
                 color: ColorConstants.halfWhite,
               ),
@@ -515,7 +619,9 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
                   );
                 }
                 Key key = Key("0_1_${allNews[index].id}");
-                return CommunityWidget(key: key, community: allNews[index]);
+                return CommunityWidget(key: key, community: allNews[index], onSubscribe: (community){
+                  setSubscribe(community);
+                },);
               },
             )
         )
@@ -532,7 +638,7 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
             padding: EdgeInsets.only(top: 50,bottom: 50),
             child: Center(
               child: AppText(
-                text: "커뮤니티가 없습니다",
+                text: "empty_community".tr(),
                 fontSize: 14,
                 color: ColorConstants.halfWhite,
               ),
@@ -572,7 +678,9 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
                   );
                 }
                 Key key = Key("0_2_${allMembers[index].id}");
-                return CommunityWidget(key: key, community: allMembers[index]);
+                return CommunityWidget(key: key, community: allMembers[index], onSubscribe: (community){
+                  setSubscribe(community);
+                },);
               },
             )
         )
@@ -589,7 +697,7 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
             padding: EdgeInsets.only(top: 50,bottom: 50),
             child: Center(
               child: AppText(
-                text: "커뮤니티가 없습니다",
+                text: "empty_community".tr(),
                 fontSize: 14,
                 color: ColorConstants.halfWhite,
               ),
@@ -629,7 +737,9 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
                   );
                 }
                 Key key = Key("0_3_${allVisits[index].id}");
-                return CommunityWidget(key: key, community: allVisits[index]);
+                return CommunityWidget(key: key, community: allVisits[index], onSubscribe: (community){
+                  setSubscribe(community);
+                },);
               },
             )
         )
@@ -646,7 +756,7 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
             padding: EdgeInsets.only(top: 50,bottom: 50),
             child: Center(
               child: AppText(
-                text: "커뮤니티가 없습니다",
+                text: "empty_community".tr(),
                 fontSize: 14,
                 color: ColorConstants.halfWhite,
               ),
@@ -686,7 +796,9 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
                   );
                 }
                 Key key = Key("1_0_${myRecents[index].id}");
-                return CommunityWidget(key: key, community: myRecents[index]);
+                return CommunityWidget(key: key, community: myRecents[index], onSubscribe: (community){
+                  setSubscribe(community);
+                },);
               },
             )
         )
@@ -703,7 +815,7 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
             padding: EdgeInsets.only(top: 50,bottom: 50),
             child: Center(
               child: AppText(
-                text: "커뮤니티가 없습니다",
+                text: "empty_community".tr(),
                 fontSize: 14,
                 color: ColorConstants.halfWhite,
               ),
@@ -743,7 +855,9 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
                   );
                 }
                 Key key = Key("1_1_${myMembers[index].id}");
-                return CommunityWidget(key: key, community: myMembers[index]);
+                return CommunityWidget(key: key, community: myMembers[index], onSubscribe: (community){
+                  setSubscribe(community);
+                },);
               },
             )
         )
@@ -760,7 +874,7 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
             padding: EdgeInsets.only(top: 50,bottom: 50),
             child: Center(
               child: AppText(
-                text: "커뮤니티가 없습니다",
+                text: "empty_community".tr(),
                 fontSize: 14,
                 color: ColorConstants.halfWhite,
               ),
@@ -800,7 +914,9 @@ class _CommunityScreen extends BaseState<CommunityScreen> {
                   );
                 }
                 Key key = Key("1_2_${myVisits[index].id}");
-                return CommunityWidget(key: key, community: myVisits[index]);
+                return CommunityWidget(key: key, community: myVisits[index], onSubscribe: (community){
+                  setSubscribe(community);
+                },);
               },
             )
         )

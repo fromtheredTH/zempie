@@ -6,10 +6,11 @@ import 'package:app/models/CommunityModel.dart';
 import 'package:app/models/GameModel.dart';
 import 'package:app/pages/base/base_state.dart';
 import 'package:app/pages/components/app_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 
 import '../../Constants/ColorConstants.dart';
@@ -62,12 +63,12 @@ class _BottomInterestGameGenreWidget extends BaseState<BottomInterestGameGenreWi
           ),
           SizedBox(height: Get.height * 0.02,),
           AppText(
-            text: "관심 게임 장르",
+            text: "select_interest_game_genre_title".tr(),
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
           AppText(
-            text: "관심 게임 장르를 선택해 주세요",
+            text: "select_interest_game_genre_description".tr(),
             fontSize: 12,
             color: ColorConstants.halfWhite,
           ),
@@ -116,7 +117,7 @@ class _BottomInterestGameGenreWidget extends BaseState<BottomInterestGameGenreWi
                                 ),
                                 Expanded(
                                   child: AppText(
-                                    text: Constants.interestGameGenres[index].koName,
+                                    text: Constants.languageCode == "ko" ? Constants.interestGameGenres[index].koName : Constants.interestGameGenres[index].enName,
                                     color: isSelected ? ColorConstants.colorMain : ColorConstants.white,
                                     fontSize: 14,
                                   ),
@@ -162,7 +163,7 @@ class _BottomInterestGameGenreWidget extends BaseState<BottomInterestGameGenreWi
                                     child: Row(
                                       children: [
                                         AppText(
-                                          text: selectedItems[index].koName,
+                                          text: Constants.languageCode == "ko" ? selectedItems[index].koName : selectedItems[index].enName,
                                           fontSize: 14,
                                           color: ColorConstants.colorMain,
                                         ),
@@ -207,7 +208,7 @@ class _BottomInterestGameGenreWidget extends BaseState<BottomInterestGameGenreWi
                       ),
                       child: Center(
                         child: AppText(
-                          text: "취소",
+                          text: "cancel".tr(),
                           fontSize: 0.016,
                           color: ColorConstants.white,
                           fontFamily: FontConstants.AppFont,
@@ -232,7 +233,7 @@ class _BottomInterestGameGenreWidget extends BaseState<BottomInterestGameGenreWi
                       ),
                       child: Center(
                         child: AppText(
-                          text: "확인",
+                          text: "confirm".tr(),
                           fontSize: 0.016,
                           color: ColorConstants.white,
                           fontFamily: FontConstants.AppFont,

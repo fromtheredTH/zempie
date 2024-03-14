@@ -8,9 +8,10 @@ import 'package:app/models/User.dart';
 import 'package:app/pages/base/base_state.dart';
 import 'package:app/pages/components/app_button.dart';
 import 'package:app/pages/components/app_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 
 import '../../Constants/ColorConstants.dart';
@@ -115,7 +116,7 @@ class _BottomProfileWidget extends BaseState<BottomProfileWidget> {
                       ImageUtils.setImage(ImageConstants.profileSetting, 24, 24),
                       SizedBox(width: 10,),
                       AppText(
-                        text: "설정",
+                        text: "setting".tr(),
                         fontSize: 14,
                       )
                     ],
@@ -134,7 +135,7 @@ class _BottomProfileWidget extends BaseState<BottomProfileWidget> {
                       ImageUtils.setImage(ImageConstants.logout, 24, 24),
                       SizedBox(width: 10,),
                       AppText(
-                        text: "로그아웃",
+                        text: "logout".tr(),
                         fontSize: 14,
                       )
                     ],
@@ -152,7 +153,7 @@ class _BottomProfileWidget extends BaseState<BottomProfileWidget> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     AppText(
-                      text: "현재 보유",
+                      text: "current_get".tr(),
                       fontSize: 14,
                     ),
 
@@ -180,10 +181,10 @@ class _BottomProfileWidget extends BaseState<BottomProfileWidget> {
                 SizedBox(height: 15,),
 
                 AppButton(
-                    text: "ZEM 충전하기",
+                    text: "zem_charge".tr(),
                     margin: 0,
                     onTap: (){
-                      Utils.showToast("준비중인 기능입니다");
+                      Utils.showToast("taost_function_not_enable".tr());
                     }
                 )
               ],

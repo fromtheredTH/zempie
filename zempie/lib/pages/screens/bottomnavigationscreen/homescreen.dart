@@ -7,7 +7,7 @@ import 'package:app/models/AttatchmentFile.dart';
 import 'package:app/pages/base/page_layout.dart';
 import 'package:app/pages/components/loading_widget.dart';
 import 'package:app/pages/components/post_widget.dart';
-import 'package:app/pages/screens/communityScreens/nicknameScreen.dart';
+import 'package:app/pages/screens/bottomnavigationscreen/bottomNavBarScreen.dart';
 import 'package:app/pages/screens/newPostScreen.dart';
 import 'package:app/pages/screens/profile/profile_edit_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -25,13 +25,18 @@ import '../../components/fucus_detector.dart';
 import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({super.key});
+  HomeScreen({super.key, required this.homeController});
+  HomeController homeController;
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState(homeController);
 }
 
 class _HomeScreenState extends BaseState<HomeScreen> {
+
+  _HomeScreenState(HomeController _controller){
+    _controller.initHome = initHome;
+  }
 
    RxInt activePage=0.obs;
 
@@ -48,6 +53,10 @@ class _HomeScreenState extends BaseState<HomeScreen> {
    int randomPage = 0;
 
    ScrollController scrollController = ScrollController();
+
+   void initHome() {
+     scrollController.jumpTo(0);
+   }
 
    Future<List<PostModel>> initPosts() async {
      List<PostModel> results = Constants.timelinePosts;
@@ -201,6 +210,8 @@ class _HomeScreenState extends BaseState<HomeScreen> {
                   padding: EdgeInsets.only(left: 10, right: 10),
                   child: CustomTitleBar(callBack: (){
                     Get.to(ProfileScreen(user: Constants.user,));
+                  }, onTapLogo: (){
+                    scrollController.jumpTo(0);
                   },)),
               SizedBox(height: Get.height*0.01),
               Padding(
@@ -212,15 +223,28 @@ class _HomeScreenState extends BaseState<HomeScreen> {
 
                     GestureDetector(
                       onTap: (){
-                        // Get.to(ProfileScreen(user: Constants.user));
-                        Get.to(NicknameScreen());
+                        Get.to(ProfileScreen(user: Constants.user));
                       },
                       child: ImageUtils.ProfileImage(Constants.user.picture, 40, 40),
                     ),
                     SizedBox(width: Get.width*0.03),
-                    SizedBox(
-                      width: Get.width*0.8,
-                      child: GestureDetector(
+                    Flexible(child: GestureDetector(
+                      onTap: (){
+                        Get.to(NewPostScreen(uploadedPost: (post){
+                          setState(() {
+                            posts.insert(0, post);
+                          });
+                        },));
+                      },
+                      child: TextFormField(
+                        autofocus: false,
+                        readOnly: true,
+                        showCursor: false,
+                        style: TextStyle(fontSize: 15.0,
+                          fontFamily: FontConstants.AppFont,
+                          fontWeight: FontWeight.w400,
+                          color: ColorConstants.white,
+                        ),
                         onTap: (){
                           Get.to(NewPostScreen(uploadedPost: (post){
                             setState(() {
@@ -228,43 +252,26 @@ class _HomeScreenState extends BaseState<HomeScreen> {
                             });
                           },));
                         },
-                        child: TextFormField(
-                          autofocus: false,
-                          readOnly: true,
-                          showCursor: false,
-                          style: TextStyle(fontSize: 15.0,
-                            fontFamily: FontConstants.AppFont,
-                            fontWeight: FontWeight.w400,
-                            color: ColorConstants.white,
-                          ),
-                          onTap: (){
-                            Get.to(NewPostScreen(uploadedPost: (post){
-                              setState(() {
-                                posts.insert(0, post);
-                              });
-                            },));
-                          },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: ColorConstants.textFieldBackground,
-                            hintText: 'What’s on your mind?',
-                            hintStyle: TextStyle(color:ColorConstants.white),
-                            border: InputBorder.none,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: ColorConstants.textFieldBackground,
+                          hintText: 'What’s on your mind?',
+                          hintStyle: TextStyle(color:ColorConstants.white),
+                          border: InputBorder.none,
 
-                            contentPadding:
-                            const EdgeInsets.only(left: 14.0, bottom: 8.0, top: 8.0),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: ColorConstants.white),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: ColorConstants.textFieldBackground),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
+                          contentPadding:
+                          const EdgeInsets.only(left: 14.0, bottom: 8.0, top: 8.0),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: ColorConstants.white),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: ColorConstants.textFieldBackground),
+                            borderRadius: BorderRadius.circular(5),
                           ),
                         ),
                       ),
-                    ),
+                    ),)
                   ],
                 ),
               ),

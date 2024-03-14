@@ -30,6 +30,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
@@ -54,6 +56,7 @@ import '../../components/UserListItemWidget.dart';
 import '../../components/app_text.dart';
 import '../../base/base_state.dart';
 import '../../components/fucus_detector.dart';
+import '../../components/item/TagDev.dart';
 import '../../components/loading_widget.dart';
 import '../../components/post_widget.dart';
 import '../newPostScreen.dart';
@@ -125,13 +128,8 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
 
   Future<void> getUserInfo() async {
     var response = await DioClient.getUser(user.nickname);
-    await CachedNetworkImage.evictFromCache(user.picture);
-    ImageCache().clearLiveImages();
-    ImageCache().clear();
-    print(user.nickname);
     setState(() {
       user = UserModel.fromJson(response.data["result"]["target"]);
-      print(user.nickname);
       print(response);
       if(user.id == Constants.user.id) {
         Constants.user = user;
@@ -162,7 +160,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
         File? f = await file.originFile;
         if (file.type == AssetType.image && f != null) {
           var response = await DioClient.updateUserProfile(f, null,null,null);
-          await CachedNetworkImage.evictFromCache(user.picture);
+          Constants.cachingKey = DateTime.now().millisecondsSinceEpoch.toString();
           getUserInfo();
         }
       });
@@ -175,7 +173,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
       File? f = await file.getFile();
       if (file.mediumType == MediumType.image && f != null) {
         var response = await DioClient.updateUserProfile(f, null, null, null);
-        await CachedNetworkImage.evictFromCache(user.picture);
+        Constants.cachingKey = DateTime.now().millisecondsSinceEpoch.toString();
         getUserInfo();
       }
     });
@@ -247,9 +245,6 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                               });
                             },));
                           }, logout: () async {
-                            final SharedPreferences prefs = await SharedPreferences.getInstance();
-                            prefs.clear();
-                            prefs.setBool("isShowOnBoard", true);
                             await FirebaseAuth.instance.signOut();
                             Get.offAll(SplashPage());
                           }));
@@ -338,6 +333,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                                                 builder: (_, controller) => GalleryBottomSheet(
                                                                   controller: controller,
                                                                   limitCnt: 1,
+                                                                  sendText: "변경하기",
                                                                   onTapSend: (results){
                                                                     procAssetsWithGallery(results);
                                                                   },
@@ -381,7 +377,10 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                               SizedBox(width: 5,),
 
                                               if(user.profile.jobGroup == "1")
-                                                TagCreatorWidget()
+                                                TagCreatorWidget(),
+                                              SizedBox(width: Get.width*0.01),
+                                              if(user.profile.jobPosition == "0")
+                                                TagDevWidget()
                                             ],
                                           ),
 
@@ -472,7 +471,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                                   ),
                                                   child: Container(
                                                     width: Get.width * 0.6,
-                                                    height: Get.width * 0.8,
+                                                    height: Get.width * 0.4 + 180,
                                                     padding: EdgeInsets.only(
                                                         left: 15, right: 15),
                                                     child: Column(
@@ -549,7 +548,11 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
 
                                       GestureDetector(
                                         onTap: (){
-                                          Get.to(ProfileEditScreen());
+                                          Get.to(ProfileEditScreen(onRefreshUser: (user){
+                                            setState(() {
+                                              this.user = user;
+                                            });
+                                          },));
                                         },
                                         child: ImageUtils.setImage(ImageConstants.editRoomIcon, 25, 25),
                                       )
@@ -658,8 +661,8 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                 maxLines: 4,
                                 truncate: true,
                                 supportedTypes: [],
-                                viewLessText: '줄이기',
-                                viewMoreText: '더 보기',
+                                viewLessText: 'less'.tr(),
+                                viewMoreText: 'more'.tr(),
                                 viewMoreLessStyle : TextStyle(
                                     fontSize: 12,
                                     color: ColorConstants.halfWhite,
@@ -695,7 +698,9 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                   children: [
                                     Expanded(
                                         child: GestureDetector(
-                                          onTap: (){
+                                          onTap: () async {
+                                            var response = await DioClient.getUserChatRoom(user.id);
+                                            print(response);
 
                                           },
                                           child: Container(
@@ -723,16 +728,13 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                     Expanded(
                                         child: GestureDetector(
                                           onTap: () async {
-                                            if(user.isFollowing){
+                                            setState(() {
+                                              user.isFollowing = !user.isFollowing;
+                                            });
+                                            if(!user.isFollowing){
                                               await DioClient.postUserUnFollow(user.id);
-                                              setState(() {
-                                                user.isFollowing = false;
-                                              });
                                             }else{
                                               await DioClient.postUserFollow(user.id);
-                                              setState(() {
-                                                user.isFollowing = true;
-                                              });
                                             }
                                           },
                                           child: Container(
@@ -886,8 +888,8 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                               fontFamily: FontConstants.AppFont,
                               fontWeight: FontWeight.w700),
                           tabs: [
-                            Tab(text: '포스트 ${totalPost}'),
-                            Tab(text: '게임 ${user.games.length}'),
+                            Tab(text: '${"post".tr()} ${totalPost}'),
+                            Tab(text: '${"game".tr()} ${user.games.length}'),
                           ],
                           onTap: (index) {
                             setState(() {

@@ -9,10 +9,11 @@ import 'package:app/pages/components/BtnBottomSheetWidget.dart';
 import 'package:app/pages/components/app_text.dart';
 import 'package:app/pages/screens/discover/DiscoverGameDetails.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 
 import '../../Constants/ColorConstants.dart';
@@ -108,6 +109,10 @@ class _UserListItemWidget extends BaseState<NotificationWidget> {
                           maxLines: 2,
                           TextSpan(
                             text: user.nickname,
+                            recognizer: TapGestureRecognizer()
+                            ..onTapUp = (details) {
+                              Get.to(ProfileScreen(user: user));
+                            },
                             style: TextStyle(
                               color: ColorConstants.white,
                               fontWeight: FontWeight.w700,
@@ -150,9 +155,11 @@ class _UserListItemWidget extends BaseState<NotificationWidget> {
               child: !user.isFollowing ?
               GestureDetector(
                 onTap: () async {
-                  var response = await DioClient.postUserFollow(user.id);
                   setState(() {
                     user.isFollowing = true;
+                  });
+                  var response = await DioClient.postUserFollow(user.id);
+                  setState(() {
                     widget.userFollowing();
                   });
                 },

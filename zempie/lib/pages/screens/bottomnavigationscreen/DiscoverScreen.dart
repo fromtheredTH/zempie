@@ -24,17 +24,31 @@ import '../../../models/PostModel.dart';
 import '../../components/CutomTitleBar.dart';
 import '../../components/app_text.dart';
 import '../discover/discoverSearchScreen.dart';
+import 'bottomNavBarScreen.dart';
 
 class DiscoverScreen extends StatefulWidget {
-  DiscoverScreen({Key? keyrequired, this.hashTag, required this.changePage});
+  DiscoverScreen({Key? key, this.hashTag, required this.changePage, required this.onTapLogo, required this.discoverController});
   Function(String, String) changePage;
   String? hashTag;
+  Function() onTapLogo;
+  HomeController discoverController;
 
   @override
-  State<DiscoverScreen> createState() => _DiscoverScreen();
+  State<DiscoverScreen> createState() => _DiscoverScreen(discoverController);
 }
 
 class _DiscoverScreen extends BaseState<DiscoverScreen> {
+
+  _DiscoverScreen(HomeController discoverController){
+    discoverController.initHome = initHome;
+  }
+
+  void initHome(){
+    setState(() {
+      isSearchMode = false;
+      searchController.text = "";
+    });
+  }
 
   late Future postFuture;
   late List<PostModel> posts;
@@ -56,12 +70,6 @@ class _DiscoverScreen extends BaseState<DiscoverScreen> {
   List<CommunityModel> communities = <CommunityModel>[];
 
   Future<List<PostModel>> initPosts() async {
-    // var response = await DioClient.getDiscovers(10, 0);
-    // posts = response.data["result"] == null ? [] : response
-    //     .data["result"].map((json) => PostModel.fromJson(json)).toList().cast<
-    //     PostModel>();
-    // discoverPage = 1;
-    // hasPostNextPage = response.data["pageInfo"]?["hasNextPage"] ?? false;
     posts = Constants.discoverPosts;
     discoverPage = 1;
     hasPostNextPage = Constants.initDiscoverHasNextPage;
@@ -134,6 +142,8 @@ class _DiscoverScreen extends BaseState<DiscoverScreen> {
                 padding: EdgeInsets.only(left: 10, right: 10),
                 child: CustomTitleBar(callBack: (){
                   Get.to(ProfileScreen(user: Constants.user));
+                },onTapLogo: (){
+                  widget.onTapLogo();
                 },)),
             SizedBox(height: Get.height*0.02),
             Padding(
@@ -362,7 +372,14 @@ class _DiscoverScreen extends BaseState<DiscoverScreen> {
                     future: postFuture,
                     builder: (context, snapshot) {
                       if(snapshot.hasData){
-                        return GridView.builder(
+                        return RefreshIndicator(
+                            onRefresh: () async {
+                              await initPosts();
+                              setState(() {
+
+                              });
+                            },
+                            child: GridView.builder(
                           padding: EdgeInsets.only(top: 15),
                           shrinkWrap: true,
                           scrollDirection: Axis.vertical,
@@ -383,6 +400,7 @@ class _DiscoverScreen extends BaseState<DiscoverScreen> {
                             }
                             return DiscoverWidget(post: posts[index]);
                           },
+                        )
                         );
                       }
                       return Expanded(

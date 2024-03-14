@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 import 'package:html/dom.dart';
 import 'package:html/dom.dart';
@@ -26,6 +26,7 @@ import '../../Constants/ColorConstants.dart';
 import '../../Constants/FontConstants.dart';
 import '../../Constants/ImageConstants.dart';
 import '../../Constants/utils.dart';
+import '../../models/User.dart';
 import '../../models/res/btn_bottom_sheet_model.dart';
 import '../base/base_state.dart';
 import '../screens/bottomnavigationscreen/bottomNavBarScreen.dart';
@@ -46,16 +47,30 @@ class PostReplyWidget extends StatefulWidget {
 class _PostReplyWidget extends BaseState<PostReplyWidget> {
 
   late PostReplyModel reply;
+  String contents = "";
+  String translationContents = "";
+  bool isTranslation = false;
 
   @override
   void initState() {
     reply = widget.reply;
+    contents = reply.contents;
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) {
+  void didUpdateWidget(covariant PostReplyWidget oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
     reply = widget.reply;
+    contents = reply.contents;
+    isTranslation = false;
+    translationContents = "";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
     return Padding(
       padding: EdgeInsets.only(top: 15, left: widget.isChild ? 30 : 0),
       child: Column(
@@ -156,7 +171,7 @@ class _PostReplyWidget extends BaseState<PostReplyWidget> {
             Container(
               width: Get.width,
               child: RichTextView(
-                  text: reply.contents,
+                  text: isTranslation ? translationContents : contents,
                   truncate: false,
                   style: TextStyle(
                       fontSize: 14,
@@ -173,8 +188,13 @@ class _PostReplyWidget extends BaseState<PostReplyWidget> {
 
                   supportedTypes: [
                     MentionParser(
-                        onTap: (mention) {
-
+                        onTap: (mention) async {
+                          if(mention.value!.length != 0){
+                            String nickname = mention.value!.substring(1,mention.value!.length);
+                            var response = await DioClient.getUser(nickname);
+                            UserModel user = UserModel.fromJson(response.data["result"]["target"]);
+                            Get.to(ProfileScreen(user: user));
+                          }
                         }),
                     HashTagParser(
                         onTap: (hashtag) {
@@ -260,11 +280,22 @@ class _PostReplyWidget extends BaseState<PostReplyWidget> {
               ),
 
               GestureDetector(
-                onTap: (){
-
+                onTap: ()async {
+                  if(!isTranslation){
+                    if(contents.isNotEmpty && translationContents.isEmpty) {
+                      var response = await DioClient.translate(contents);
+                      List<dynamic> results = response.data["result"]["translations"];
+                      if(results.isNotEmpty){
+                        translationContents = results[0]["translatedText"];
+                      }
+                    }
+                  }
+                  setState(() {
+                    isTranslation = !isTranslation;
+                  });
                 },
                 child: AppText(
-                    text: "번역보기",
+                    text: isTranslation ? "원문보기" : "번역보기",
                     fontSize: 12,
                     color: ColorConstants.white
                 ),

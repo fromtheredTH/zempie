@@ -6,9 +6,10 @@ import 'package:app/models/CommunityModel.dart';
 import 'package:app/models/GameModel.dart';
 import 'package:app/pages/base/base_state.dart';
 import 'package:app/pages/components/app_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 
 import '../../Constants/ColorConstants.dart';
@@ -70,7 +71,7 @@ class _BottomPostGameWidget extends BaseState<BottomPostGameWidget> {
                 fontWeight: FontWeight.w700,
               ),
               AppText(
-                text: "개 게임이 등록되어 있습니다.",
+                text: "bottom_post_game_widget_guide".tr(),
                 fontSize: 14,
                 color: ColorConstants.white,
                 fontWeight: FontWeight.w700,
@@ -153,7 +154,7 @@ class _BottomPostGameWidget extends BaseState<BottomPostGameWidget> {
                       ),
                       child: Center(
                         child: AppText(
-                          text: Constants.user.games.length == 0 ? "닫기" : "취소",
+                          text: Constants.user.games.length == 0 ? "close".tr() : "cancel".tr(),
                           fontSize: 0.016,
                           color: ColorConstants.white,
                           fontFamily: FontConstants.AppFont,
@@ -178,7 +179,7 @@ class _BottomPostGameWidget extends BaseState<BottomPostGameWidget> {
                       ),
                       child: Center(
                         child: AppText(
-                          text: Constants.user.games.length == 0 ? "게임 등록하기" : "확인",
+                          text: Constants.user.games.length == 0 ? "게임 등록하기" : "confirm".tr(),
                           fontSize: 0.016,
                           color: ColorConstants.white,
                           fontFamily: FontConstants.AppFont,

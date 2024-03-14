@@ -7,6 +7,7 @@ import 'package:app/models/HexColor.dart';
 import 'package:app/models/PostModel.dart';
 import 'package:app/pages/base/base_state.dart';
 import 'package:app/pages/components/BottomPostCommunityWidget.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -77,22 +78,24 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
    Future<void> getUpdatePost() async {
      var response = await DioClient.getPost(widget.post!.id);
 
-     List<dynamic> comList = response.data["posted_at"]["posted_at"][0]["communities"];
+     List<dynamic> comList = response.data["posted_at"]["posted_at"][0]["communities"] ?? [];
      selectedChannels = comList.map((json) {
        ChannelModel channel = ChannelModel.fromJson(json);
        channel.id = json["channel_id"];
        channel.communityId = json["id"];
        return channel;
      }).toList();
-     List<dynamic> gameList = response.data["posted_at"]["posted_at"][0]["games"];
+     List<dynamic> gameList = response.data["posted_at"]["posted_at"][0]["games"] ?? [];
      List<GameModel> games = gameList.map((json) => GameModel.fromJson(json)).toList();
      if(games.isNotEmpty){
        selectedGame = games.first;
      }
      if(response.data["posted_at"]["background_id"] != null){
+       print("백그라운드 아이디 ${response.data["posted_at"]["background_id"]}");
        for(int i=0;i<Constants.bgLists.length;i++) {
+         print("백그라운드 아이디 ${Constants.bgLists[i].id}");
          if(response.data["posted_at"]["background_id"] == Constants.bgLists[i].id) {
-           selectedBg = i;
+           selectedBg = i+1;
            break;
          }
        }
@@ -101,7 +104,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
      if(mentionController != null){
        mentionController!.text = content;
      }
-     List<dynamic> attatchmentFile = response.data["attatchment_files"];
+     List<dynamic> attatchmentFile = response.data["attatchment_files"] ?? [];
      int index = 0;
      List<PostFileModel> files = [];
      for(int i=0;i<attatchmentFile.length;i++){
@@ -307,7 +310,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                             );
                             PostModel newPost = PostModel.fromJson(response.data);
                             widget.uploadedPost(newPost);
-                            Utils.showToast("포스트를 수정 했습니다");
+                            Utils.showToast("edited_post".tr());
                           }else {
                             var response = await DioClient.uploadPosting(
                                 content,
@@ -319,7 +322,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                             );
                             PostModel newPost = PostModel.fromJson(response.data);
                             widget.uploadedPost(newPost);
-                            Utils.showToast("포스트를 업로드 했습니다");
+                            Utils.showToast("uploaded_post".tr());
                           }
                           // widget.uploadedPost(PostModel.fromJson(response.data));
                           hideLoading();
@@ -327,7 +330,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                         }
                       },
                       child: AppText(
-                        text: _node.hasFocus ? "확인" : "등록하기",
+                        text: _node.hasFocus ? "confirm".tr() : "upload_ok".tr(),
                         fontSize: 14,
                       ),
                     )
@@ -346,7 +349,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                         ),
                         fit: BoxFit.fill
                     ),
-                    color: selectedBg == 0 ? ColorConstants.textGry : HexColor(Constants.bgLists[selectedBg-1].hexColor)
+                    color: selectedBg == 0 ? ColorConstants.colorBg1 : HexColor(Constants.bgLists[selectedBg-1].hexColor)
                 ),
                 child: Column(
                   children: [
@@ -371,11 +374,12 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                                 child: Container(
                                   margin: EdgeInsets.only(right: 15),
                                   decoration: BoxDecoration(
-                                      color: index == 0 ? ColorConstants.textGry : HexColor(Constants.bgLists[index-1].hexColor),
+                                      color: index == 0 ? ColorConstants.colorBg1 : HexColor(Constants.bgLists[index-1].hexColor),
                                       border: Border.all(
-                                        color: ColorConstants.colorMain,
-                                        width: index == selectedBg ? 1 : 0,
-                                      )
+                                        color: index == selectedBg ? ColorConstants.colorMain : Color(0xff4f4f4f),
+                                        width: 1,
+                                      ),
+                                    borderRadius: BorderRadius.circular(2)
                                   ),
                                   child: ImageUtils.setGameListNetworkImage(index == 0 ? "" : Constants.bgLists[index-1].imgUrl),
                                 ),
@@ -451,6 +455,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                                                       color: ColorConstants.blue1
                                                   ),
                                                   onMentionablesChanged: (users) {
+                                                    print("멘션 테스트 ${mentionController!.buildMentionedValue()}");
                                                     if (users.length == 0 &&
                                                         !mentionController!.buildMentionedValue()
                                                             .endsWith("@")) {
@@ -499,10 +504,11 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                                                       fontWeight: FontWeight.w700,
                                                     ),
 
-                                                    Container(
+                                                    SizedBox(width: 10,),
+
+                                                    Flexible(child: Container(
                                                       height: 4,
                                                       // Adjust the height of the progress indicator
-                                                      width: Get.width * 0.8,
                                                       decoration: BoxDecoration(
                                                         borderRadius: BorderRadius.circular(5),
                                                         // Set borderRadius to make corners rounded
@@ -518,7 +524,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                                                             Color>(Colors
                                                             .red), // Set value color to red
                                                       ),
-                                                    ),
+                                                    ),)
                                                   ],
                                                 ),
                                               ),
@@ -668,7 +674,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                                 }
                               }
                             }else{
-                              Utils.showToast("사진은 5개까지 업로드가 가능합니다");
+                              Utils.showToast("image_uploaded_limit".tr());
                             }
                           },
                           child: Row(
@@ -676,7 +682,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                               Icon(Icons.camera_alt_outlined, color:Colors.white),
                               SizedBox(width: Get.width*0.018,),
                               AppText(
-                                text: "카메라",
+                                text: "camera".tr(),
                                 fontSize: 14,
                                 fontFamily: FontConstants.AppFont,
                               ),
@@ -716,7 +722,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                                 );
                               }
                             }else{
-                              Utils.showToast("사진은 5개까지 업로드가 가능합니다");
+                              Utils.showToast("image_uploaded_limit".tr());
                             }
                           },
                           child: Row(
@@ -724,7 +730,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                               SvgPicture.asset(ImageConstants.imageSquare,height: Get.height*0.03,),
                               SizedBox(width: Get.width*0.018,),
                               AppText(
-                                text: "사진 / 동영상",
+                                text: "camera_gallery".tr(),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                               ),
@@ -752,7 +758,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                                   SvgPicture.asset(ImageConstants.timeLine,height: Get.height*0.03,),
                                   SizedBox(width: Get.width*0.018,),
                                   AppText(
-                                    text: "커뮤니티 태그",
+                                    text: "community_tag".tr(),
                                     fontSize: 14,
                                     color: Colors.white,
                                     fontFamily: FontConstants.AppFont,
@@ -763,7 +769,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                               Row(
                                 children: [
                                   AppText(
-                                    text: "${selectedChannels.length}개",
+                                    text: "community_tag_count".tr(args: [selectedChannels.length.toString()]),
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
                                   ),
@@ -802,7 +808,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                                   SvgPicture.asset(ImageConstants.gameImage,height: Get.height*0.03,),
                                   SizedBox(width: Get.width*0.018,),
                                   AppText(
-                                    text: "게임 태그",
+                                    text: "game_tag".tr(),
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
                                   ),

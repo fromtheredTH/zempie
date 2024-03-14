@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
@@ -9,13 +10,13 @@ class KoreanCameraPickerTextDelegate extends CameraPickerTextDelegate {
   String get languageCode => 'ko';
 
   @override
-  String get confirm => '확인';
+  String get confirm => 'confirm'.tr();
 
   @override
-  String get shootingTips => 'Tap to take photo.';
+  String get shootingTips => 'camera_description'.tr();
 
   @override
-  String get shootingWithRecordingTips => '사진을 짧게, 동영상은 길게 눌러 주세요.';
+  String get shootingWithRecordingTips => 'camera_video_description'.tr();
 
   @override
   String get shootingOnlyRecordingTips => 'Long press to record video.';
@@ -88,7 +89,7 @@ class MyAssetPicker {
     final AssetEntity? result = await CameraPicker.pickFromCamera(
       context,
       pickerConfig: const CameraPickerConfig(
-        enableRecording: true,
+        enableRecording: false,
         textDelegate: KoreanCameraPickerTextDelegate(),
       ),
     );

@@ -5,9 +5,11 @@ import 'dart:io';
 
 import 'package:app/models/GameModel.dart';
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../Constants/Constants.dart';
+import '../Constants/ImageUtils.dart';
 import '../helpers/common_util.dart';
 import '../models/dto/file_dto.dart';
 
@@ -49,7 +51,7 @@ class DioClient {
           print("::: Api error : $e");
 
           if (e.response == null) {
-            showToast("네트워크가 불안정합니다.");
+            showToast("taost_nework_unable".tr());
           } else {
             try {
               print(e.response?.requestOptions.path);
@@ -139,6 +141,15 @@ class DioClient {
       "offset": page*size
     };
     return getInstance(communityBaseUrl).get("/discover", queryParameters: queryData);
+  }
+
+  static Future<Response> getDiscoverPostings(int size, int page, String postId) {
+    Map<String, dynamic> queryData = {
+      "limit": size,
+      "offset": page*size,
+      "post_id":postId
+    };
+    return getInstance(communityBaseUrl).get("/discover/timeline", queryParameters: queryData);
   }
 
   static Future<Response> likePost(String postId) {
@@ -427,10 +438,9 @@ class DioClient {
 
   static Future<Response> editPostComment(String replyId, String content) {
     final formData = jsonEncode({
-      "id": replyId,
       "contents": content
     });
-    return getInstance(communityBaseUrl).patch("/post/comment", data: formData);
+    return getInstance(communityBaseUrl).patch("/post/comment/${replyId}", data: formData);
   }
 
   static Future<Response> removePostComment(String replyId) {
@@ -587,7 +597,7 @@ class DioClient {
   static Future<Response> getUser(String nickname) {
     return getInstance(platformBaseUrl).get("/user/${nickname}");
   }
-  static Future<Response> updateUserProfile(File? profileFile, File? bannerFile, bool? rmPicture, bool? rmBanner) {
+  static Future<Response> updateUserProfile(File? profileFile, File? bannerFile, bool? rmPicture, bool? rmBanner) async {
 
     Dio dio = getInstance(platformBaseUrl);
     dio.options.contentType = "multipart/form-data";
@@ -595,11 +605,13 @@ class DioClient {
     final dataMap = Map<String,dynamic>();
 
     if(profileFile != null){
-      dataMap["file"] = MultipartFile.fromFileSync(profileFile.path);
+      File sendFile = await ImageUtils.resizeImageFile(profileFile);
+      dataMap["file"] = MultipartFile.fromFileSync(sendFile.path);
     }
 
     if(bannerFile != null){
-      dataMap["banner_file"] = MultipartFile.fromFileSync(bannerFile.path);
+      File sendFile = await ImageUtils.resizeImageFile(bannerFile);
+      dataMap["banner_file"] = MultipartFile.fromFileSync(sendFile.path);
     }
     if(rmPicture != null) {
       dataMap["rm_picture"] = rmPicture;
@@ -640,6 +652,16 @@ class DioClient {
       "range":range
     });
     return getInstance(platformBaseUrl).patch("/user/alarm-setting", data: formData);
+  }
+
+  static Future<Response> getUserChatRoom(int userId) {
+    Map<String, dynamic> queryData = {
+      "limit" : 1,
+      "offset" : 0,
+      "perfact": true,
+      "user_ids" : userId
+    };
+    return getInstance(platformBaseUrl).get("/user/alarm-setting", queryParameters: queryData);
   }
 
   static Future<Response> setAlarm(String type, bool value) {

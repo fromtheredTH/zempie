@@ -16,9 +16,10 @@ class CustomTitleBar extends StatelessWidget {
   double? padding;
   final VoidCallback? callBack;
   String? notShowBackIcon;
+  Function() onTapLogo;
   RxInt unReadCount = Constants.user.meta.unreadNotiCount.obs;
 
-  CustomTitleBar({Key? key, this.title,  this.imageUrl, this.color,this.padding,this.callBack,this.notShowBackIcon}):super(key: key);
+  CustomTitleBar({Key? key, this.title,  this.imageUrl, this.color,this.padding,this.callBack,this.notShowBackIcon, required this.onTapLogo}):super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +40,15 @@ class CustomTitleBar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Padding(
-                padding: EdgeInsets.only(right: 15),
-                child: SvgPicture.asset(ImageConstants.appLogo, height: 30,)),
+            GestureDetector(
+              onTap: (){
+                onTapLogo();
+              },
+              child: Padding(
+                  padding: EdgeInsets.only(right: 15),
+                  child: SvgPicture.asset(ImageConstants.appLogo, height: 30,)),
+            ),
+
             Row(
 
               children: [

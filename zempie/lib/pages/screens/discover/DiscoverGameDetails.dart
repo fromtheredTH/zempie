@@ -12,6 +12,7 @@ import 'package:app/pages/screens/discover/GameDetailReplyScreen.dart';
 import 'package:app/pages/screens/discover/GameFollowerScreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -170,14 +171,14 @@ class _DiscoverGameDetailsState extends BaseState<DiscoverGameDetails> {
                       onTap: (){
                         List<BtnBottomSheetModel> items = [];
                         if(game.isFollow)
-                          items.add(BtnBottomSheetModel(ImageConstants.unSubscribe, "팔로우 취소", 0));
-                        items.add(BtnBottomSheetModel(ImageConstants.report, "게임 신고", 1));
+                          items.add(BtnBottomSheetModel(ImageConstants.unSubscribe, "follow_cancel".tr(), 0));
+                        items.add(BtnBottomSheetModel(ImageConstants.report, "game_report".tr(), 1));
 
                         Get.bottomSheet(BtnBottomSheetWidget(btnItems: items, onTapItem: (menuIndex) async {
                           if(menuIndex == 0){
                             await DioClient.postGameUnFollow(game.id);
                             Constants.removeGameFollow(game.id);
-                            Utils.showToast("팔로우가 취소되었습니다");
+                            Utils.showToast("cancel_follow".tr());
                             initGameDetail();
                           }else{
                             showModalBottomSheet<dynamic>(
@@ -188,7 +189,7 @@ class _DiscoverGameDetailsState extends BaseState<DiscoverGameDetails> {
                                 builder: (BuildContext bc) {
                                   return ReportDialog(type: "game", onConfirm: (reportList, reason) async {
                                     var response = await DioClient.reportGame(game.id, reportList, reason);
-                                    Utils.showToast("신고가 완료되었습니다");
+                                    Utils.showToast("report_complete");
                                   },);
                                 }
                             );
@@ -323,7 +324,7 @@ class _DiscoverGameDetailsState extends BaseState<DiscoverGameDetails> {
                                   }else{
                                     await DioClient.postGameFollow(game.id);
                                     Constants.addGameFollow(game);
-                                    Utils.showToast("게임을 팔로우 하였습니다");
+                                    Utils.showToast("game_folow_complete".tr());
                                     initGameDetail();
                                   }
                                 },
@@ -341,13 +342,13 @@ class _DiscoverGameDetailsState extends BaseState<DiscoverGameDetails> {
                                     children: [
                                       Icon(Icons.add, color: ColorConstants.colorMain, size: 16,),
                                       SizedBox(width: 5),
-                                      AppText(text: "팔로우",
+                                      AppText(text: "follow".tr(),
                                           fontSize: 14,
                                           fontWeight: FontWeight.w400,
                                           color: ColorConstants.colorMain),
                                     ],
                                   ) : Center(
-                                    child: AppText(text: "팔로워 ${game.followerCount}",
+                                    child: AppText(text: "${"follower".tr()} ${game.followerCount}",
                                         fontSize: 14,
                                         fontWeight: FontWeight.w400,
                                         color: ColorConstants.colorMain),
@@ -369,7 +370,14 @@ class _DiscoverGameDetailsState extends BaseState<DiscoverGameDetails> {
                           truncate: true,
                           supportedTypes: [
                             MentionParser(
-                                onTap: (mention) => print('${mention.value} clicked')),
+                                onTap: (mention) async {
+                                  if(mention.value!.length != 0){
+                                    String nickname = mention.value!.substring(1,mention.value!.length);
+                                    var response = await DioClient.getUser(nickname);
+                                    UserModel user = UserModel.fromJson(response.data["result"]["target"]);
+                                    Get.to(ProfileScreen(user: user));
+                                  }
+                                }),
                             HashTagParser(
                                 onTap: (hashtag) =>
                                     print('is ${hashtag.value} trending?')),
@@ -378,8 +386,8 @@ class _DiscoverGameDetailsState extends BaseState<DiscoverGameDetails> {
                             }
                             ),
                           ],
-                          viewLessText: '줄이기',
-                          viewMoreText: '더보기',
+                          viewLessText: 'less'.tr(),
+                          viewMoreText: 'more'.tr(),
                           textAlign: TextAlign.left,
                           viewMoreLessStyle : TextStyle(
                               fontSize: 14,
@@ -472,8 +480,8 @@ class _DiscoverGameDetailsState extends BaseState<DiscoverGameDetails> {
                               fontFamily: FontConstants.AppFont,
                               fontWeight: FontWeight.w700),
                           tabs: [
-                            Tab(text: '포스트 ${game.postCount}'),
-                            Tab(text: '코멘트 ${game.commentCount}'),
+                            Tab(text: '${"post".tr()} ${game.postCount}'),
+                            Tab(text: 'comment'.tr(args: [game.commentCount.toString()])),
                           ],
                           onTap: (index) {
                             setState(() {
@@ -494,7 +502,7 @@ class _DiscoverGameDetailsState extends BaseState<DiscoverGameDetails> {
                                   padding: EdgeInsets.only(top: 50,bottom: 50),
                                   child: Center(
                                     child: AppText(
-                                      text: "포스팅이 없습니다",
+                                      text: "empty_post".tr(),
                                       fontSize: 14,
                                       color: ColorConstants.halfWhite,
                                     ),
@@ -581,7 +589,7 @@ class _DiscoverGameDetailsState extends BaseState<DiscoverGameDetails> {
                                     padding: EdgeInsets.symmetric(vertical: 5,horizontal: 10),
                                     child: Center(
                                       child: AppText(
-                                          text: "최근",
+                                          text: "recent".tr(),
                                           fontSize: 14,
                                           textAlign: TextAlign.center,
                                           color: replySortedIndex == 1 ? ColorConstants.black : ColorConstants.halfWhite,
@@ -601,7 +609,7 @@ class _DiscoverGameDetailsState extends BaseState<DiscoverGameDetails> {
                                         padding: EdgeInsets.only(top: 50,bottom: 50),
                                         child: Center(
                                           child: AppText(
-                                            text: "코멘트가 없습니다",
+                                            text: "empty_comment".tr(),
                                             fontSize: 14,
                                             color: ColorConstants.halfWhite,
                                           ),
@@ -708,7 +716,7 @@ class _DiscoverGameDetailsState extends BaseState<DiscoverGameDetails> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       AppText(
-                          text: "코멘트를 수정 중 입니다",
+                          text: "editing_comment".tr(),
                         fontSize: 13,
                       ),
 
@@ -728,7 +736,7 @@ class _DiscoverGameDetailsState extends BaseState<DiscoverGameDetails> {
                 ),
 
               Padding(
-                padding: EdgeInsets.only(right: 5, left: 10, top: 15, bottom: MediaQuery.of(context).padding.bottom+15),
+                padding: EdgeInsets.only(right: 15, left: 10, top: 15, bottom: MediaQuery.of(context).padding.bottom+15),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -739,80 +747,81 @@ class _DiscoverGameDetailsState extends BaseState<DiscoverGameDetails> {
                       child: ImageUtils.ProfileImage(Constants.user.picture, 30, 30),
                     ),
                     SizedBox(width: 15,),
-                    Container(
-                      decoration: BoxDecoration(color: ColorConstants.backGry,
-                          borderRadius: BorderRadius.all(Radius.circular(5.0))),
-                      child: Row(
-                        children:[
-                          SizedBox(
-                            width: Get.width * 0.025,
-                          ),
-                          SizedBox(
-                              width: Get.width*0.7,
-                              child: MentionableTextField(
-                                maxLines: 4,
-                                minLines: 1,
-                                focusNode: _node,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: FontConstants.AppFont,
-                                    color: ColorConstants.white
-                                ),
-                                decoration: InputDecoration(
-                                    hintText: "코멘트 달기...",
-                                    hintStyle: TextStyle(
+                    Flexible(
+                        child: Container(
+                          decoration: BoxDecoration(color: ColorConstants.backGry,
+                              borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                          child: Row(
+                            children:[
+                              SizedBox(
+                                width: Get.width * 0.025,
+                              ),
+                              Flexible(
+                                  child: MentionableTextField(
+                                    maxLines: 4,
+                                    minLines: 1,
+                                    focusNode: _node,
+                                    style: TextStyle(
                                         fontSize: 14,
                                         fontFamily: FontConstants.AppFont,
-                                        color: ColorConstants.halfWhite
+                                        color: ColorConstants.white
                                     ),
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.zero
-                                ),
-                                onControllerReady: (value) {
-                                  mentionController = value;
-                                },
-                                mentionables: Constants.myFollowings,
-                                onChanged: (text){
-                                  replyText = text;
-                                },
-                                mentionStyle: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: FontConstants.AppFont,
-                                    color: ColorConstants.blue1
-                                ),
-                                onMentionablesChanged: (users) {
-                                  if(users.length == 0 && !replyText.endsWith("@")) {
-                                    setState(() {
+                                    decoration: InputDecoration(
+                                        hintText: "comment_hint".tr(),
+                                        hintStyle: TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: FontConstants.AppFont,
+                                            color: ColorConstants.halfWhite
+                                        ),
+                                        border: InputBorder.none,
+                                        contentPadding: EdgeInsets.zero
+                                    ),
+                                    onControllerReady: (value) {
+                                      mentionController = value;
+                                    },
+                                    mentionables: Constants.myFollowings,
+                                    onChanged: (text){
+                                      replyText = text;
+                                    },
+                                    mentionStyle: TextStyle(
+                                        fontSize: 14,
+                                        fontFamily: FontConstants.AppFont,
+                                        color: ColorConstants.blue1
+                                    ),
+                                    onMentionablesChanged: (users) {
+                                      if(users.length == 0 && !replyText.endsWith("@")) {
+                                        setState(() {
+                                          mentionUsers.clear();
+                                        });
+                                        return;
+                                      }
                                       mentionUsers.clear();
-                                    });
-                                    return;
-                                  }
-                                  mentionUsers.clear();
-                                  for(int i=0;i<users.length;i++){
-                                    UserModel model = users[i] as UserModel;
-                                    mentionUsers.add(model);
-                                  }
-                                  List<int> followIdList = mentionUsers.map((e) => e.id).toList();
-                                  for(int i=0;i<Constants.myFollowings.length;i++){
-                                    if(!followIdList.contains(Constants.myFollowings[i].id)){
-                                      mentionUsers.add(Constants.myFollowings[i]);
-                                    }
-                                  }
-                                  setState(() {
+                                      for(int i=0;i<users.length;i++){
+                                        UserModel model = users[i] as UserModel;
+                                        mentionUsers.add(model);
+                                      }
+                                      List<int> followIdList = mentionUsers.map((e) => e.id).toList();
+                                      for(int i=0;i<Constants.myFollowings.length;i++){
+                                        if(!followIdList.contains(Constants.myFollowings[i].id)){
+                                          mentionUsers.add(Constants.myFollowings[i]);
+                                        }
+                                      }
+                                      setState(() {
 
-                                  });
-                                },
+                                      });
+                                    },
+                                  )
                               )
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
                     ),
                     SizedBox(width: 15,),
                     GestureDetector(
                       onTap: () async {
                         String replyContent = mentionController.buildMentionedValue();
                         if(replyContent.isEmpty){
-                          Utils.showToast("코멘트를 입력해 주세요");
+                          Utils.showToast("please_input_comment".tr());
                           return;
                         }
 
@@ -831,7 +840,7 @@ class _DiscoverGameDetailsState extends BaseState<DiscoverGameDetails> {
                               }
                             }
                           });
-                          Utils.showToast("코멘트가 수정되었습니다");
+                          Utils.showToast("comment_edited".tr());
                         }else {
                           var response = await DioClient.sendGameComment(
                               game.id, replyContent, null);
@@ -841,7 +850,7 @@ class _DiscoverGameDetailsState extends BaseState<DiscoverGameDetails> {
                             replies.insert(0, result);
                             game.commentCount += 1;
                           });
-                          Utils.showToast("코멘트가 추가되었습니다");
+                          Utils.showToast("comment_added".tr());
                         }
                         replyText = "";
                         mentionController.text = "";

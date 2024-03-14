@@ -4,8 +4,9 @@ import 'package:app/Constants/ImageUtils.dart';
 import 'package:app/Constants/utils.dart';
 import 'package:app/models/CommunityModel.dart';
 import 'package:app/pages/components/app_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 
 import '../../Constants/Constants.dart';
@@ -13,8 +14,9 @@ import '../../global/DioClient.dart';
 import '../screens/communityScreens/community_detal_screen.dart';
 
 class CommunityWidget extends StatefulWidget {
-  CommunityWidget({super.key, required this.community});
+  CommunityWidget({super.key, required this.community, required this.onSubscribe});
   CommunityModel community;
+  Function(CommunityModel) onSubscribe;
 
   @override
   State<CommunityWidget> createState() {
@@ -41,6 +43,7 @@ class _CommunityWidget extends State<CommunityWidget> {
         Get.to(CommunityDetailScreen(community: community, refreshCommunity: (community){
         setState(() {
           this.community = community;
+          widget.onSubscribe(community);
         });
         },));
       },
@@ -55,14 +58,15 @@ class _CommunityWidget extends State<CommunityWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
 
-            Padding(
+            Container(
                 padding: EdgeInsets.only(top: 1,left: 1,right: 1),
+              height: Get.width*0.4*1.5/3*1.2,
               child: Stack(
                 children: [
-                  ImageUtils.setCommunityListNetworkImage(community.bannerImg),
+                  ImageUtils.setCommunityListNetworkImage(community.bannerImg, true),
                   Padding(
-                    padding:  EdgeInsets.only(top: Get.height*0.04),
-                    child: Center(child: ImageUtils.ProfileImage( community.profileImg, 64, 64)),
+                    padding:  EdgeInsets.only(top: Get.width*0.4*1.5/3*1.2 - Get.width*0.4*1.5/4),
+                    child: Center(child: ImageUtils.ProfileImage( community.profileImg, Get.width*0.4*1.5/4, Get.width*0.4*1.5/4)),
                   ),
                 ],
               ),
@@ -84,7 +88,7 @@ class _CommunityWidget extends State<CommunityWidget> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            SizedBox(height: Get.height*0.03,),
+            Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -97,7 +101,7 @@ class _CommunityWidget extends State<CommunityWidget> {
                       fontWeight: FontWeight.w700,
                     ),
                     AppText(
-                      text: '멤버',
+                      text: 'member'.tr(),
                       fontSize: 10,
                       color: ColorConstants.white70Percent,
                     ),
@@ -112,7 +116,7 @@ class _CommunityWidget extends State<CommunityWidget> {
                       fontWeight: FontWeight.w700,
                     ),
                     AppText(
-                      text: '포스트',
+                      text: 'post'.tr(),
                       fontSize: 10,
                       color: ColorConstants.white70Percent,
                     ),
@@ -127,7 +131,7 @@ class _CommunityWidget extends State<CommunityWidget> {
                       fontWeight: FontWeight.w700,
                     ),
                     AppText(
-                      text: '방문',
+                      text: 'visit'.tr(),
                       fontSize: 10,
                       color: ColorConstants.white70Percent,
                     ),
@@ -143,7 +147,8 @@ class _CommunityWidget extends State<CommunityWidget> {
                 setState(() {
                   community.isSubscribed = true;
                 });
-                Utils.showToast("가입이 완료되었습니다.");
+                Utils.showToast("subscribe_complete".tr());
+                widget.onSubscribe(community);
                 Constants.addCommunityFollow(community);
               },
               child: Container(
@@ -155,7 +160,7 @@ class _CommunityWidget extends State<CommunityWidget> {
                 ),
                 child: Center(
                   child: AppText(
-                    text: '가입하기',
+                    text: 'subscribe'.tr(),
                     fontSize: 13,
                   ),
                 ),
@@ -171,7 +176,7 @@ class _CommunityWidget extends State<CommunityWidget> {
               ),
               child: Center(
                 child: AppText(
-                  text: '입장하기',
+                  text: 'enterance',
                   fontSize: 13,
                   color: ColorConstants.colorMain,
                 ),

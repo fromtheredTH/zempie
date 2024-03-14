@@ -46,6 +46,7 @@ class Constants {
   static String translationCode = "";
   static String translationName = "";
   static List<TranslationModel> translationModel = [];
+  static String cachingKey = "";
 
   static List<String> reportUserLists = [
     "적합하지 않은 콘텐츠 게시",
@@ -188,8 +189,9 @@ class Constants {
     Constants.localChatRooms = await ChatRoomUtils.getChatRooms();
   }
 
-  static Future<void> getUserInfo(BuildContext context, ApiP apiP) async {
-    Utils.showDialogWidget(context);
+  static Future<void> getUserInfo(bool isShowLoading, BuildContext context, ApiP apiP) async {
+    if(isShowLoading)
+      Utils.showDialogWidget(context);
     print(await FirebaseAuth.instance.currentUser?.getIdToken());
     String token = "Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}";
     apiP.userInfo(token).then((value) async {
@@ -248,7 +250,8 @@ class Constants {
       Get.offAll(BottomNavBarScreen(),transition: Transition.rightToLeft);
     }).catchError((Object obj) {
       showToast("connection_failed".tr());
-      Get.back();
+      if(isShowLoading)
+        Get.back();
     });
   }
 

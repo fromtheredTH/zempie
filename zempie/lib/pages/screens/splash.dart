@@ -51,16 +51,9 @@ class SplashPageState extends BaseState<SplashPage> {
   Future<void> load() async {
     User? user = await FirebaseAuth.instance.currentUser;
     if(user != null){
-      Constants.getUserInfo(context, apiP);
+      Constants.getUserInfo(false,context, apiP);
     }else{
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      final bool isShowOnBoard = prefs.getBool('isShowOnBoard') ?? false;
-      if(isShowOnBoard) {
-        Get.to(LoginScreen(),transition: Transition.rightToLeft);
-      }else{
-        prefs.setBool("isShowOnBoard", true);
-        Get.to(OnBoardScreen(),transition: Transition.rightToLeft);
-      }
+      Get.off(OnBoardScreen(),transition: Transition.rightToLeft);
     }
     // final SharedPreferences prefs = await SharedPreferences.getInstance();
     // String authProvider = prefs.getString("authProvider") ?? "";
@@ -79,7 +72,7 @@ class SplashPageState extends BaseState<SplashPage> {
     //
     //     final data = await FirebaseAuth.instance.signInWithCredential(credential);
     //
-    //     Constants.getUserInfo(context, apiP);
+    //     Constants.getUserInfo(false,context, apiP);
     //
     //   }else if(authProvider == "apple") {
     //     String accessToken = prefs.getString('accessToken') ?? "";
@@ -92,7 +85,7 @@ class SplashPageState extends BaseState<SplashPage> {
     //
     //     final data = await FirebaseAuth.instance.signInWithCredential(oauthCredential);
     //
-    //     Constants.getUserInfo(context, apiP);
+    //     Constants.getUserInfo(false,context, apiP);
     //
     //   }else if(authProvider == "facebook") {
     //     String accessToken = prefs.getString('accessToken') ?? "";
@@ -102,7 +95,7 @@ class SplashPageState extends BaseState<SplashPage> {
     //
     //     final data = await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
     //
-    //     Constants.getUserInfo(context, apiP);
+    //     Constants.getUserInfo(false,context, apiP);
     //   }
     // }else {
     //   final bool isShowOnBoard = prefs.getBool('isShowOnBoard') ?? false;
@@ -155,9 +148,9 @@ class SplashPageState extends BaseState<SplashPage> {
       apiC
           .setFcmToken("Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}", jsonEncode(body))
           .then((value) async {
-        Constants.getUserInfo(context, apiP);
+        Constants.getUserInfo(false,context, apiP);
       }).catchError((Object obj) {
-        Constants.getUserInfo(context, apiP);
+        Constants.getUserInfo(false,context, apiP);
       });
     } else {
       showToast("login_failed".tr());

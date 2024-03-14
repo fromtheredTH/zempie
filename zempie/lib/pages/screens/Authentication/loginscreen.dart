@@ -85,7 +85,7 @@ class _LoginScreen extends BaseState<LoginScreen> {
         prefs.setString('authProvider', "email");
         prefs.setString('id', controller.emailController.text);
         prefs.setString('pwd', controller.passwordController.text);
-        Constants.getUserInfo(context, apiP);
+        Constants.getUserInfo(true,context, apiP);
       }
     } on FirebaseAuthException catch (e) {
       print(e.code);
@@ -121,7 +121,7 @@ class _LoginScreen extends BaseState<LoginScreen> {
         prefs.setString('authProvider', userInfo.authProvider.name);
         prefs.setString('accessToken', userInfo.accessToken ?? "");
         prefs.setString('idToken', userInfo.refreshToken ?? "");
-        Constants.getUserInfo(context, apiP);
+        Constants.getUserInfo(true,context, apiP);
       }
     } catch(e) {
       print(e);
@@ -220,7 +220,7 @@ class _LoginScreen extends BaseState<LoginScreen> {
                           prefixIconColor: Colors.amber,
                           prefixIconConstraints:
                           BoxConstraints(minWidth: 40, minHeight: 40),
-                          hintText: "이메일 주소",
+                          hintText: "email_address".tr(),
                           hintStyle: TextStyle(
                             fontSize: 14,
                             fontFamily: FontConstants.AppFont,
@@ -279,7 +279,7 @@ class _LoginScreen extends BaseState<LoginScreen> {
                                 suffixIconConstraints: BoxConstraints(
                                     minWidth: 20, minHeight: 20
                                 ),
-                                hintText: "비밀번호를 입력해 주세요",
+                                hintText: "pw_hint".tr(),
                                 hintStyle: TextStyle(
                                   fontSize: 14,
                                   fontFamily: FontConstants.AppFont,
@@ -315,10 +315,10 @@ class _LoginScreen extends BaseState<LoginScreen> {
                           controller.emailValidationText.value="올바른 이메일 형식을 작성해 주세요.";
                         } else{
                           if(controller.emailController.text.isEmpty){
-                            showToast("이메일을 입력해 주세요");
+                            showToast("please_input_email".tr());
                             return;
                           }else if(controller.passwordController.text.isEmpty){
-                            showToast("비밀번호를 입력해 주세요");
+                            showToast("please_input_password".tr());
                             return;
                           }
                           var emailResponse = await DioClient.checkEmail(controller.emailController.text);

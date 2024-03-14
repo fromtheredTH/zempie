@@ -11,49 +11,49 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
 import '../pages/components/app_text.dart';
+import 'Constants.dart';
 
 // 이미지 WIDGET 유틸
 class ImageUtils {
 
   // 프로필 이미지 위젯
   static Widget ProfileImage(String src, double width, double height) {
-    if(src.isEmpty){
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(width/2),
-        child: Container(
-          width: width,
-          height: height,
+    if (src.isEmpty) {
+      return Container(
           decoration: BoxDecoration(
-              color: Color(0xffd0cdcd),
-              borderRadius: BorderRadius.circular(width/2)
+              borderRadius: BorderRadius.circular(width/2),
+              border: Border.all(color: ColorConstants.textGry, width: 1)
           ),
-        ),
+          child: ClipRRect(
+              borderRadius: BorderRadius.circular(width/2),
+              child: Image.asset(ImageConstants.userProfile, width: width, height: height,)
+          )
       );
     }
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(width/2),
-      child: CachedNetworkImage(
-          imageUrl: "${src}",
-          placeholder: (context, url) => SizedBox(
-            child: Center(
-                child: CircularProgressIndicator(color: ColorConstants.colorMain)
-            ),
-            height: 10.0,
-            width: 10.0,
-          ),
-          errorWidget: (context, url, error) =>
-              Container(
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(width/2),
+        border: Border.all(color: ColorConstants.textGry, width: 1)
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(width/2),
+        child: CachedNetworkImage(
+            imageUrl: "${src}",
+            errorWidget: (context, url, error) =>
+                Container(
                   width: width,
                   height: height,
                   decoration: BoxDecoration(
                       color: Color(0xffd0cdcd),
                       borderRadius: BorderRadius.circular(width/2)
                   ),
-              ),
-          cacheKey: DateTime.now().day.toString(),
-          width: width,
-          height: height,
-          fit: BoxFit.fill),
+                ),
+            cacheKey: src + Constants.cachingKey,
+            width: width,
+            height: height,
+            fit: BoxFit.fill),
+      ),
     );
   }
 
@@ -167,20 +167,23 @@ class ImageUtils {
     );
   }
 
-  static Widget setCommunityListNetworkImage(String src) {
+  static Widget setGameListSmallNetworkImage(String src) {
     if(src.isEmpty){
       return AspectRatio(
-        aspectRatio: 2.55,
-        child: Container(
+        aspectRatio: 1,
+        child: ClipRRect(
+          child: Container(
           decoration: BoxDecoration(
               color: ColorConstants.white5Percent,
               borderRadius: BorderRadius.circular(8)
           ),
         ),
+        ),
       );
     }
-    return AspectRatio(
-      aspectRatio: 2.55,
+    return Container(
+      width: 24,
+      height: 24,
       child: CachedNetworkImage(
           imageUrl: "${src}",
           placeholder: (context, url) => SizedBox(
@@ -198,6 +201,46 @@ class ImageUtils {
                 ),
               ),
           fit: BoxFit.cover),
+    );
+  }
+
+  static Widget setCommunityListNetworkImage(String src, bool isTopRound) {
+    if(src.isEmpty){
+      return AspectRatio(
+        aspectRatio: 2.55,
+        child: ClipRRect(
+          borderRadius: BorderRadius.only(topRight: Radius.circular(isTopRound ? 8 : 0), topLeft: Radius.circular(isTopRound ? 8 : 0)),
+          child: Container(
+            decoration: BoxDecoration(
+                color: ColorConstants.white5Percent,
+                borderRadius: BorderRadius.circular(8)
+            ),
+          ),
+        )
+      );
+    }
+    return AspectRatio(
+      aspectRatio: 2.55,
+      child: ClipRRect(
+        borderRadius: BorderRadius.only(topRight: Radius.circular(isTopRound ? 8 : 0), topLeft: Radius.circular(isTopRound ? 8 : 0)),
+        child: CachedNetworkImage(
+            imageUrl: "${src}",
+            placeholder: (context, url) => SizedBox(
+              child: Center(
+                  child: CircularProgressIndicator(color: ColorConstants.colorMain,)
+              ),
+              height: 20.0,
+              width: 20.0,
+            ),
+            errorWidget: (context, url, error) =>
+                Container(
+                  decoration: BoxDecoration(
+                      color: ColorConstants.white5Percent,
+                      borderRadius: BorderRadius.circular(8)
+                  ),
+                ),
+            fit: BoxFit.cover),
+      )
     );
   }
 

@@ -9,10 +9,11 @@ import 'package:app/pages/screens/Authentication/regist_city_screen.dart';
 import 'package:app/pages/screens/Authentication/regist_country_screen.dart';
 import 'package:app/pages/screens/Authentication/regist_genre_screen.dart';
 import 'package:app/pages/screens/Authentication/regist_job_position_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -224,7 +225,7 @@ class _RegistGameGenreScreen extends BaseState<RegistGameGenreScreen> {
                             if(user.profile.stateMsg.isEmpty){
                               Get.to(RegistGenreScreen(user: user));
                             }else{
-                              Constants.getUserInfo(context, apiP);
+                              Constants.getUserInfo(true,context, apiP);
                             }
                           }
                         },
@@ -238,7 +239,7 @@ class _RegistGameGenreScreen extends BaseState<RegistGameGenreScreen> {
                             width: Get.width ,
                             child: Center(
                               child: AppText(
-                                text: "다음",
+                                text: "next".tr(),
                                 fontSize: 16,
                                 fontFamily: FontConstants.AppFont,
                                 fontWeight: FontWeight.w700,

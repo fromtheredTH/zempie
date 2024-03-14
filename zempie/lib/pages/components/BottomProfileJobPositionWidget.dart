@@ -6,10 +6,11 @@ import 'package:app/models/CommunityModel.dart';
 import 'package:app/models/GameModel.dart';
 import 'package:app/pages/base/base_state.dart';
 import 'package:app/pages/components/app_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 
 import '../../Constants/ColorConstants.dart';
@@ -168,7 +169,7 @@ class _BottomProfileJobPositionWidget extends BaseState<BottomProfileJobPosition
                                     ),
                                     textInputAction: TextInputAction.search,
                                     decoration: InputDecoration(
-                                      hintText: '직접 입력',
+                                      hintText: 'input_self'.tr(),
                                       contentPadding: EdgeInsets.symmetric(
                                           horizontal: 16.0,
                                           vertical: 12.0), // Adjust vertical padding
@@ -231,7 +232,7 @@ class _BottomProfileJobPositionWidget extends BaseState<BottomProfileJobPosition
                       ),
                       child: Center(
                         child: AppText(
-                          text: "취소",
+                          text: "cancel".tr(),
                           fontSize: 0.016,
                           color: ColorConstants.white,
                           fontFamily: FontConstants.AppFont,
@@ -257,7 +258,7 @@ class _BottomProfileJobPositionWidget extends BaseState<BottomProfileJobPosition
                       ),
                       child: Center(
                         child: AppText(
-                          text: "확인",
+                          text: "confirm".tr(),
                           fontSize: 0.016,
                           color: ColorConstants.white,
                           fontFamily: FontConstants.AppFont,

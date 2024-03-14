@@ -2,7 +2,7 @@
 
 import 'package:app/Constants/utils.dart';
 import 'package:app/models/User.dart';
-import 'package:app/pages/screens/joinmembership/enterName.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -151,7 +151,7 @@ class _JoinTheMembershipState extends BaseState<JoinTheMembership> {
                                   isEmailCorrect.value = true;
                                 }
                             },
-                              hintText: "이메일",
+                              hintText: "email".tr(),
                               textColor: Colors.white,
                               textColorHint: ColorConstants.halfWhite,
                             ),
@@ -197,7 +197,7 @@ class _JoinTheMembershipState extends BaseState<JoinTheMembership> {
                                   }
                                 }
                               },
-                              hintText: "닉네임",
+                              hintText: "nickname".tr(),
                               textColor: Colors.white,
                               textColorHint: ColorConstants.halfWhite,
                             ),
@@ -239,7 +239,7 @@ class _JoinTheMembershipState extends BaseState<JoinTheMembership> {
                                   isNameCorrect.value = true;
                                 }
                               },
-                              hintText: "이름",
+                              hintText: "name".tr(),
                               textColor: Colors.white,
                               textColorHint: ColorConstants.halfWhite,
                             ),
@@ -279,7 +279,7 @@ class _JoinTheMembershipState extends BaseState<JoinTheMembership> {
                                   isPasswordCorrect.value = true;
                                 }
                               },
-                              hintText: "비밀번호",
+                              hintText: "password".tr(),
                               textColor: Colors.white,
                               textColorHint: ColorConstants.halfWhite,
                             ),
@@ -311,7 +311,7 @@ class _JoinTheMembershipState extends BaseState<JoinTheMembership> {
                                 isTapPasswordConfirmOkBtn.value = false;
                                 isPasswordConfirmCorrect.value = true;
                               },
-                              hintText: "비밀번호 확인",
+                              hintText: "password_confirm".tr(),
                               textColor: Colors.white,
                               textColorHint: ColorConstants.halfWhite,
                             ),
@@ -557,6 +557,7 @@ class _JoinTheMembershipState extends BaseState<JoinTheMembership> {
                           password: passwordConfirmController.text,
                         );
                       } on FirebaseAuthException catch (e) {
+                        Utils.showToast(e.message ?? "");
                         print(e.code);
                       }
                     }
@@ -564,7 +565,7 @@ class _JoinTheMembershipState extends BaseState<JoinTheMembership> {
 
                   var signupResponse = await DioClient.signUp(nicknameController.text, nameController.text);
                   UserModel user = UserModel.fromJson(signupResponse.data["result"]["user"]);
-                  Utils.showToast("회원가입이 완료되었습니다");
+                  Utils.showToast("complete_sign_up".tr());
                   if(user.profile.jobDept.isEmpty){
                     Get.to(RegistJobDeptScreen(user: user));
                   }else if(user.profile.jobGroup.isEmpty){
@@ -593,7 +594,7 @@ class _JoinTheMembershipState extends BaseState<JoinTheMembership> {
                     width: Get.width ,
                     child: Center(
                       child: AppText(
-                        text: "다음",
+                        text: "next".tr(),
                         fontSize: 16,
                         fontFamily: FontConstants.AppFont,
                         fontWeight: FontWeight.w700,

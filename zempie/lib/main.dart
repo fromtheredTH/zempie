@@ -58,6 +58,7 @@ Future<void> main() async {
   String language = await _storage.read(key: "language") ?? "";
   String translationCode = await _storage.read(key: "translationCode") ?? "";
   String translationName = await _storage.read(key: "translationName") ?? "";
+  Constants.cachingKey = DateTime.now().millisecondsSinceEpoch.toString();
   if(language.isEmpty){
     String languageCode = PlatformDispatcher.instance.locale.languageCode;
     _storage.write(key: "language", value: languageCode);

@@ -7,11 +7,12 @@ import 'package:app/models/User.dart';
 import 'package:app/pages/components/BtnBottomSheetWidget.dart';
 import 'package:app/pages/components/app_text.dart';
 import 'package:app/pages/components/report_dialog.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 
 import '../../Constants/ColorConstants.dart';
@@ -113,10 +114,10 @@ class _GameSimpleItemWidget extends BaseState<GameUserPageWidget> {
 
                       Get.bottomSheet(BtnBottomSheetWidget(btnItems: items, onTapItem: (menuIndex) async {
                         if(menuIndex == 0){
-                          await DioClient.postGameUnFollow(game.id);
                           setState(() {
                             game.isFollow = false;
                           });
+                          await DioClient.postGameUnFollow(game.id);
                         }else{
                           showModalBottomSheet<dynamic>(
                               isScrollControlled: true,
@@ -126,7 +127,7 @@ class _GameSimpleItemWidget extends BaseState<GameUserPageWidget> {
                               builder: (BuildContext bc) {
                                 return ReportDialog(type: "game", onConfirm: (reportList, reason) async {
                                   var response = await DioClient.reportGame(game.id, reportList, reason);
-                                  Utils.showToast("신고가 완료되었습니다");
+                                  Utils.showToast("report_complete".tr());
                                 },);
                               }
                           );

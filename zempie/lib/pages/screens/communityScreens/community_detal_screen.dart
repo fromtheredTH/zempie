@@ -1,6 +1,7 @@
 import 'package:app/Constants/Constants.dart';
 import 'package:app/Constants/ImageUtils.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -54,8 +55,12 @@ class _CommunityDetailScreen extends BaseState<CommunityDetailScreen> {
        setState(() {
          community = result;
          widget.refreshCommunity(community);
+         isInit = true;
        });
-       isInit = true;
+     }
+     if(community.channels.isEmpty){
+       hasPostNextPage = false;
+       return posts;
      }
      var response = await DioClient.getCommunityChannelTimelines(community.id, community.channels[selectedChannel.value].id, 10, 0);
      List<PostModel> results = response.data["result"] == null ? [] : response.data["result"].map((json) => PostModel.fromJson(json)).toList().cast<PostModel>();
@@ -171,7 +176,7 @@ class _CommunityDetailScreen extends BaseState<CommunityDetailScreen> {
                       children: [
                         Stack(
                           children: [
-                            ImageUtils.setCommunityListNetworkImage(community.bannerImg),
+                            ImageUtils.setCommunityListNetworkImage(community.bannerImg, false),
                             Padding(
                               padding:  EdgeInsets.only(top: Get.width/2.55 - 32),
                               child: Center(child: ImageUtils.ProfileImage(community.profileImg, 64, 64)),
@@ -245,6 +250,7 @@ class _CommunityDetailScreen extends BaseState<CommunityDetailScreen> {
 
                         SizedBox(height: 15,),
 
+                        if(isInit)
                         community.isSubscribed ?
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -306,12 +312,12 @@ class _CommunityDetailScreen extends BaseState<CommunityDetailScreen> {
                                   await DioClient.getCommunityUnSubscribe(community.id);
                                   Constants.removeCommunityFollow(community.id);
                                   getCommunityDetail();
-                                  Utils.showToast("가입취소가 완료되었습니다.");
+                                  Utils.showToast("toast_subscribe_cancel_complete".tr());
                                 }else{
                                   await DioClient.getCommunitySubscribe(community.id);
                                   Constants.addCommunityFollow(community);
                                   getCommunityDetail();
-                                  Utils.showToast("가입이 완료되었습니다.");
+                                  Utils.showToast("toast_subscribe_complete".tr());
                                 }
                               },
                               child: Container(
@@ -322,7 +328,7 @@ class _CommunityDetailScreen extends BaseState<CommunityDetailScreen> {
                                 ),
                                 child:  Center(
                                   child: AppText(
-                                      text: "가입하기",
+                                      text: "subscribe".tr(),
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700),
                                 ),

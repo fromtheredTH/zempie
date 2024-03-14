@@ -102,7 +102,7 @@ class _SettingSecurityScreen extends BaseState<SettingSecurityScreen> {
                           child: Icon(Icons.arrow_back_ios, color:Colors.white)),
 
                       AppText(
-                        text: "보안",
+                        text: "sicurity".tr(),
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       )
@@ -117,7 +117,7 @@ class _SettingSecurityScreen extends BaseState<SettingSecurityScreen> {
            Container(
              margin: EdgeInsets.only(left: 20),
              child:  AppText(
-               text: "본인인증",
+               text: "please_sicurity".tr(),
                fontWeight: FontWeight.w700,
              ),
            ),
@@ -150,7 +150,7 @@ class _SettingSecurityScreen extends BaseState<SettingSecurityScreen> {
                         decoration: InputDecoration(
                           filled: true,
                             fillColor: ColorConstants.colorBg1,
-                            hintText: "휴대폰 본인인증이 필요합니다.",
+                            hintText: "please_phone_sicurity".tr(),
                             hintStyle: TextStyle(
                               color: Color(0xFFFFFFFF).withOpacity(0.5),
                               fontWeight: FontWeight.w400,
@@ -182,14 +182,14 @@ class _SettingSecurityScreen extends BaseState<SettingSecurityScreen> {
                   GestureDetector(
                     onTap: (){
                       if(phoneController.text.isEmpty){
-                        Utils.showToast("휴대폰 번호를 입력해 주세요");
+                        Utils.showToast("empty_phone".tr());
                         return;
                       }
                       if(!Constants.user.idVerified){
                         if(GetUtils.isPhoneNumber(phoneController.text)) {
 
                         }else{
-                          Utils.showToast("휴대폰 번호 형식이 맞지 않습니다.");
+                          Utils.showToast("phone_incorrect".tr());
                           return;
                         }
                       }
@@ -201,7 +201,7 @@ class _SettingSecurityScreen extends BaseState<SettingSecurityScreen> {
                         color: Constants.user.idVerified ? ColorConstants.textGry : ColorConstants.colorMain
                       ),
                       child: AppText(
-                        text: Constants.user.idVerified ? "인증완료" :"본인인증",
+                        text: Constants.user.idVerified ? "sicurity_complete".tr() :"please_sicurity".tr(),
                         fontSize: 12,
                       ),
                     )
@@ -215,7 +215,7 @@ class _SettingSecurityScreen extends BaseState<SettingSecurityScreen> {
             Container(
               margin: EdgeInsets.only(left: 20),
               child:  AppText(
-                text: "비밀번호 변경",
+                text: "change_password".tr(),
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -280,7 +280,7 @@ class _SettingSecurityScreen extends BaseState<SettingSecurityScreen> {
                   GestureDetector(
                       onTap: (){
                         FirebaseAuth.instance.sendPasswordResetEmail(email: Constants.user.email).then((error) {
-                          Utils.showToast("비밀번호 재설정 링크를 전송하였습니다");
+                          Utils.showToast("toast_edit_password_email".tr());
                         });
                       },
                       child: Container(
@@ -290,7 +290,7 @@ class _SettingSecurityScreen extends BaseState<SettingSecurityScreen> {
                             color: Constants.user.idVerified ? ColorConstants.textGry : ColorConstants.colorMain
                         ),
                         child: AppText(
-                          text: "재설정 링크 메일 발송",
+                          text: "edit_password_email".tr(),
                           fontSize: 12,
                         ),
                       )
@@ -302,7 +302,7 @@ class _SettingSecurityScreen extends BaseState<SettingSecurityScreen> {
             Container(
               margin: EdgeInsets.only(left: 20, top: 5),
               child:  AppText(
-                text: "비밀번호 재설정 링크를 해당 메일로 발송합니다.",
+                text: "toast_edit_password_email_description".tr(),
                 fontSize: 13,
                 color: ColorConstants.halfWhite,
               ),

@@ -36,7 +36,8 @@ import '../../components/MyAssetPicker.dart';
 import '../../components/app_text.dart';
 
 class ProfileEditScreen extends StatefulWidget {
-  ProfileEditScreen({super.key});
+  ProfileEditScreen({super.key, required this.onRefreshUser});
+  Function(UserModel) onRefreshUser;
 
   @override
   State<ProfileEditScreen> createState() => _ProfileEditScreen();
@@ -90,6 +91,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
         File? f = await file.originFile;
         if (file.type == AssetType.image && f != null) {
           var response = await DioClient.updateUserProfile(isBanner ? null : f, isBanner ? f : null,null,null);
+          Constants.cachingKey = DateTime.now().millisecondsSinceEpoch.toString();
           getUserInfo();
         }
       });
@@ -102,6 +104,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
       File? f = await file.getFile();
       if (file.mediumType == MediumType.image && f != null) {
         var response = await DioClient.updateUserProfile(isBanner ? null : f, isBanner ? f : null, null, null);
+        Constants.cachingKey = DateTime.now().millisecondsSinceEpoch.toString();
         getUserInfo();
       }
     });
@@ -131,6 +134,10 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
 
     interestGameGenreItems = Constants.getUserGameGenryList(user.profile.interestGameGenre);
     interestGameGenreController.text = Constants.getNameList(interestGameGenreItems);
+
+    descriptionController.text = user.profile.description;
+    myLinkNameController.text = user.profile.linkName;
+    myLinkController.text = user.profile.link;
   }
 
   @override
@@ -245,6 +252,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                                                         GalleryBottomSheet(
                                                           controller: controller,
                                                           limitCnt: 1,
+                                                          sendText: "변경하기",
                                                           onTapSend: (
                                                               results) {
                                                             procAssetsWithGallery(
@@ -345,6 +353,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                                                           GalleryBottomSheet(
                                                             controller: controller,
                                                             limitCnt: 1,
+                                                            sendText: "변경하기",
                                                             onTapSend: (
                                                                 results) {
                                                               procAssetsWithGallery(
@@ -401,7 +410,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                               BorderSide(color: Color(0xFFFFFFFF).withOpacity(
                                   0.5)),
                             ),
-                            hintText: "소속을 입력해 주세요...",
+                            hintText: "jobdept_input".tr(),
                             hintStyle: TextStyle(
                               color: ColorConstants.halfWhite,
                               fontWeight: FontWeight.w400,
@@ -477,7 +486,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                               BorderSide(color: Color(0xFFFFFFFF).withOpacity(
                                   0.5)),
                             ),
-                            hintText: "직군을 선택해 주세요...",
+                            hintText: "jobgroup_input".tr(),
                             hintStyle: TextStyle(
                               color: ColorConstants.halfWhite,
                               fontWeight: FontWeight.w400,
@@ -493,7 +502,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                       Row(
                         children: [
                           AppText(
-                            text: "국가 / 도시",
+                            text: "country_city_title".tr(),
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                           ),
@@ -551,7 +560,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                             BorderSide(color: Color(0xFFFFFFFF).withOpacity(
                                 0.5)),
                           ),
-                          hintText: "국가를 선택해 주세요...",
+                          hintText: "country_input".tr(),
                           hintStyle: TextStyle(
                             color: Color(0xFFFFFFFF).withOpacity(0.5),
                             fontWeight: FontWeight.w400,
@@ -616,7 +625,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                               BorderSide(color: Color(0xFFFFFFFF).withOpacity(
                                   0.5)),
                             ),
-                            hintText: "관심 분야를 선택해 주세요...",
+                            hintText: "interest_genre_input".tr(),
                             hintStyle: TextStyle(
                               color: Color(0xFFFFFFFF).withOpacity(0.5),
                               fontWeight: FontWeight.w400,
@@ -669,7 +678,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                               BorderSide(color: Color(0xFFFFFFFF).withOpacity(
                                   0.5)),
                             ),
-                            hintText: "관심 게임 장르를 선택해 주세요...",
+                            hintText: "interest_game_genre_input".tr(),
                             hintStyle: TextStyle(
                               color: Color(0xFFFFFFFF).withOpacity(0.5),
                               fontWeight: FontWeight.w400,
@@ -903,23 +912,23 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                       GestureDetector(
                         onTap: () async {
                           if(jobDeptController.text.isEmpty){
-                            Utils.showToast("소속을 입력해 주세요");
+                            Utils.showToast("jobdept_description_setting");
                             return;
                           }
                           if(this.jobGroup == null){
-                            Utils.showToast("직군을 선택해 주세요");
+                            Utils.showToast("jobgroup_description_setting");
                             return;
                           }
                           if(this.jobPosition == null && this.jobPositionStr.isEmpty){
-                            Utils.showToast("직무를 선택해 주세요");
+                            Utils.showToast("jobposition_description".tr());
                             return;
                           }
                           if(interestGenreItems.length == 0){
-                            Utils.showToast("관심 분야를 선택해 주세요");
+                            Utils.showToast("interset_genre_select".tr());
                             return;
                           }
                           if(interestGameGenreItems.length == 0){
-                            Utils.showToast("관심 게임 분야를 선택해 주세요");
+                            Utils.showToast("interset_game_genre_select".tr());
                             return;
                           }
                           String jobDept = this.jobDeptController.text;
@@ -950,7 +959,10 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                             myLinkController.text,
                             descriptionController.text
                           );
-                          Utils.showToast("프로필 편집이 완료되었습니다");
+                          UserModel user = UserModel.fromJson(response.data["result"]["user"]);
+                          Constants.user = user;
+                          widget.onRefreshUser(user);
+                          Utils.showToast("toast_edit_profile_complete".tr());
                           Get.back();
                         },
                         child: Container(
@@ -962,7 +974,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                             ),
                             child: Center(
                               child: Text(
-                                "저장",
+                                "save".tr(),
                                 style: TextStyle(
                                     color: Color(0xFFFFFFFFF),
                                     fontWeight: FontWeight.w700,
