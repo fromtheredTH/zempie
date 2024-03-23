@@ -51,8 +51,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 33
         multiDexEnabled true
-        versionCode 2024032111
-        versionName "1.1.4"
+        versionCode 2024032314
+        versionName "1.1.5"
     }
 
     signingConfigs {
