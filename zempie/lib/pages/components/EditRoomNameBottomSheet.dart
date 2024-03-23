@@ -55,7 +55,7 @@ class EditRoomNameBottomSheet extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 AppText(
-                  text: "채팅방 이름 변경",
+                  text: "room_change_name".tr(),
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                 ),

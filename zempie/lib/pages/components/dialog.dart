@@ -283,4 +283,89 @@ class AppDialog {
       },
     );
   }
+
+  static showOneDialog(BuildContext context, String title, String content, Function() onConfirm,
+      {String confirmLabel = "", String cancelLabel = ""}) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          elevation: 0.0,
+          backgroundColor: ColorConstants.colorSub,
+          contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 25),
+              if (title.isNotEmpty)
+                Column(
+                  children: [
+                    AppText(
+                      text: title,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      textAlign: TextAlign.center,
+                    ),
+
+                    SizedBox(height: 10,),
+
+                    Container(
+                      color: ColorConstants.white30Percent,
+                      height: 0.3,
+                    )
+                  ],
+                ),
+
+              if (title.isNotEmpty) const SizedBox(height: 10),
+              AppText(
+                text: content,
+                fontSize: 16,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+          buttonPadding: EdgeInsets.zero,
+          actionsPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+          actionsAlignment: MainAxisAlignment.start,
+          actionsOverflowButtonSpacing: 1,
+          actions: <Widget>[
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        onConfirm();
+                      },
+                      child: Container(
+                        height: 48,
+                        decoration:
+                        BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: ColorConstants.colorMain
+                        ),
+                        child: Center(
+                          child: AppText(
+                            text: confirmLabel.isEmpty ? "confirm".tr() : confirmLabel,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

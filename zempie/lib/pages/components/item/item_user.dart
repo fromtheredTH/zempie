@@ -1,4 +1,5 @@
 import 'package:app/Constants/ColorConstants.dart';
+import 'package:app/Constants/ImageUtils.dart';
 import 'package:app/models/dto/user_dto.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:app/global/app_colors.dart';
@@ -37,21 +38,7 @@ class ItemUser extends StatelessWidget {
               ClipOval(
                   child: Opacity(
                     opacity: isDisabled ? 0.3 : 1,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: selected ? ColorConstants.colorMain : Colors.white, width: 2),
-                        borderRadius: BorderRadius.circular(45),
-                      ),
-                      child: (info.profile_img ?? '').isEmpty ? Image.asset("assets/image/ic_default_user.png", height: 45, width: 45) :
-                      CachedNetworkImage(
-                        imageUrl: info.profile_img ?? '',
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => CircularProgressIndicator(),
-                        errorWidget: (context, url, error) => Icon(Icons.error),
-                        width: 45,
-                        height: 45,
-                      ),
-                    ),
+                    child: ImageUtils.ProfileImage(info.picture ?? "", 45, 45)
                   )
               ),
               

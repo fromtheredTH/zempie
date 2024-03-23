@@ -28,12 +28,18 @@ class _DiscoverWidget extends State<DiscoverWidget> {
 
   late PostModel post;
   String? image;
-  late String content;
+  late String contents;
 
   @override
   void initState() {
     post = widget.post;
-    content = parse(post.contents).body?.text ?? "";
+    contents = post.contents;
+    // 특정 태그 처리
+    contents = contents.replaceAll("</p>", "</p>\n");
+    contents = contents.replaceAll("<br>", "<br>\n");
+    contents = contents.replaceAll("<hr>", "<hr>\n");
+    contents = contents.replaceAll("<strong>", "<strong>\n\n");
+    contents = contents.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), '');
     if(post.attachmentFiles.isNotEmpty){
       image = post.attachmentFiles[0].url;
     }
@@ -66,6 +72,7 @@ class _DiscoverWidget extends State<DiscoverWidget> {
                     borderRadius: BorderRadius.circular(10), // Same as the BoxDecoration's borderRadius
                     child: ImageUtils.setPostNetworkImage(
                       image ?? "",
+                      contents,
                       Get.width,
                       Get.height*0.38,
                     ),
@@ -83,7 +90,7 @@ class _DiscoverWidget extends State<DiscoverWidget> {
                           padding:  EdgeInsets.all(Get.height*0.01),
                           child: Center(
                             child: AppText(
-                              text: content,
+                              text: contents,
                               fontSize: 13,
                               maxLine: 2,
                               overflow: TextOverflow.ellipsis,
@@ -100,30 +107,37 @@ class _DiscoverWidget extends State<DiscoverWidget> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: (){
-                        Get.to(ProfileScreen(user: post.user));
-                      },
-                      child:
-                      ImageUtils.ProfileImage(post.user.picture, 24, 24),
-                    ),
-                    SizedBox(width: Get.width*0.01,),
-                    GestureDetector(
-                      onTap: (){
-                        Get.to(ProfileScreen(user: post.user));
-                      },
-                      child:
-                      AppText(
-                        text: post.user.nickname,
-                        fontSize: 12,
-                        color: ColorConstants.white,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                Expanded(
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: (){
+                            Get.to(ProfileScreen(user: post.user));
+                          },
+                          child:
+                          ImageUtils.ProfileImage(post.user.picture, 24, 24),
+                        ),
+                        SizedBox(width: Get.width*0.01,),
+                        Expanded(
+                            child: GestureDetector(
+                              onTap: (){
+                                Get.to(ProfileScreen(user: post.user));
+                              },
+                              child:
+                              AppText(
+                                text: "${post.user.nickname}",
+                                fontSize: 12,
+                                overflow: TextOverflow.ellipsis,
+                                color: ColorConstants.white,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                        ),
 
-                  ],
+                        SizedBox(width: 5,)
+
+                      ],
+                    ),
                 ),
 
                 Row(

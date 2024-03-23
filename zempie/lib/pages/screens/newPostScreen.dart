@@ -91,9 +91,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
        selectedGame = games.first;
      }
      if(response.data["posted_at"]["background_id"] != null){
-       print("백그라운드 아이디 ${response.data["posted_at"]["background_id"]}");
        for(int i=0;i<Constants.bgLists.length;i++) {
-         print("백그라운드 아이디 ${Constants.bgLists[i].id}");
          if(response.data["posted_at"]["background_id"] == Constants.bgLists[i].id) {
            selectedBg = i+1;
            break;
@@ -105,11 +103,11 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
        mentionController!.text = content;
      }
      List<dynamic> attatchmentFile = response.data["attatchment_files"] ?? [];
-     int index = 0;
+
      List<PostFileModel> files = [];
      for(int i=0;i<attatchmentFile.length;i++){
        String url = attatchmentFile[i]["url"] ?? "";
-       File file = await ImageUtils.urlToFile(url, index);
+       File file = await ImageUtils.urlToFile(url, i);
        PostFileModel item = PostFileModel(i, attatchmentFile[i]["type"], file, null);
        fileModels.add(item);
      }
@@ -121,9 +119,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
 
    @override
   void initState() {
-     print("이닛 스테이트");
      if(widget.post != null){
-       // selectedChannels.addAll(widget.post!.)
        getUpdatePost();
      }
      if(widget.firstChannel != null){
@@ -240,13 +236,12 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
 
   @override
   Widget build(BuildContext context) {
-     print("멘션 컨트롤러 테스트 ${mentionController?.text ?? "null"}");
     return WillPopScope(
       onWillPop: () async {
 
         if(fileModels.length != 0 || (mentionController?.buildMentionedValue() ?? "").isNotEmpty || selectedChannels.length != 0 || selectedGame != null) {
           AppDialog.showConfirmDialog(
-              context, "포스트 삭제", "정말로 삭제하시겠습니까?", () async {
+              context, "delete_post".tr(), "정말로 삭제하시겠습니까?", () async {
             Get.back();
           });
           return false;
@@ -272,7 +267,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                             onTap: (){
                               if(fileModels.length != 0 || (mentionController?.buildMentionedValue() ?? "").isNotEmpty || selectedChannels.length != 0 || selectedGame != null) {
                                 AppDialog.showConfirmDialog(
-                                    context, "포스트 작성 취소", "정말로 취소하시겠습니까?", () async {
+                                    context, "new_post_cancel".tr(), "new_post_cancel_desc".tr(), () async {
                                   Get.back();
                                 });
                               }else {
@@ -281,7 +276,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                             },
                             child: Icon(Icons.arrow_back_ios, color:Colors.white)),
                         AppText(
-                          text: "새 포스팅",
+                          text: "new_post".tr(),
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                         ),
@@ -430,7 +425,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                                                       color: ColorConstants.white
                                                   ),
                                                   decoration: InputDecoration(
-                                                      hintText: "멋진 생각을 공유해 주세요...",
+                                                      hintText: "new_post_input_content".tr(),
                                                       hintStyle: TextStyle(
                                                           fontSize: 13,
                                                           fontFamily: FontConstants.AppFont,
@@ -455,7 +450,6 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                                                       color: ColorConstants.blue1
                                                   ),
                                                   onMentionablesChanged: (users) {
-                                                    print("멘션 테스트 ${mentionController!.buildMentionedValue()}");
                                                     if (users.length == 0 &&
                                                         !mentionController!.buildMentionedValue()
                                                             .endsWith("@")) {
@@ -740,7 +734,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                         SizedBox(height: Get.height*0.02,),
                         GestureDetector(
                           onTap: (){
-                            Get.bottomSheet(BottomPostCommunityWidget(
+                            Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BottomPostCommunityWidget(
                               selectedChannels: selectedChannels,
                               onSelectChannels: (channels){
                                 setState(() {
@@ -788,7 +782,7 @@ class _NewPostScreen extends BaseState<NewPostScreen> {
                         SizedBox(height: Get.height*0.02,),
                         GestureDetector(
                           onTap: (){
-                            Get.bottomSheet(BottomPostGameWidget(
+                            Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BottomPostGameWidget(
                               selectedGame: selectedGame,
                               onSelectGame: (game){
                                 setState(() {

@@ -2,6 +2,7 @@ import 'package:app/global/DioClient.dart';
 import 'package:app/models/CommunityModel.dart';
 import 'package:app/models/GameModel.dart';
 import 'package:app/pages/components/loading_widget.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -81,7 +82,7 @@ class _MemberScreen extends BaseState<ProfileFollowingGameScreen> {
                   width: Get.width * 0.01,
                 ),
                 AppText(
-                  text: "팔로잉 중인 게임",
+                  text: "follow_game".tr(),
                   fontSize: 16,
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
@@ -98,7 +99,7 @@ class _MemberScreen extends BaseState<ProfileFollowingGameScreen> {
                   return Expanded(
                       child: Center(
                         child: AppText(
-                          text: "팔로잉중인 게임이 없습니다",
+                          text: "empty_follow_game".tr(),
                           fontSize: 13,
                           color: ColorConstants.halfWhite,
                         ),

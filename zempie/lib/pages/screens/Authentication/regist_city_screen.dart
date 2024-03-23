@@ -1,5 +1,6 @@
 
 
+import 'package:app/Constants/utils.dart';
 import 'package:app/global/DioClient.dart';
 import 'package:app/models/User.dart';
 import 'package:app/pages/components/app_text.dart';
@@ -149,8 +150,10 @@ class _RegistCityScreen extends BaseState<RegistCityScreen> {
                       Obx(() => GestureDetector(
                         onTap: () async {
                           if(isExistText.value){
+                            Utils.showDialogWidget(context);
                             var response = await DioClient.updateProfile(widget.user.profile.jobDept, widget.user.profile.jobGroup, widget.user.profile.jobPosition, widget.user.profile.country, controller.text, widget.user.profile.interestGameGenre, widget.user.profile.stateMsg);
                             UserModel user = UserModel.fromJson(response.data["result"]["user"]);
+                            Get.back();
                             if(user.profile.interestGameGenre.isEmpty){
                               Get.to(RegistGameGenreScreen(user: user));
                             }else if(user.profile.stateMsg.isEmpty){

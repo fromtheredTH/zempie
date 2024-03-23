@@ -40,7 +40,7 @@ class UserModel extends Mentionable{
         nickname = json['nickname'] ?? "",
         channelId = json['channel_id'] ?? "",
         email = json['email'] ?? "",
-        picture = json['picture'] ?? "",
+        picture = json['picture'] ?? json["profile_img"] ?? "",
         urlBanner = json['url_banner'] ?? "",
         isDeveloper = json['is_developer'] != null ? json['is_developer'] is int ? json['is_developer'] == 1 ? true : false : json['is_developer'] : false,
         idVerified = json['id_verified'] ?? false,

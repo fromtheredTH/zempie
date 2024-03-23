@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'ColorConstants.dart';
+import 'Constants.dart';
 
 
 class Utils {
@@ -135,33 +136,33 @@ class Utils {
     );
   }
 
-  static String getStringTime(String time){
-    DateTime dateTime = DateTime.parse(time).toLocal();
-    DateTime now = DateTime.now();
+  static void showCustomToast(context,text) {
+    final fToast = FToast();
+    fToast.init(context);
+    Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8.0),
+        color: Colors.black,
+      ),
+      child: Text(text,style: TextStyle(color:Colors.white)),
+    );
 
-    Duration duration = now.difference(dateTime);
-    if(duration.inSeconds > 60){
-      if(duration.inMinutes > 60){
-        if(duration.inHours > 24){
-          if(duration.inDays > 30){
-            int days = duration.inDays;
-            if(days > 365){
-              return "${(days/365).toInt()}년 전";
-            }else{
-              return "${(days/30).toInt()}달 전";
-            }
-          }else{
-            return"${duration.inDays}일 전";
-          }
-        }else{
-          return "${duration.inHours}시간 전";
+    fToast.showToast(
+        child: toast,
+        toastDuration: const Duration(seconds: 1),
+        positionedToastBuilder: (context, child) {
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              Positioned(
+                child: child,
+                bottom: 100,
+              ),
+            ],
+          );
         }
-      }else{
-        return "${duration.inMinutes}분 전";
-      }
-    }else{
-      return "${duration.inSeconds}초 전";
-    }
+    );
   }
 
   static Future<void> urlLaunch(String url) async {
@@ -173,21 +174,21 @@ class Utils {
 
   static String getTimePost(String time){
     DateTime dateTime = DateTime.parse(time).toLocal();
-    DateFormat dateFormat = DateFormat("yyyy-MM-dd hh:mm", "ko");
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd a hh:mm", Constants.languageCode);
     String currentTime = dateFormat.format(dateTime);
     return currentTime;
   }
 
   static String getTodayDate(){
     DateTime dateTime = DateTime.now().toLocal();
-    DateFormat dateFormat = DateFormat("yyyy.MM.dd", "ko");
+    DateFormat dateFormat = DateFormat("yyyy.MM.dd");
     String currentTime = dateFormat.format(dateTime);
     return currentTime;
   }
 
   static String getTodayTime(){
     DateTime dateTime = DateTime.now().toLocal();
-    DateFormat dateFormat = DateFormat("hh:mm", "ko");
+    DateFormat dateFormat = DateFormat("a hh:mm", Constants.languageCode);
     String currentTime = dateFormat.format(dateTime);
     return currentTime;
   }
@@ -197,6 +198,20 @@ class Utils {
     DateFormat dateFormat = DateFormat("a", "en");
     String currentTime = dateFormat.format(dateTime);
     return currentTime;
+  }
+
+  static String getIntToStringTime(int duration){
+    duration = (duration / 1000).toInt();
+    if(duration < 3600){
+      int min = (duration/60).toInt();
+      int sec = duration%60;
+      return "${min}:${sec.toString().padLeft(2,"0")}";
+    }else {
+      int hour = (duration/3600).toInt();
+      int min = ((duration%3600)/60).toInt();
+      int sec = (duration%3600)%60;
+      return "${hour}:${min}:${sec.toString().padLeft(2,"0")}";
+    }
   }
 
   static String getMissionTimeToString(int missionTime){

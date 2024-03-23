@@ -3,6 +3,7 @@ import 'package:app/models/CommunityModel.dart';
 import 'package:app/models/GameModel.dart';
 import 'package:app/models/PostModel.dart';
 import 'package:app/pages/components/loading_widget.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -97,7 +98,7 @@ class _PostLikeScreen extends BaseState<PostLikeScreen> {
                   width: Get.width * 0.01,
                 ),
                 AppText(
-                  text: "좋아요",
+                  text: "like".tr(),
                   fontSize: 16,
                   color: Colors.white,
                   fontFamily: FontConstants.AppFont,
@@ -122,7 +123,7 @@ class _PostLikeScreen extends BaseState<PostLikeScreen> {
                   return Expanded(
                       child: Center(
                         child: AppText(
-                          text: "좋아요가 없습니다",
+                          text: "empty_like".tr(),
                           fontSize: 13,
                           color: ColorConstants.halfWhite,
                         ),

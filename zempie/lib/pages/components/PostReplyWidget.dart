@@ -10,6 +10,7 @@ import 'package:app/pages/components/item/TagCreator.dart';
 import 'package:app/pages/components/item/TagDev.dart';
 import 'package:app/pages/screens/profile/profile_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -114,11 +115,10 @@ class _PostReplyWidget extends BaseState<PostReplyWidget> {
                       SizedBox(height: Get.height*0.005),
                       Row(
                         children: [
-                          if(reply.user.profile.jobGroup == "1")
-                            TagCreatorWidget(),
+                            TagCreatorWidget(positionIndex: reply.user.profile.jobGroup,),
                           SizedBox(width: Get.width*0.01),
-                          if(reply.user.profile.jobPosition == "0")
-                            TagDevWidget()
+
+                            TagDevWidget(positionIndex: reply.user.profile.jobPosition,)
                         ],
                       ),
                       SizedBox(height: Get.height*0.005),
@@ -138,15 +138,15 @@ class _PostReplyWidget extends BaseState<PostReplyWidget> {
                   List<BtnBottomSheetModel> items = [];
                   if(reply.user.id == Constants.user.id) {
                     items.add(BtnBottomSheetModel(
-                        ImageConstants.editRoomIcon, "댓글 수정", 0));
+                        ImageConstants.editRoomIcon, "edit_comment".tr(), 0));
                     items.add(BtnBottomSheetModel(
-                        ImageConstants.deleteIcon, "댓글 삭제", 1));
+                        ImageConstants.deleteIcon, "delete_comment".tr(), 1));
                   }else{
                     items.add(BtnBottomSheetModel(
-                        ImageConstants.report, "댓글 신고", 2));
+                        ImageConstants.report, "report_comment".tr(), 2));
                   }
 
-                  Get.bottomSheet(BtnBottomSheetWidget(
+                  Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BtnBottomSheetWidget(
                     btnItems: items,
                     onTapItem: (sheetIdx) async {
                       if(sheetIdx == 0){
@@ -154,6 +154,7 @@ class _PostReplyWidget extends BaseState<PostReplyWidget> {
                       }else if(sheetIdx == 1) {
                         await DioClient.removePostComment(reply.id);
                         widget.onDelete();
+                        Utils.showToast("delete_comment_complete".tr());
                       }else{
 
                       }
@@ -271,7 +272,7 @@ class _PostReplyWidget extends BaseState<PostReplyWidget> {
                         widget.onTapChild(reply);
                       },
                       child: AppText(
-                        text: "답글 ${reply.childrenComments.length}",
+                        text: "${"recomment".tr()} ${reply.childrenComments.length}",
                         color: ColorConstants.blue1,
                         fontSize: 14,
                       ),
@@ -295,7 +296,7 @@ class _PostReplyWidget extends BaseState<PostReplyWidget> {
                   });
                 },
                 child: AppText(
-                    text: isTranslation ? "원문보기" : "번역보기",
+                    text: isTranslation ? "translate_origin".tr() : "translate_str".tr(),
                     fontSize: 12,
                     color: ColorConstants.white
                 ),

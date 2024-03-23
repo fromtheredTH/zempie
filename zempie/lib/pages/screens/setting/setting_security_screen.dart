@@ -19,6 +19,7 @@ import 'package:app/pages/screens/discover/GameDetailReplyScreen.dart';
 import 'package:app/pages/screens/discover/GameFollowerScreen.dart';
 import 'package:app/pages/screens/profile/ProfileFollowMemberScreen.dart';
 import 'package:app/pages/screens/profile/profile_following_game_screen.dart';
+import 'package:app/pages/screens/setting/setting_nice.dart';
 import 'package:app/pages/screens/splash.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
@@ -147,6 +148,7 @@ class _SettingSecurityScreen extends BaseState<SettingSecurityScreen> {
                         ),
                         readOnly: Constants.user.idVerified,
                         controller: phoneController,
+                        keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
                           filled: true,
                             fillColor: ColorConstants.colorBg1,
@@ -180,19 +182,26 @@ class _SettingSecurityScreen extends BaseState<SettingSecurityScreen> {
                   SizedBox(width: 10,),
 
                   GestureDetector(
-                    onTap: (){
-                      if(phoneController.text.isEmpty){
-                        Utils.showToast("empty_phone".tr());
-                        return;
-                      }
-                      if(!Constants.user.idVerified){
-                        if(GetUtils.isPhoneNumber(phoneController.text)) {
-
-                        }else{
-                          Utils.showToast("phone_incorrect".tr());
-                          return;
-                        }
-                      }
+                    onTap: () async {
+                      // if(phoneController.text.isEmpty){
+                      //   Utils.showToast("empty_phone".tr());
+                      //   return;
+                      // }
+                      // if(!Constants.user.idVerified){
+                      //   if(GetUtils.isPhoneNumber(phoneController.text)) {
+                      //     var response = await DioClient.niceCertify();
+                      //     Get.to(SettingNiceScreen(
+                      //       encData: response.data["result"]["enc_data"],
+                      //       integrityValue: response.data["result"]["integrity_value"],
+                      //       tokenVersionId: response.data["result"]["token_version_id"],
+                      //         request_no: response.data["result"]["request_no"]
+                      //     ));
+                      //   }else{
+                      //     Utils.showToast("phone_incorrect".tr());
+                      //     return;
+                      //   }
+                      // }
+                      Utils.showToast("제작중인 기능입니다");
                     },
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 8,vertical: 5),

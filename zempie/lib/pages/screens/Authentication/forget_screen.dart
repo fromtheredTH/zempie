@@ -32,7 +32,7 @@ class ForgetScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       Icon(Icons.arrow_back_ios, color:Colors.white ),
-                      Text("비밀번호 찾기",style: TextStyle(
+                      Text("find_password".tr(),style: TextStyle(
                         color: Color(0xFFFFFFFF),
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -59,7 +59,7 @@ class ForgetScreen extends StatelessWidget {
                   height: 10,
                 ),
                 Text(
-                    "회원가입하신 이메일 주소를 입력해 주세요. 비밀번호 재설정 링크를 보내드립니다. 이메일이 오지 않는 경우 스팸 메일함을 확인해 주세요.",
+                    "resetting_password_email_guide".tr(),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
@@ -97,7 +97,7 @@ class ForgetScreen extends StatelessWidget {
                 GestureDetector(
                   onTap: (){
                     if (!EmailValidator.validate(controller.emailController.text,true)) { // Use EmailValidator.validate() to validate email
-                      controller.emailValidationText.value="올바른 이메일 형식을 작성해 주세요.";
+                      controller.emailValidationText.value="email_guide_incorrect".tr();
                     }
                     else
                       {
@@ -113,7 +113,7 @@ class ForgetScreen extends StatelessWidget {
                     ),
                     child: Center(
                       child: Text(
-                        "이메일 전송",
+                        "send_email".tr(),
                         style: TextStyle(
                           color: Color(0xFFFFFFFFF),
                           fontWeight: FontWeight.w700,

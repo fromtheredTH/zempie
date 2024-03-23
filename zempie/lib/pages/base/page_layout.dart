@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app/Constants/ColorConstants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -68,8 +70,8 @@ class PageLayoutState extends BaseState<PageLayout> {
       SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(
             statusBarColor: ColorConstants.colorBg1,
-            statusBarBrightness: Brightness.dark,
-            statusBarIconBrightness: Brightness.dark), // Or Brightness.dark
+            statusBarBrightness: Platform.isIOS ? Brightness.dark : Brightness.light,
+            statusBarIconBrightness: Platform.isIOS ? Brightness.dark : Brightness.light), // Or Brightness.dark
       );
     } else {
       SystemChrome.setPreferredOrientations([

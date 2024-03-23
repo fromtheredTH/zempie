@@ -14,10 +14,10 @@ import '../helpers/common_util.dart';
 import '../models/dto/file_dto.dart';
 
 class DioClient {
-  static final String communityBaseUrl = "https://api-extn-com.zempie.com/api/v1"; // 커뮤니티 개발서버
-  static final String platformBaseUrl = "https://api-extn-pf.zempie.com/api/v1"; // 플랫폼 개발서버
-  // static final String communityBaseUrl = "https://api-community.zempie.com/api/v1"; // 커뮤니티 개발서버
-  // static final String platformBaseUrl = "https://api.zempie.com/api/v1"; // 플랫폼 개발서버
+  // static final String communityBaseUrl = "https://api-extn-com.zempie.com/api/v1"; // 커뮤니티 개발서버
+  // static final String platformBaseUrl = "https://api-extn-pf.zempie.com/api/v1"; // 플랫폼 개발서버
+  static final String communityBaseUrl = "https://api-community.zempie.com/api/v1"; // 커뮤니티 실서버
+  static final String platformBaseUrl = "https://api.zempie.com/api/v1"; // 플랫폼 실서버
 
   static Dio getInstance(String baseUrl) {
     Dio dio = Dio(
@@ -172,11 +172,24 @@ class DioClient {
   }
 
   static Future<Response> searchPosts(String query, int limit, int page) {
+    String posts = "";
+    String hash = "";
+    List<String> splits = query.split("#");
+    if(splits.length == 1){
+      posts = splits[0];
+    }else{
+      posts = splits[0];
+      splits.removeAt(0);
+      hash = "#${splits.join("#")}";
+    }
+    print("포스팅 ${posts}, 해쉬 ${hash}");
     Map<String, dynamic> queryData = {
-      "posting" : query,
+      "posting" : posts,
+      "hashtag" : hash,
       "limit" : limit,
       "offset" : page*limit
     };
+    print(queryData.toString());
     return getInstance(communityBaseUrl).get("/search", queryParameters: queryData);
   }
 
@@ -597,6 +610,9 @@ class DioClient {
   static Future<Response> getUser(String nickname) {
     return getInstance(platformBaseUrl).get("/user/${nickname}");
   }
+  static Future<Response> getMyInfo() {
+    return getInstance(platformBaseUrl).get("/user/info");
+  }
   static Future<Response> updateUserProfile(File? profileFile, File? bannerFile, bool? rmPicture, bool? rmBanner) async {
 
     Dio dio = getInstance(platformBaseUrl);
@@ -654,14 +670,14 @@ class DioClient {
     return getInstance(platformBaseUrl).patch("/user/alarm-setting", data: formData);
   }
 
-  static Future<Response> getUserChatRoom(int userId) {
+  static Future<Response> getUserChatRoom(String userId) {
     Map<String, dynamic> queryData = {
       "limit" : 1,
       "offset" : 0,
       "perfact": true,
       "user_ids" : userId
     };
-    return getInstance(platformBaseUrl).get("/user/alarm-setting", queryParameters: queryData);
+    return getInstance(communityBaseUrl).get("/chat/rooms/search/user", queryParameters: queryData);
   }
 
   static Future<Response> setAlarm(String type, bool value) {
@@ -734,5 +750,14 @@ class DioClient {
   static Future<Response> deleteNotification(int id) {
 
     return getInstance(communityBaseUrl).delete("/notification/${id}");
+  }
+
+  static Future<Response> niceCertify() async {
+    var response = await getInstance(platformBaseUrl).get("/user/auth/certify");
+    return response;
+  }
+
+  static Future<Response> getVersion() async {
+    return getInstance(platformBaseUrl).get("/version");
   }
 }

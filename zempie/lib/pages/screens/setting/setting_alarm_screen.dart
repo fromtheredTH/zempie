@@ -91,7 +91,7 @@ class _SettingAlarmScreen extends BaseState<SettingAlarmScreen> {
                           child: Icon(Icons.arrow_back_ios, color:Colors.white)),
 
                       AppText(
-                        text: "알림 설정",
+                        text: "set_alarm".tr(),
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       )
@@ -114,14 +114,14 @@ class _SettingAlarmScreen extends BaseState<SettingAlarmScreen> {
                   SizedBox(height: 15,),
 
                   AppText(
-                    text: "수신 설정",
+                    text: "alarm_receive_setting".tr(),
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                   ),
                   SizedBox(height: 5,),
 
                   AppText(
-                    text: "DM을 허용할 사용자를 선택해 주세요.",
+                    text: "alarm_receive_setting_desc".tr(),
                     fontSize: 13,
                     color: ColorConstants.halfWhite,
                     fontWeight: FontWeight.w400,
@@ -146,7 +146,7 @@ class _SettingAlarmScreen extends BaseState<SettingAlarmScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               AppText(
-                                text: "모두 일시 중단",
+                                text: "alarm_all_stop".tr(),
                                 fontSize: 14,
                                 textAlign: TextAlign.start,
                                 fontWeight: FontWeight.w700,
@@ -155,7 +155,7 @@ class _SettingAlarmScreen extends BaseState<SettingAlarmScreen> {
                               SizedBox(height: 5,),
 
                               AppText(
-                                text: "모든 알림을 중단합니다.",
+                                text: "alarm_all_stop_desc".tr(),
                                 fontSize: 12,
                                 textAlign: TextAlign.start,
                                 color: ColorConstants.halfWhite,
@@ -201,7 +201,7 @@ class _SettingAlarmScreen extends BaseState<SettingAlarmScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               AppText(
-                                text: "댓글",
+                                text: "reply_comment".tr(),
                                 fontSize: 14,
                                 textAlign: TextAlign.start,
                                 fontWeight: FontWeight.w700,
@@ -210,7 +210,7 @@ class _SettingAlarmScreen extends BaseState<SettingAlarmScreen> {
                               SizedBox(height: 5,),
 
                               AppText(
-                                text: "누군가 내 게시물에 댓글을 달면 알림이 전송됩니다.",
+                                text: "alarm_comment_desc".tr(),
                                 fontSize: 12,
                                 textAlign: TextAlign.start,
                                 color: ColorConstants.halfWhite,
@@ -256,7 +256,7 @@ class _SettingAlarmScreen extends BaseState<SettingAlarmScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               AppText(
-                                text: "좋아요",
+                                text: "like".tr(),
                                 fontSize: 14,
                                 textAlign: TextAlign.start,
                                 fontWeight: FontWeight.w700,
@@ -265,7 +265,7 @@ class _SettingAlarmScreen extends BaseState<SettingAlarmScreen> {
                               SizedBox(height: 5,),
 
                               AppText(
-                                text: "다른 사람이 귀하의 댓글이나 게시물을 좋아할 때 알림입니다.",
+                                text: "alarm_like_desc".tr(),
                                 fontSize: 12,
                                 textAlign: TextAlign.start,
                                 color: ColorConstants.halfWhite,
@@ -311,7 +311,7 @@ class _SettingAlarmScreen extends BaseState<SettingAlarmScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               AppText(
-                                text: "팔로우",
+                                text: "follow".tr(),
                                 fontSize: 14,
                                 textAlign: TextAlign.start,
                                 fontWeight: FontWeight.w700,
@@ -320,7 +320,7 @@ class _SettingAlarmScreen extends BaseState<SettingAlarmScreen> {
                               SizedBox(height: 5,),
 
                               AppText(
-                                text: "다른 사람이 귀하를 팔로우 할 때 알림입니다.",
+                                text: "alarm_follow_desc".tr(),
                                 fontSize: 12,
                                 textAlign: TextAlign.start,
                                 color: ColorConstants.halfWhite,
@@ -366,7 +366,7 @@ class _SettingAlarmScreen extends BaseState<SettingAlarmScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               AppText(
-                                text: "DM",
+                                text: "alarm_dm_title".tr(),
                                 fontSize: 14,
                                 textAlign: TextAlign.start,
                                 fontWeight: FontWeight.w700,
@@ -375,7 +375,7 @@ class _SettingAlarmScreen extends BaseState<SettingAlarmScreen> {
                               SizedBox(height: 5,),
 
                               AppText(
-                                text: "다른 사람이 나에게 DM을 전송했을 때 알림입니다.",
+                                text: "alarm_dm_desc".tr(),
                                 fontSize: 12,
                                 textAlign: TextAlign.start,
                                 color: ColorConstants.halfWhite,

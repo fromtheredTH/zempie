@@ -1,4 +1,4 @@
-package com.fromthered.zempie.dev
+package com.fromthered.zempie
 
 import io.flutter.embedding.android.FlutterActivity
 

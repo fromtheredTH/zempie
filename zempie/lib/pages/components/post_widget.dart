@@ -27,6 +27,7 @@ import 'package:html/dom.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:rich_text_view/rich_text_view.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../Constants/ColorConstants.dart';
 import '../../Constants/FontConstants.dart';
@@ -75,7 +76,7 @@ class _PostWidget extends BaseState<PostWidget> {
     // TODO: implement build
     return Container(
       margin: EdgeInsets.only(bottom: 15),
-      decoration: post.backgroundId == -1 ? BoxDecoration(
+      decoration: post.backgroundId != -1 ? BoxDecoration(
           image: DecorationImage(
               image: NetworkImage(Constants.getBg(post.backgroundId).imgUrl),
               fit: BoxFit.cover
@@ -125,11 +126,10 @@ class _PostWidget extends BaseState<PostWidget> {
                           SizedBox(height: Get.height*0.005),
                           Row(
                             children: [
-                              if(post.user.profile.jobGroup == "1")
-                                TagCreatorWidget(),
+
+                                TagCreatorWidget(positionIndex: post.user.profile.jobGroup,),
                               SizedBox(width: Get.width*0.01),
-                              if(post.user.profile.jobPosition == "0")
-                                TagDevWidget()
+                                TagDevWidget(positionIndex: post.user.profile.jobPosition,)
                             ],
                           ),
                           SizedBox(height: Get.height*0.005),
@@ -149,15 +149,15 @@ class _PostWidget extends BaseState<PostWidget> {
                   onTap: (){
                     List<BtnBottomSheetModel> items = [];
                     if(Constants.user.id == post.user.id){
-                      items.add(BtnBottomSheetModel("", "포스팅 수정", 0));
-                      items.add(BtnBottomSheetModel("", "포스팅 삭제", 1));
+                      items.add(BtnBottomSheetModel("", "edit_post".tr(), 0));
+                      items.add(BtnBottomSheetModel("", "delete_post".tr(), 1));
                     }else{
-                      items.add(BtnBottomSheetModel(ImageConstants.report, "포스팅 신고", 2));
-                      items.add(BtnBottomSheetModel(ImageConstants.block, "유저 차단", 3));
-                      items.add(BtnBottomSheetModel(ImageConstants.report, "유저 신고", 4));
+                      items.add(BtnBottomSheetModel(ImageConstants.report, "report_post".tr(), 2));
+                      items.add(BtnBottomSheetModel(ImageConstants.block, "user_block".tr(), 3));
+                      items.add(BtnBottomSheetModel(ImageConstants.report, "user_report".tr(), 4));
                     }
 
-                    Get.bottomSheet(BtnBottomSheetWidget(btnItems: items, onTapItem: (menuIndex) async {
+                    Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100), BtnBottomSheetWidget(btnItems: items, onTapItem: (menuIndex) async {
                       if(menuIndex == 0){
                         Get.to(NewPostScreen(uploadedPost: (post){
                           setState(() {
@@ -353,7 +353,7 @@ class _PostWidget extends BaseState<PostWidget> {
                     child: Container(
                       padding: EdgeInsets.only(left: 0),
                       child: AppText(
-                          text: isTranslation ? "원문보기" : "번역보기",
+                          text: isTranslation ? "translate_origin".tr() : "translate_str".tr(),
                           fontSize: 12,
                           color: ColorConstants.skyBlueTextColor
                       ),
@@ -381,7 +381,7 @@ class _PostWidget extends BaseState<PostWidget> {
                           itemBuilder: (context,index){
                             return  GestureDetector(
                               onTap: (){
-                                Get.to(CommunityDetailScreen(community: post.postedAt.communities[index], refreshCommunity: (community){
+                                Get.to(CommunityDetailScreen(community: post.postedAt.communities[index].community, refreshCommunity: (community){
 
                                 }));
                               },
@@ -399,7 +399,7 @@ class _PostWidget extends BaseState<PostWidget> {
                                     SvgPicture.asset(ImageConstants.communityLogo,height: 16, width: 16),
                                     SizedBox(width: Get.width*0.015),
                                     Center(
-                                      child: AppText(text: "${post.postedAt.communities[index].name}",
+                                      child: AppText(text: "${post.postedAt.communities[index].community.name}/${post.postedAt.communities[index].channel.title}",
                                         fontSize: 12,
                                       ),
                                     ),
@@ -538,7 +538,7 @@ class _PostWidget extends BaseState<PostWidget> {
 
                 GestureDetector(
                   onTap: (){
-
+                    Share.share("https://zempie.com/feed/${post.id}");
                   },
                   child: SvgPicture.asset(ImageConstants.shareIcon),
                 )

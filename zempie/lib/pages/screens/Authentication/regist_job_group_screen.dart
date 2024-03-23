@@ -23,6 +23,7 @@ import '../../../Constants/Constants.dart';
 import '../../../Constants/FontConstants.dart';
 import '../../../Constants/ImageConstants.dart';
 import '../../../Constants/ImageUtils.dart';
+import '../../../Constants/utils.dart';
 import '../../../models/CountryModel.dart';
 import '../../base/base_state.dart';
 import '../../components/loading_widget.dart';
@@ -76,7 +77,7 @@ class _RegistJobGroupScreen extends BaseState<RegistJobGroupScreen> {
                             Container(
                               width: double.maxFinite,
                               child: AppText(
-                                text: "무슨 일을 하시나요?",
+                                text: "jobposition_title".tr(),
                                 fontSize: 18,
                               ),
                             ),
@@ -84,7 +85,7 @@ class _RegistJobGroupScreen extends BaseState<RegistJobGroupScreen> {
                             Container(
                               width: double.maxFinite,
                               child: AppText(
-                                text: "직군을 선택해 주세요",
+                                text: "jobgroup_description_setting".tr(),
                                 fontSize: 14,
                                 color: ColorConstants.halfWhite,
                               ),
@@ -123,7 +124,7 @@ class _RegistJobGroupScreen extends BaseState<RegistJobGroupScreen> {
                                                   children: [
                                                     Expanded(
                                                       child: AppText(
-                                                        text: Constants.jobGroups[index].enName,
+                                                        text: Constants.languageCode == "ko" ? Constants.jobGroups[index].koName : Constants.jobGroups[index].enName,
                                                         color: (selectedItem?.enumValue ?? "") == Constants.jobGroups[index].enumValue ? ColorConstants.colorMain : ColorConstants.white,
                                                         fontSize: 14,
                                                       ),
@@ -156,9 +157,11 @@ class _RegistJobGroupScreen extends BaseState<RegistJobGroupScreen> {
                       GestureDetector(
                         onTap: () async {
                           if(selectedItem != null){
+                            Utils.showDialogWidget(context);
                             var response = await DioClient.updateProfile(widget.user.profile.jobDept, selectedItem!.idx.toString(), widget.user.profile.jobPosition, widget.user.profile.country, widget.user.profile.city, widget.user.profile.interestGameGenre, widget.user.profile.stateMsg);
                             print(response.data["result"]);
                             UserModel user = UserModel.fromJson(response.data["result"]["user"]);
+                            Get.back();
                             if(user.profile.jobPosition.isEmpty){
                               Get.to(RegistJobPositionScreen(user: user));
                             }else if(user.profile.country.isEmpty){

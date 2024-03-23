@@ -46,6 +46,8 @@ class ImageConstants {
   static const String logout="assets/icons/ic_logout.png";
   static const String zem="assets/icons/ic_zem.png";
   static const String editProfile="assets/icons/ic_edit_profile.png";
+
+  static const String communityBasicProfile="assets/icons/ic_community_basic_profile.png";
   
   static const String backWhite = "assets/icons/ic_back_white.png";
   static const String moreWhite = "assets/icons/ic_more_white.png";
@@ -143,6 +145,8 @@ class ImageConstants {
 
   static const profileIcon="assets/icons/ic_top_profile.png";
   static const chatIcon="assets/icons/ic_chat_white.png";
+
+  static const splashLogo="assets/icons/ic_splash_logo.png";
 
   static const appLogo="assets/image/svg/zp_logo.svg";
   static const onBoardingImage1="assets/image/on_boarding_screen_1.png";

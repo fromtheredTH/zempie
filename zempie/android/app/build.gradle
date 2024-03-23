@@ -24,8 +24,8 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.fromthered.zempie.dev"
-//    namespace "com.fromthered.zempie"
+//    namespace "com.fromthered.zempie.dev"
+    namespace "com.fromthered.zempie"
     compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
@@ -44,24 +44,42 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.fromthered.zempie.dev"
-//        applicationId "com.fromthered.zempie"
+//        applicationId "com.fromthered.zempie.dev"
+        applicationId "com.fromthered.zempie"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion 21
         targetSdkVersion 33
         multiDexEnabled true
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 2024032111
+        versionName "1.1.4"
     }
 
     signingConfigs {
         release {
-            keyAlias 'zempie_dev'
+            keyAlias 'zempie'
             keyPassword 'HrCh#Op0'
-            storeFile file('../../../keys/zempie.dev.keystore')
+            storeFile file('../../keys/zempie.keystore')
             storePassword 'HrCh#Op0'
         }
+        debug {
+            keyAlias 'zempie'
+            keyPassword 'HrCh#Op0'
+            storeFile file('../../keys/zempie.keystore')
+            storePassword 'HrCh#Op0'
+        }
+//        release {
+//            keyAlias 'zempie_dev'ㅇ
+//            keyPassword 'HrCh#Op0'
+//            storeFile file('../../keys/zempie.dev.keystore')
+//            storePassword 'HrCh#Op0'
+//        }
+//        debug{
+//            keyAlias 'zempie_dev'
+//            keyPassword 'HrCh#Op0'
+//            storeFile file('../../keys/zempie.dev.keystore')
+//            storePassword 'HrCh#Op0'
+//        }
     }
 
     buildTypes {

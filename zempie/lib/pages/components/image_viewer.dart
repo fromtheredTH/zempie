@@ -323,7 +323,7 @@ class _ImageViewerState extends BaseState<ImageViewer> {
                             List<BtnBottomSheetModel> items = [];
                             items.add(BtnBottomSheetModel("", "download_all".tr(), 0));
                             items.add(BtnBottomSheetModel("", "download_one".tr(), 1));
-                            Get.bottomSheet(BtnBottomSheetWidget(
+                            Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BtnBottomSheetWidget(
                               btnItems: items,
                               onTapItem: (index){
                                 if(index == 0){

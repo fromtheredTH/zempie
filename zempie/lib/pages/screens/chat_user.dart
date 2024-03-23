@@ -9,6 +9,7 @@ import 'package:app/pages/components/item/item_user.dart';
 import 'package:app/pages/components/report_dialog.dart';
 import 'package:app/pages/screens/chat_add.dart';
 import 'package:app/pages/screens/chat_detail.dart';
+import 'package:app/pages/screens/profile/profile_screen.dart';
 import 'package:easy_localization/src/public_ext.dart';
 import 'package:app/global/app_colors.dart';
 import 'package:app/global/global.dart';
@@ -26,13 +27,17 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart' hide Trans;
 
 import '../../Constants/ImageConstants.dart';
+import '../../Constants/utils.dart';
+import '../../global/DioClient.dart';
+import '../../models/User.dart';
 import '../components/app_text.dart';
 
 class ChatUserPage extends StatefulWidget {
   List<UserDto> userList;
   UserDto me;
   ChatRoomDto roomDto;
-  ChatUserPage({Key? key, required this.userList, required this.me, required this.roomDto}) : super(key: key);
+  Function(ChatRoomDto) changeRoom;
+  ChatUserPage({Key? key, required this.userList, required this.me, required this.roomDto, required this.changeRoom}) : super(key: key);
 
   @override
   ChatUserPageState createState() => ChatUserPageState();
@@ -121,7 +126,14 @@ class ChatUserPageState extends BaseState<ChatUserPage> {
                     InkWell(
                       onTap: () {
                         Navigator.push(
-                            context, SlideRightTransRoute(builder: (context) => ChatAddPage(existUsers: widget.userList, roomIdx: widget.roomDto.id,)));
+                            context, SlideRightTransRoute(builder: (context) =>
+                            ChatAddPage(
+                              existUsers: widget.userList,
+                              roomIdx: widget.roomDto.id,
+                              changeRoom: (room){
+                                Get.back();
+                                widget.changeRoom(room);
+                              },)));
                       },
                       child: SizedBox(
                           width: 24,
@@ -145,13 +157,30 @@ class ChatUserPageState extends BaseState<ChatUserPage> {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemBuilder: (BuildContext context, int index) {
-                              return ItemJoinedUser(
-                                info: userList[index],
+                              return GestureDetector(
+                                  onTap: () async {
+                                    Utils.showDialogWidget(context);
+                                    try {
+                                      var response = await DioClient
+                                          .getUser(userList[index].nickname ?? "");
+                                      UserModel user = UserModel
+                                          .fromJson(response
+                                          .data["result"]["target"]);
+                                      Get.back();
+                                      Get.to(ProfileScreen(user: user));
+                                    }catch(e){
+                                      Get.back();
+                                    }
+                                  },
+                                  child: ItemJoinedUser(
+                                    info: userList[index],
+                                  )
                               );
                             },
-                            itemCount: userList.length),
+                            itemCount: userList.length
+                        ),
+                      )
                       ),
-                    ),
                   ],
                 ),
               )

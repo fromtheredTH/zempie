@@ -20,6 +20,7 @@ import '../../../Constants/Constants.dart';
 import '../../../Constants/FontConstants.dart';
 import '../../../Constants/ImageConstants.dart';
 import '../../../Constants/ImageUtils.dart';
+import '../../../Constants/utils.dart';
 import '../../../models/CountryModel.dart';
 import '../../base/base_state.dart';
 import '../../components/loading_widget.dart';
@@ -128,7 +129,7 @@ class _RegistCountryScreen extends BaseState<RegistCountryScreen> {
                                                 countries.addAll(Constants.allCountries);
                                               }else {
                                                 for (int i =0 ;i<Constants.allCountries.length;i++){
-                                                  if(Constants.allCountries[i].nameModel.ko.contains(text)){
+                                                  if(Constants.allCountries[i].nameModel.ko.contains(text) || Constants.allCountries[i].nameModel.en.contains(text)){
                                                     countries.add(Constants.allCountries[i]);
                                                   }
                                                 }
@@ -213,7 +214,7 @@ class _RegistCountryScreen extends BaseState<RegistCountryScreen> {
                                                     children: [
                                                       Expanded(
                                                         child: AppText(
-                                                          text: countries[index].nameModel.ko,
+                                                          text: Constants.languageCode == "ko" ? countries[index].nameModel.ko : countries[index].nameModel.en,
                                                           color: (selectedCountry?.code ?? "") == countries[index].code ? ColorConstants.colorMain : ColorConstants.white,
                                                           fontSize: 14,
                                                         ),
@@ -246,8 +247,10 @@ class _RegistCountryScreen extends BaseState<RegistCountryScreen> {
                       GestureDetector(
                         onTap: () async {
                           if(selectedCountry != null){
+                            Utils.showDialogWidget(context);
                             var response = await DioClient.updateProfile(widget.user.profile.jobDept, widget.user.profile.jobGroup, widget.user.profile.jobPosition, selectedCountry!.code, widget.user.profile.city, widget.user.profile.interestGameGenre, widget.user.profile.stateMsg);
                             UserModel user = UserModel.fromJson(response.data["result"]["user"]);
+                            Get.back();
                             if(user.profile.city.isEmpty){
                               Get.to(RegistCityScreen(user: user));
                             }else if(user.profile.interestGameGenre.isEmpty){

@@ -10,6 +10,7 @@ import 'package:app/global/DioClient.dart';
 import 'package:app/models/GameModel.dart';
 import 'package:app/models/ReplyModel.dart';
 import 'package:app/models/User.dart';
+import 'package:app/models/dto/chat_room_dto.dart';
 import 'package:app/pages/components/BottomProfileWidget.dart';
 import 'package:app/pages/components/GameSimpleItemWidget.dart';
 import 'package:app/pages/components/GameUserPageWidget.dart';
@@ -22,6 +23,8 @@ import 'package:app/pages/screens/profile/profile_edit_screen.dart';
 import 'package:app/pages/screens/profile/profile_following_game_screen.dart';
 import 'package:app/pages/screens/profile/setting_list_screen.dart';
 import 'package:app/pages/screens/splash.dart';
+import 'package:app/utils/ChatRoomUtils.dart';
+import 'package:app/utils/ChatUtils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
@@ -29,6 +32,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -59,6 +63,7 @@ import '../../components/fucus_detector.dart';
 import '../../components/item/TagDev.dart';
 import '../../components/loading_widget.dart';
 import '../../components/post_widget.dart';
+import '../chat_detail.dart';
 import '../newPostScreen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -180,6 +185,16 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
   }
 
 
+  void openChatDetail(ChatRoomDto room) {
+    Get.to(ChatDetailPage(roomDto: room,
+      roomRefresh: (room) {
+
+      }, changeRoom: (room) {
+        openChatDetail(room);
+      }, onDeleteRoom: (room){
+
+      },));
+  }
 
   @override
   void initState() {
@@ -227,7 +242,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                           child: Icon(Icons.arrow_back_ios, color:Colors.white)),
 
                       AppText(
-                        text: user.id == Constants.user.id ? "마이 페이지" : user.nickname,
+                        text: user.id == Constants.user.id ? "my_page".tr() : user.nickname,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       )
@@ -238,7 +253,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                     children: [
                       GestureDetector(
                         onTap: (){
-                          Get.bottomSheet(BottomProfileWidget(user: user, setting: (){
+                          Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BottomProfileWidget(user: user, setting: (){
                             Get.to(SettingListScreen(onChangedUser: (user){
                               setState(() {
                                 this.user = user;
@@ -246,11 +261,12 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                             },));
                           }, logout: () async {
                             await FirebaseAuth.instance.signOut();
+                            ChatRoomUtils.deleteAllRooms();
+                            Constants.localChatRooms.clear();
                             Get.offAll(SplashPage());
                           }));
                         },
-                        child:
-                        SvgPicture.asset(ImageConstants.moreIcon),
+                        child: SvgPicture.asset(ImageConstants.moreIcon),
                       )
 
                     ],
@@ -277,7 +293,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                             ) : Container(
                               height: Get.width/4,
                               width: Get.width,
-                              color: ColorConstants.textGry,
+                              color: ColorConstants.white,
                             ),
 
                             Padding(
@@ -303,9 +319,9 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                               List<BtnBottomSheetModel> items = [];
                                               items.add(BtnBottomSheetModel(ImageConstants.cameraIcon, "camera".tr(), 0));
                                               items.add(BtnBottomSheetModel(ImageConstants.albumIcon, "gallery".tr(), 1));
-                                              items.add(BtnBottomSheetModel(ImageConstants.deleteIcon, "현재 사진 삭제", 2));
+                                              items.add(BtnBottomSheetModel(ImageConstants.deleteIcon, "current_profile_delete".tr(), 2));
 
-                                              Get.bottomSheet(BtnBottomSheetWidget(
+                                              Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BtnBottomSheetWidget(
                                                 btnItems: items,
                                                 onTapItem: (sheetIdx) async {
                                                   if(sheetIdx == 0){
@@ -333,7 +349,8 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                                                 builder: (_, controller) => GalleryBottomSheet(
                                                                   controller: controller,
                                                                   limitCnt: 1,
-                                                                  sendText: "변경하기",
+                                                                  sendText: "profile_change".tr(),
+                                                                  onlyImage: true,
                                                                   onTapSend: (results){
                                                                     procAssetsWithGallery(results);
                                                                   },
@@ -376,11 +393,9 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
 
                                               SizedBox(width: 5,),
 
-                                              if(user.profile.jobGroup == "1")
-                                                TagCreatorWidget(),
+                                                TagCreatorWidget(positionIndex: user.profile.jobGroup,),
                                               SizedBox(width: Get.width*0.01),
-                                              if(user.profile.jobPosition == "0")
-                                                TagDevWidget()
+                                                TagDevWidget(positionIndex: user.profile.jobPosition,)
                                             ],
                                           ),
 
@@ -406,7 +421,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                                       fontWeight: FontWeight.w600,
                                                     ),
                                                     AppText(
-                                                      text: " 팔로잉",
+                                                      text: " ${"add_chat_following".tr()}",
                                                       fontSize: 10,
                                                       color: ColorConstants.white70Percent,
                                                     ),
@@ -436,7 +451,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                                       fontWeight: FontWeight.w600,
                                                     ),
                                                     AppText(
-                                                      text: " 팔로워",
+                                                      text: " ${"follower".tr()}",
                                                       fontSize: 10,
                                                       color: ColorConstants.white70Percent,
                                                     ),
@@ -481,7 +496,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                                         SizedBox(height: 15,),
 
                                                         AppText(
-                                                          text: "내 QR 코드",
+                                                          text: "my_qr_code".tr(),
                                                           fontSize: 18,
                                                           fontWeight: FontWeight
                                                               .w700,
@@ -512,21 +527,27 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
 
                                                         SizedBox(height: 15,),
 
-                                                        Row(
-                                                          crossAxisAlignment: CrossAxisAlignment
-                                                              .center,
-                                                          mainAxisAlignment: MainAxisAlignment
-                                                              .center,
-                                                          children: [
-                                                            ImageUtils.setImage(
-                                                                ImageConstants
-                                                                    .copyIcon,
-                                                                18, 18),
-                                                            AppText(
-                                                              text: "내 채널 링크 복사",
-                                                              fontSize: 14,
-                                                            )
-                                                          ],
+                                                        GestureDetector(
+                                                          onTap: (){
+                                                            Clipboard.setData(ClipboardData(text: "https://zempie.com/${user.nickname}"));
+                                                            Utils.showToast("qr_copy_complete".tr());
+                                                          },
+                                                          child: Row(
+                                                            crossAxisAlignment: CrossAxisAlignment
+                                                                .center,
+                                                            mainAxisAlignment: MainAxisAlignment
+                                                                .center,
+                                                            children: [
+                                                              ImageUtils.setImage(
+                                                                  ImageConstants
+                                                                      .copyIcon,
+                                                                  18, 18),
+                                                              AppText(
+                                                                text: "qr_copy".tr(),
+                                                                fontSize: 14,
+                                                              )
+                                                            ],
+                                                          ),
                                                         ),
 
                                                         SizedBox(height: 20,)
@@ -592,7 +613,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                       ImageUtils.setImage(ImageConstants.profileBuilding, 22, 22),
                                       SizedBox(width: 5,),
                                       AppText(
-                                        text: "${user.profile.jobDept} 재직중",
+                                        text: "job_introduce".tr(args: [user.profile.jobDept]),
                                         fontSize: 11,
                                       )
                                     ],
@@ -699,8 +720,27 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                     Expanded(
                                         child: GestureDetector(
                                           onTap: () async {
-                                            var response = await DioClient.getUserChatRoom(user.id);
+                                            showLoading();
+                                            var response = await DioClient.getUserChatRoom(user.id.toString());
                                             print(response);
+                                            if(response.data["totalCount"] == 0 || response.data["result"].length == 0){
+                                              Map<String, dynamic> body = {"receiver_ids": [user.id]};
+
+                                              apiC
+                                                  .createChatRoom("Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}", jsonEncode(body))
+                                                  .then((value) {
+                                                print("chat room id = ${value.id}");
+                                                hideLoading();
+                                                openChatDetail(value);
+                                              }).catchError((Object obj) {
+                                                hideLoading();
+                                                Utils.showToast("connection_failed".tr());
+                                              });
+                                            }else{
+                                              ChatRoomDto room = ChatRoomDto.fromJson(response.data["result"][0]);
+                                              hideLoading();
+                                              openChatDetail(room);
+                                            }
 
                                           },
                                           child: Container(
@@ -714,7 +754,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                               mainAxisAlignment: MainAxisAlignment.center,
                                               children: [
                                                 AppText(
-                                                  text: "메시지 보내기",
+                                                  text: "send_message".tr(),
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w400,),
                                                 SizedBox(width: 10),
@@ -751,13 +791,13 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                                 children: [
                                                   Icon(Icons.add, color: ColorConstants.colorMain, size: 16,),
                                                   SizedBox(width: 5),
-                                                  AppText(text: "팔로우",
+                                                  AppText(text: "follow".tr(),
                                                       fontSize: 14,
                                                       fontWeight: FontWeight.w400,
                                                       color: ColorConstants.colorMain),
                                                 ],
                                               ) : Center(
-                                                child: AppText(text: "팔로잉 취소",
+                                                child: AppText(text: "follow_cancel".tr(),
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.w400,
                                                     color: ColorConstants.colorMain),
@@ -778,7 +818,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       AppText(
-                                        text: "내가 팔로잉 중인 게임",
+                                        text: "my_follow_game".tr(),
                                         fontSize: 14,
                                         color: ColorConstants.halfWhite,
                                       ),
@@ -790,7 +830,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                           }));
                                         },
                                         child: AppText(
-                                          text: "전체 보기",
+                                          text: "total_view".tr(),
                                           fontSize: 12,
                                         ),
                                       )
@@ -910,7 +950,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                                   padding: EdgeInsets.only(top: 50,bottom: 50),
                                   child: Center(
                                     child: AppText(
-                                      text: "게시중인 포스팅이 없습니다",
+                                      text: "empty_publish_post".tr(),
                                       fontSize: 14,
                                       color: ColorConstants.halfWhite,
                                     ),
@@ -962,7 +1002,7 @@ class _ProfileScreen extends BaseState<ProfileScreen> {
                           padding: EdgeInsets.only(top: 50,bottom: 50),
                           child: Center(
                             child: AppText(
-                              text: "게임이 없습니다",
+                              text: "empty_game".tr(),
                               fontSize: 14,
                               color: ColorConstants.halfWhite,
                             ),

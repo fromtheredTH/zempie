@@ -70,12 +70,12 @@ class _BottomProfileJobPositionWidget extends BaseState<BottomProfileJobPosition
           ),
           SizedBox(height: Get.height * 0.02,),
           AppText(
-            text: "직무",
+            text: "jobposition".tr(),
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
           AppText(
-            text: "직무를 선택해 주세요.",
+            text: "jobposition_description".tr(),
             fontSize: 12,
             color: ColorConstants.halfWhite,
           ),
@@ -123,7 +123,7 @@ class _BottomProfileJobPositionWidget extends BaseState<BottomProfileJobPosition
                                           SizedBox(width: 5,),
 
                                           AppText(
-                                            text: Constants.jobPositions[index].enumValue,
+                                            text: Constants.languageCode == "ko" ? Constants.jobPositions[index].koName : Constants.jobPositions[index].enName,
                                             color: Constants.jobPositions[index].color,
                                             fontSize: 14,
                                           ),

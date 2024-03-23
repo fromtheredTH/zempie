@@ -45,43 +45,46 @@ class _CommunitySimpleItemWidget extends BaseState<CommunitySimpleItemWidget> {
           });
         },));
       },
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 45,
-                height: 45,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle
+      child: Container(
+        color: Colors.transparent,
+        child: Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 45,
+                  height: 45,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle
+                  ),
+                  child: ImageUtils.setRectNetworkImage(
+                      community.profileImg,
+                      45,
+                      45
+                  ),
                 ),
-                child: ImageUtils.setRectNetworkImage(
-                    community.profileImg,
-                    45,
-                    45
+                SizedBox(width: 10),
+
+                Flexible(
+                    child:AppText(text: community.name,
+                      fontSize: 13,
+                      color: ColorConstants.white,
+                      textAlign: TextAlign.start,
+                      overflow: TextOverflow.ellipsis,
+                      fontFamily: FontConstants.AppFont,
+                      fontWeight: FontWeight.w400,
+                      maxLine: 2,
+                    )
                 ),
-              ),
-              SizedBox(width: 10),
 
-              Flexible(
-                  child:AppText(text: community.name,
-                    fontSize: 13,
-                    color: ColorConstants.white,
-                    textAlign: TextAlign.start,
-                    overflow: TextOverflow.ellipsis,
-                    fontFamily: FontConstants.AppFont,
-                    fontWeight: FontWeight.w400,
-                    maxLine: 2,
-                  )
-              ),
+                SizedBox(width: 15,)
+              ],
+            ),
 
-              SizedBox(width: 15,)
-            ],
-          ),
-
-          SizedBox(height: 25,)
-        ],
+            SizedBox(height: 25,)
+          ],
+        ),
       ),
     );
   }

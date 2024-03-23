@@ -7,6 +7,7 @@ import 'package:app/pages/screens/discover/DiscoverGameDetails.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart' hide Trans;
@@ -16,6 +17,7 @@ import '../../../Constants/Constants.dart';
 import '../../../Constants/FontConstants.dart';
 import '../../../Constants/ImageConstants.dart';
 import '../../../Constants/ImageUtils.dart';
+import '../../../Constants/utils.dart';
 import '../../../global/DioClient.dart';
 import '../../../models/CommunityModel.dart';
 import '../../../models/GameModel.dart';
@@ -331,7 +333,7 @@ class _DiscoverSearchScreenState extends BaseState<DiscoverSearchScreen> {
                                               SizedBox(height: 15,),
 
                                               AppText(
-                                                text: "내 QR 코드",
+                                                text: "my_qr_code".tr(),
                                                 fontSize: 18,
                                                 fontWeight: FontWeight
                                                     .w700,
@@ -364,21 +366,27 @@ class _DiscoverSearchScreenState extends BaseState<DiscoverSearchScreen> {
 
                                               SizedBox(height: 15,),
 
-                                              Row(
-                                                crossAxisAlignment: CrossAxisAlignment
-                                                    .center,
-                                                mainAxisAlignment: MainAxisAlignment
-                                                    .center,
-                                                children: [
-                                                  ImageUtils.setImage(
-                                                      ImageConstants
-                                                          .copyIcon,
-                                                      18, 18),
-                                                  AppText(
-                                                    text: "내 채널 링크 복사",
-                                                    fontSize: 14,
-                                                  )
-                                                ],
+                                              GestureDetector(
+                                                onTap: (){
+                                                  Clipboard.setData(ClipboardData(text: "https://zempie.com/${Constants.user.nickname}"));
+                                                  Utils.showToast("qr_copy_complete".tr());
+                                                },
+                                                child: Row(
+                                                  crossAxisAlignment: CrossAxisAlignment
+                                                      .center,
+                                                  mainAxisAlignment: MainAxisAlignment
+                                                      .center,
+                                                  children: [
+                                                    ImageUtils.setImage(
+                                                        ImageConstants
+                                                            .copyIcon,
+                                                        18, 18),
+                                                    AppText(
+                                                      text: "qr_copy".tr(),
+                                                      fontSize: 14,
+                                                    )
+                                                  ],
+                                                ),
                                               ),
 
                                               SizedBox(height: 20,)
@@ -456,7 +464,7 @@ class _DiscoverSearchScreenState extends BaseState<DiscoverSearchScreen> {
         padding: EdgeInsets.only(top: 50,bottom: 50),
         child: Center(
           child: AppText(
-            text: "유저가 없습니다",
+            text: "empty_user".tr(),
             fontSize: 14,
             color: ColorConstants.halfWhite,
           ),
@@ -500,7 +508,7 @@ class _DiscoverSearchScreenState extends BaseState<DiscoverSearchScreen> {
         padding: EdgeInsets.only(top: 50,bottom: 50),
         child: Center(
           child: AppText(
-            text: "포스트가 없습니다",
+            text: "empty_post".tr(),
             fontSize: 14,
             color: ColorConstants.halfWhite,
           ),
@@ -553,7 +561,7 @@ class _DiscoverSearchScreenState extends BaseState<DiscoverSearchScreen> {
         padding: EdgeInsets.only(top: 50,bottom: 50),
         child: Center(
           child: AppText(
-            text: "게임이 없습니다",
+            text: "empty_game".tr(),
             fontSize: 14,
             color: ColorConstants.halfWhite,
           ),
@@ -607,7 +615,7 @@ class _DiscoverSearchScreenState extends BaseState<DiscoverSearchScreen> {
         padding: EdgeInsets.only(top: 50,bottom: 50),
         child: Center(
           child: AppText(
-            text: "커뮤니티가 없습니다",
+            text: "empty_community".tr(),
             fontSize: 14,
             color: ColorConstants.halfWhite,
           ),

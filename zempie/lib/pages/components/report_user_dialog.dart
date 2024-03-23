@@ -52,7 +52,7 @@ class _ReportUserDialog extends BaseState<ReportUserDialog> {
   Widget build(BuildContext context) {
     return Container(
       width: Get.width,
-      height: 520+MediaQuery.of(context).viewInsets.bottom,
+      height: 530+MediaQuery.of(context).viewInsets.bottom,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.only(topLeft: Radius.circular(30),
               topRight: Radius.circular(30)),
@@ -72,7 +72,7 @@ class _ReportUserDialog extends BaseState<ReportUserDialog> {
           ),
           SizedBox(height: 10,),
           AppText(
-            text: "유저 신고",
+            text: "user_report".tr(),
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -80,7 +80,7 @@ class _ReportUserDialog extends BaseState<ReportUserDialog> {
           Padding(
             padding: EdgeInsets.only(left: 20,right: 20),
             child: AppText(
-              text: "신고 사유를 선택해 주세요. 신고 사유에 맞지 않는 신고일 경우, 해당 신고는 처리되지 않습니다. 검토까지는 최대 24시간이 소요됩니다.",
+              text: "report_content".tr(),
               fontSize: 12,
               textAlign: TextAlign.center,
               color: ColorConstants.halfWhite,

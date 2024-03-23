@@ -28,6 +28,7 @@ class ChatRoomDto {
   int unread_start_id;
   ChatMsgDto? last_message;
   List<UserDto>? joined_users;
+  bool? leaved;
 
   ChatRoomDto(
       {required this.id,
@@ -41,6 +42,7 @@ class ChatRoomDto {
       this.deleted_at,
       this.has_name,
       this.name,
+        this.leaved,
       required this.unread_count,
       required this.unread_start_id,
       this.last_message,

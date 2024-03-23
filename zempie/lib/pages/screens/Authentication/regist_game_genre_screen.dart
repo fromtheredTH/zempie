@@ -22,6 +22,7 @@ import '../../../Constants/ColorConstants.dart';
 import '../../../Constants/FontConstants.dart';
 import '../../../Constants/ImageConstants.dart';
 import '../../../Constants/ImageUtils.dart';
+import '../../../Constants/utils.dart';
 import '../../../models/CountryModel.dart';
 import '../../base/base_state.dart';
 import '../../components/loading_widget.dart';
@@ -74,7 +75,7 @@ class _RegistGameGenreScreen extends BaseState<RegistGameGenreScreen> {
                             Container(
                               width: double.maxFinite,
                               child: AppText(
-                                text: "관심 게임 장르",
+                                text: "select_interest_game_genre_title".tr(),
                                 fontSize: 18,
                               ),
                             ),
@@ -82,7 +83,7 @@ class _RegistGameGenreScreen extends BaseState<RegistGameGenreScreen> {
                             Container(
                               width: double.maxFinite,
                               child: AppText(
-                                text: "관심 게임 장르를 선택해 주세요.",
+                                text: "select_interest_game_genre_description".tr(),
                                 fontSize: 14,
                                 color: ColorConstants.halfWhite,
                               ),
@@ -123,7 +124,7 @@ class _RegistGameGenreScreen extends BaseState<RegistGameGenreScreen> {
                                                       child: Row(
                                                         children: [
                                                           AppText(
-                                                            text: selectedItems[index].koName,
+                                                            text: Constants.languageCode == "ko" ? selectedItems[index].koName : selectedItems[index].enName,
                                                             fontSize: 14,
                                                             color: ColorConstants.colorMain,
                                                           ),
@@ -192,7 +193,7 @@ class _RegistGameGenreScreen extends BaseState<RegistGameGenreScreen> {
                                                 ),
                                                 Expanded(
                                                   child: AppText(
-                                                    text: Constants.interestGameGenres[index].koName,
+                                                    text: Constants.languageCode == "ko" ? Constants.interestGameGenres[index].koName : Constants.interestGameGenres[index].enName,
                                                     color: isSelected ? ColorConstants.colorMain : ColorConstants.white,
                                                     fontSize: 14,
                                                   ),
@@ -215,6 +216,7 @@ class _RegistGameGenreScreen extends BaseState<RegistGameGenreScreen> {
                       GestureDetector(
                         onTap: () async {
                           if(selectedItems.length != 0){
+                            Utils.showDialogWidget(context);
                             String gameGenre = "";
                             gameGenre += selectedItems[0].idx.toString();
                             for(int i=1;i<selectedItems.length;i++){
@@ -222,6 +224,7 @@ class _RegistGameGenreScreen extends BaseState<RegistGameGenreScreen> {
                             }
                             var response = await DioClient.updateProfile(widget.user.profile.jobDept, widget.user.profile.jobGroup, widget.user.profile.jobPosition, widget.user.profile.country, widget.user.profile.city, gameGenre, widget.user.profile.stateMsg);
                             UserModel user = UserModel.fromJson(response.data["result"]["user"]);
+                            Get.back();
                             if(user.profile.stateMsg.isEmpty){
                               Get.to(RegistGenreScreen(user: user));
                             }else{

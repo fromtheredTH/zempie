@@ -13,8 +13,8 @@ class _ApiP implements ApiP {
     this._dio, {
     this.baseUrl,
   }) {
-    baseUrl ??= 'https://api-extn-pf.zempie.com/api/v1';
-    // baseUrl ??= 'https://api.zempie.com/api/v1';
+    // baseUrl ??= 'https://api-extn-pf.zempie.com/api/v1';
+    baseUrl ??= 'https://api.zempie.com/api/v1';
   }
 
   final Dio _dio;

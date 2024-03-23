@@ -56,8 +56,13 @@ class _UserListItemWidget extends BaseState<UserListItemWidget> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
+            GestureDetector(
+                onTap: (){
+                  Get.to(ProfileScreen(user: user));
+                },
+                child: Container(
               width: Get.width*0.8,
+              color: Colors.transparent,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -91,21 +96,26 @@ class _UserListItemWidget extends BaseState<UserListItemWidget> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
 
-                            AppText(text: user.nickname,
-                                fontSize: widget.isMini ? 12 : 13,
-                                color: ColorConstants.white,
-                                textAlign: TextAlign.start,
-                                overflow: TextOverflow.ellipsis,
-                                fontFamily: FontConstants.AppFont,
-                                fontWeight: FontWeight.w700
+                            GestureDetector(
+                              onTap: (){
+                                Get.to(ProfileScreen(user: user));
+                              },
+                              child: AppText(text: user.nickname,
+                                  fontSize: widget.isMini ? 12 : 13,
+                                  color: ColorConstants.white,
+                                  textAlign: TextAlign.start,
+                                  overflow: TextOverflow.ellipsis,
+                                  fontFamily: FontConstants.AppFont,
+                                  fontWeight: FontWeight.w700
+                              ),
                             ),
 
                             SizedBox(width: widget.isMini ? 5 : 10),
-                            if(user.profile.jobGroup == "1")
-                              TagCreatorWidget(),
+
+                              TagCreatorWidget(positionIndex: user.profile.jobGroup,),
                             SizedBox(width: widget.isMini ? 4 : 8),
-                            if(user.profile.jobPosition == "0")
-                              TagDevWidget()
+
+                              TagDevWidget(positionIndex: user.profile.jobPosition,)
 
                           ],
                         ),
@@ -118,13 +128,18 @@ class _UserListItemWidget extends BaseState<UserListItemWidget> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
 
-                          AppText(text: user.name,
-                              fontSize: widget.isMini ? 12 : 13,
-                              color: ColorConstants.halfWhite,
-                              textAlign: TextAlign.start,
-                              overflow: TextOverflow.ellipsis,
-                              fontFamily: FontConstants.AppFont,
-                              fontWeight: FontWeight.w400
+                          GestureDetector(
+                              onTap: (){
+                                Get.to(ProfileScreen(user: user));
+                              },
+                              child: AppText(text: user.name,
+                                  fontSize: widget.isMini ? 12 : 13,
+                                  color: ColorConstants.halfWhite,
+                                  textAlign: TextAlign.start,
+                                  overflow: TextOverflow.ellipsis,
+                                  fontFamily: FontConstants.AppFont,
+                                  fontWeight: FontWeight.w400
+                              )
                           )
                         ],
                       ),
@@ -132,6 +147,7 @@ class _UserListItemWidget extends BaseState<UserListItemWidget> {
                   )
                 ],
               ),
+            ),
             ),
 
             if(widget.isShowAction && user.id != Constants.user.id)
@@ -154,12 +170,12 @@ class _UserListItemWidget extends BaseState<UserListItemWidget> {
               GestureDetector(
                 onTap: (){
                   List<BtnBottomSheetModel> items = [];
-                  items.add(BtnBottomSheetModel(ImageConstants.reportUserIcon, "유저 신고", 0));
-                  items.add(BtnBottomSheetModel(ImageConstants.block, "유저 차단", 1));
-                  items.add(BtnBottomSheetModel(ImageConstants.unSubscribe, "팔로우 취소", 2));
+                  items.add(BtnBottomSheetModel(ImageConstants.reportUserIcon, "user_report".tr(), 0));
+                  items.add(BtnBottomSheetModel(ImageConstants.block, "user_block".tr(), 1));
+                  items.add(BtnBottomSheetModel(ImageConstants.unSubscribe, "follow_cancel".tr(), 2));
 
 
-                  Get.bottomSheet(BtnBottomSheetWidget(btnItems: items, onTapItem: (menuIndex) async {
+                  Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BtnBottomSheetWidget(btnItems: items, onTapItem: (menuIndex) async {
                     if(menuIndex == 0){
                       showModalBottomSheet<dynamic>(
                           isScrollControlled: true,

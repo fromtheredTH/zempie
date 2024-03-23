@@ -53,7 +53,7 @@ class ReportDialogState extends BaseState<ReportDialog> {
   Widget build(BuildContext context) {
     return Container(
       width: Get.width,
-      height: 550+MediaQuery.of(context).viewInsets.bottom,
+      height: 560+MediaQuery.of(context).viewInsets.bottom,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.only(topLeft: Radius.circular(30),
               topRight: Radius.circular(30)),
@@ -73,7 +73,7 @@ class ReportDialogState extends BaseState<ReportDialog> {
           ),
           SizedBox(height: 10,),
           AppText(
-            text: widget.type == "post" ? "게시물 신고" : widget.type == "game" ? "게임 신고" : "댓글 신고",
+            text: widget.type == "post" ? "report_posting_title".tr() : widget.type == "game" ? "game_report".tr() : "report_comment".tr(),
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -81,7 +81,7 @@ class ReportDialogState extends BaseState<ReportDialog> {
           Padding(
             padding: EdgeInsets.only(left: 20,right: 20),
             child: AppText(
-              text: "신고 사유를 선택해 주세요. 신고 사유에 맞지 않는 신고일 경우, 해당 신고는 처리되지 않습니다. 검토까지는 최대 24시간이 소요됩니다.",
+              text: "report_content".tr(),
               fontSize: 12,
               textAlign: TextAlign.center,
               color: ColorConstants.halfWhite,

@@ -5,6 +5,7 @@ import 'package:app/global/DioClient.dart';
 import 'package:app/models/User.dart';
 import 'package:app/pages/components/BtnBottomSheetWidget.dart';
 import 'package:app/pages/components/app_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -157,7 +158,7 @@ class _BlockUserListItemWidget extends BaseState<BlockUserListItemWidget> {
                     )
                 ),
                 child: AppText(
-                  text: "차단 취소",
+                  text: "block_cancel".tr(),
                   color: ColorConstants.red,
                   fontSize: 14,
                 ),

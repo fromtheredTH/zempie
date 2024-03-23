@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'dart:math';
 import 'dart:ui' hide Codec;
 
+import 'package:app/pages/screens/profile/profile_screen.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:app/Constants/ColorConstants.dart';
 import 'package:app/Constants/FontConstants.dart';
@@ -69,18 +70,25 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:app/write_log.dart';
 
 import '../../Constants/Constants.dart';
+import '../../Constants/ImageUtils.dart';
+import '../../Constants/utils.dart';
+import '../../global/DioClient.dart';
+import '../../models/User.dart';
 import '../../models/res/btn_bottom_sheet_model.dart';
 import '../components/BtnBottomSheetWidget.dart';
 import '../components/EditRoomNameBottomSheet.dart';
 import '../components/GalleryBottomSheet.dart';
 import '../components/app_text.dart';
 import '../components/item/PositionRetainedScrollPhysics.dart';
+import '../components/report_user_dialog.dart';
 
 class ChatDetailPage extends StatefulWidget {
   ChatRoomDto roomDto;
 
-  ChatDetailPage({Key? key, required this.roomDto, required this.roomRefresh}) : super(key: key);
+  ChatDetailPage({Key? key, required this.roomDto, required this.roomRefresh, required this.changeRoom, required this.onDeleteRoom}) : super(key: key);
   Function(ChatRoomDto) roomRefresh;
+  Function(ChatRoomDto) changeRoom;
+  Function(ChatRoomDto) onDeleteRoom;
 
   @override
   ChatDetailPageState createState() => ChatDetailPageState();
@@ -91,6 +99,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
   AutoScrollController mainController = AutoScrollController();
   // String strChatText = '';
   TextEditingController msgController = TextEditingController();
+  RxString sendString = "".obs;
   String tempString = "";
   bool hasNextPage = false;
 
@@ -135,6 +144,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
   int unread_start_id = 0;
 
   FocusNode myFocusNode = FocusNode();
+  bool isMicPermission = false;
 
   PositionRetainedScrollPhysics physics = PositionRetainedScrollPhysics();
 
@@ -154,6 +164,10 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
     WidgetsBinding.instance.addObserver(this);
 
     me = UserDto.fromJson(Constants.user.toJson());
+    Permission.microphone.status.then((value) {
+      isMicPermission = value.isGranted;
+    });
+
     // getMe();
     initChatMsgs();
     gChatRoomUid = widget.roomDto.id;
@@ -161,6 +175,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
     ReceivePort _port = ReceivePort();
     IsolateNameServer.registerPortWithName(_port.sendPort, 'firbase_port2');
     _port.listen((dynamic data) async {
+      print("몬가 들어오나? ${data}");
       ChatMsgDto msg = ChatMsgDto.fromJson(jsonDecode(data[0]));
       ChatRoomDto room = ChatRoomDto.fromJson(jsonDecode(data[1]));
 
@@ -209,6 +224,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
     getChatList(isFirst: true);
 
     event.on<ChatReceivedEvent>().listen((event) async {
+      print("챗 리시브");
       if (mounted) {
         ChatRoomDto room = event.room;
         ChatMsgDto msg = event.chat;
@@ -216,6 +232,8 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
         print("받은 메세지 ${event}");
         try {
           if (msg.type == eChatType.AUDIO.index) {
+            print("서버 푸쉬로 부터 받은 값 ${msg.contents}");
+            // return;
             await playerModule?.closePlayer();
             await playerModule?.openPlayer();
 
@@ -462,6 +480,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
     setState(() {
       replyIdx = -1;
       msgController.text = "";
+      sendString.value = "";
     });
 
     addFailedChat(-2, content, type, parent_id);
@@ -481,7 +500,25 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
 
     apiC
         .addChat("Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}", jsonEncode(body))
-        .then((value) {
+        .then((value) async {
+
+          if(value.message.type == eChatType.AUDIO.index) {
+            print("서버 api로 부터 받은 값 ${value.message.contents}");
+            await playerModule?.closePlayer();
+            await playerModule?.openPlayer();
+
+            Duration duration = await playerModule?.startPlayer(
+                fromURI: value.message.contents ?? '',
+                codec: Codec.pcm16WAV,
+                sampleRate: 44000,
+                whenFinished: () {}) ??
+                const Duration();
+            int audioTime = duration.inSeconds;
+            await playerModule?.stopPlayer();
+            await playerModule?.closePlayer();
+            value.message.audioTime = audioTime;
+            print("오디오 완료 ${audioTime}");
+          }
 
       print("콘텐츠 추가 ${value.message.id} ${value.message.contents}");
           if(value.room_id == roomDto.id){
@@ -640,6 +677,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
 
       if (fileList.isNotEmpty) {
         showLoading();
+
         apiP
             .uploadFile("Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}", fileList)
             .then((value) {
@@ -711,8 +749,8 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
         .leaveChatRoom(roomDto.id, "Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}")
         .then((value) {
       hideLoading();
-      // event.fire(ChatLeaveEvent(roomDto));
-      // Navigator.pop(context);
+      Navigator.pop(context);
+      widget.onDeleteRoom(roomDto);
     }).catchError((Object obj) {
       hideLoading();
       showToast("connection_failed".tr());
@@ -749,12 +787,13 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
         .then((value) async {
       hideLoading();
       print(value);
-      ChatUtils.deleteChat(roomDto.id, msgList[index]);
       print(value);
+      ChatUtils.deleteChat(roomDto.id, msgList[index]);
       setState(() {
         msgList[index].type = 0;
         msgList[index].chat_idx = -1;
       });
+      widget.roomRefresh(roomDto);
     }).catchError((Object obj) {
       hideLoading();
       showToast("connection_failed".tr());
@@ -914,10 +953,11 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
     showLoading();
     apiP
         .uploadFile("Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}", fileList)
-        .then((value) {
+        .then((value) async {
       hideLoading();
 
       List<FileDto> audios = value.result.where((element) => element.type == "sound").toList();
+
       onFileSend(audios, eChatType.AUDIO.index);
     }).catchError((Object obj) {
       hideLoading();
@@ -1067,7 +1107,13 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                                     context,
                                     SlideRightTransRoute(
                                         builder: (context) =>
-                                            ChatUserPage(userList: roomDto.joined_users!, me: me!, roomDto: roomDto, )));
+                                            ChatUserPage(
+                                              userList: roomDto.joined_users!,
+                                              me: me!,
+                                              roomDto: roomDto,
+                                            changeRoom: (room){
+                                                widget.changeRoom(room);
+                                            },)));
                               },
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -1119,16 +1165,18 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                             if((roomDto.joined_users?.length ?? 0) == 1 && !closeRoom)
                               items.add(BtnBottomSheetModel(ImageConstants.reportUserIcon, "report_title".tr(), 3));
                             items.add(BtnBottomSheetModel(ImageConstants.exitRoomIcon, "chat_leave".tr(), 4));
-                            Get.bottomSheet(BtnBottomSheetWidget(
+                            Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BtnBottomSheetWidget(
                               btnItems: items,
-                              onTapItem: (menuIndex){
+                              onTapItem: (menuIndex) async {
                                 if(menuIndex == 0){
                                   Navigator.push(context, SlideRightTransRoute(builder: (context) => ChatAddPage(existUsers: roomDto.joined_users ?? [], roomIdx: roomDto.id,
                                   refresh: (){
                                     getChatRoomInfo();
-                                  },)));
+                                  },changeRoom: (room){
+                                      widget.changeRoom(room);
+                                    },)));
                                 }else if(menuIndex == 1){
-                                  Get.bottomSheet(EditRoomNameBottomSheet(
+                                  Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),EditRoomNameBottomSheet(
                                     roomDto: roomDto,
                                     inputName: (name) async {
                                       if (name.isEmpty) {
@@ -1156,10 +1204,33 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                                     },
                                   ));
                                 }else if(menuIndex == 2){
-                                  AppDialog.showConfirmDialog(context, "block_title".tr(), "block_content".tr(), () {});
+                                  List<UserDto> users = roomDto.joined_users ?? [];
+                                  for(int i=0;i<users.length;i++){
+                                    if(users[i].id != Constants.user.id){
+                                      var response = await DioClient.postUserBlock(users[i].id);
+                                      Utils.showToast("ban_complete".tr());
+                                      break;
+                                    }
+                                  }
                                 }else if(menuIndex == 3){
-                                  AppDialog.showAlertDialog(context, () {}, "report_success_title".tr(),
-                                      "report_success_content".tr());
+                                  List<UserDto> users = roomDto.joined_users ?? [];
+                                  for(int i=0;i<users.length;i++){
+                                    if(users[i].id != Constants.user.id){
+                                      showModalBottomSheet<dynamic>(
+                                          isScrollControlled: true,
+                                          context: context,
+                                          useRootNavigator: true,
+                                          backgroundColor: Colors.transparent,
+                                          builder: (BuildContext bc) {
+                                            return ReportUserDialog(onConfirm: (reportList, reason) async {
+                                              var response = await DioClient.reportUser(users[i].id, reportList, reason);
+                                              Utils.showToast("report_complete".tr());
+                                            },);
+                                          }
+                                      );
+                                      break;
+                                    }
+                                  }
                                 }else {
                                   AppDialog.showConfirmDialog(context, "leave_title".tr(), "leave_content".tr(), () {
                                     chatRoomLeave();
@@ -1234,7 +1305,21 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
 
                                             });
                                           },
-                                          onProfile: () {},
+                                          onProfile: () async {
+                                            Utils.showDialogWidget(context);
+                                            try {
+                                              var response = await DioClient
+                                                  .getUser(msgList[index].sender
+                                                  ?.nickname ?? "");
+                                              UserModel user = UserModel
+                                                  .fromJson(response
+                                                  .data["result"]["target"]);
+                                              Get.back();
+                                              Get.to(ProfileScreen(user: user));
+                                            }catch(e){
+                                              Get.back();
+                                            }
+                                          },
                                           onDelete: () {
                                             if (msgList[index].id == -1) return;
                                             deleteChat(index);
@@ -1245,7 +1330,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                                               items.add(BtnBottomSheetModel(ImageConstants.resendIcon, "resend".tr(), 0));
                                               items.add(BtnBottomSheetModel(ImageConstants.cancelSendIcon, "send_cancel".tr(), 1));
 
-                                              Get.bottomSheet(BtnBottomSheetWidget(
+                                              Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BtnBottomSheetWidget(
                                                 btnItems: items,
                                                 onTapItem: (menuIndex) async {
                                                   if(menuIndex == 0){
@@ -1295,7 +1380,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                                             if(msgList[index].sender_id == me!.id)
                                               items.add(BtnBottomSheetModel(ImageConstants.deleteIcon, "delete".tr(), 2));
 
-                                            Get.bottomSheet(BtnBottomSheetWidget(
+                                            Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BtnBottomSheetWidget(
                                               btnItems: items,
                                               onTapItem: (sheetIdx) async {
                                                 if(sheetIdx == 0){
@@ -1337,21 +1422,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                               ),
                               child: Row(
                                 children: [
-                                  (msgList.first.sender?.picture ?? '').isEmpty
-                                      ? Image.asset("assets/image/ic_default_user.png", height: 42, width: 42)
-                                      : ClipOval(
-                                    child: CachedNetworkImage(
-                                      imageUrl: msgList.first.sender?.picture ?? '',
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) => CircularProgressIndicator(),
-                                      errorWidget: (context, url, error) => Image.asset(
-                                          "assets/image/ic_default_user.png",
-                                          height: 42,
-                                          width: 42),
-                                      width: 42,
-                                      height: 42,
-                                    ),
-                                  ),
+                                  ImageUtils.ProfileImage(msgList.first.sender?.picture ?? "", 42, 42),
                                   const SizedBox(width: 10),
                                   AppText(
                                     text: msgList.first.sender?.nickname ?? '',
@@ -1482,7 +1553,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                                                     items.add(BtnBottomSheetModel(ImageConstants.cameraIcon, "camera".tr(), 0));
                                                     items.add(BtnBottomSheetModel(ImageConstants.albumIcon, "gallery".tr(), 1));
 
-                                                    Get.bottomSheet(BtnBottomSheetWidget(
+                                                    Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BtnBottomSheetWidget(
                                                       btnItems: items,
                                                       onTapItem: (sheetIdx) async {
                                                         if(sheetIdx == 0){
@@ -1498,7 +1569,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                                                                 isDismissible: true,
                                                                 backgroundColor: Colors.transparent,
                                                                 constraints: BoxConstraints(
-                                                                  minHeight: 0.8,
+                                                                  minHeight: 0.4,
                                                                   maxHeight: Get.height*0.95,
                                                                 ),
                                                                 builder: (BuildContext context) {
@@ -1551,7 +1622,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                                                       fontFamily: FontConstants.AppFont,
                                                       fontSize: 14
                                                   ),
-                                                  showCursor: !_isRecording.value && !_isRecordLock.value,
+                                                  showCursor: !_isRecording.value,
                                                   controller: msgController,
                                                   decoration: InputDecoration(
                                                       counterText: "",
@@ -1566,6 +1637,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                                                       contentPadding: const EdgeInsets.only(bottom: 5)
                                                   ),
                                                   onChanged: (text) {
+                                                    sendString.value = text;
                                                   },
                                                 ))
                                               ),
@@ -1671,10 +1743,14 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
 
                                                   }
                                                 },
-                                                onLongPressStart: (detail){
+                                                onLongPressStart: (detail) async {
                                                   if(closeRoom)
                                                     return;
                                                   if(_isRecordCancel) {
+                                                    return;
+                                                  }
+                                                  if(!isMicPermission){
+                                                    isMicPermission = (await Permission.microphone.request()).isGranted;
                                                     return;
                                                   }
                                                   if(!_isRecording.value){
@@ -1718,8 +1794,8 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                                                   if(!_isRecordLock.value) {
                                                     _isRecording.value = false;
                                                     stopRecorder();
+                                                    msgController.text = tempString;
                                                   }
-                                                  msgController.text = tempString;
                                                 },
                                                 onTapDown: (detail){
                                                   if(closeRoom)
@@ -1732,6 +1808,7 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
                                                     changedY = null;
                                                     _isRecordCancel = true;
                                                     stopRecorder();
+                                                    msgController.text = tempString;
                                                   }
                                                 },
                                               )
@@ -1748,13 +1825,13 @@ class ChatDetailPageState extends BaseState<ChatDetailPage> with WidgetsBindingO
 
                             GestureDetector(
                               onTap: onTextSend,
-                              child: Container(
+                              child: Obx(() => Container(
                                 width: 40,
                                 height: 40,
                                 child: Center(
-                                    child: msgController.text.replaceAll(" ", "").isNotEmpty ? Image.asset(ImageConstants.sendChatBnt, width: 30, height: 30) : Image.asset(ImageConstants.sendChatDisableBnt, width: 30, height: 30)
+                                    child: sendString.value.replaceAll(" ", "").isNotEmpty ? Image.asset(ImageConstants.sendChatBnt, width: 30, height: 30) : Image.asset(ImageConstants.sendChatDisableBnt, width: 30, height: 30)
                                 ),
-                              ),
+                              ),)
                             ),
 
                             SizedBox(width: 5,)

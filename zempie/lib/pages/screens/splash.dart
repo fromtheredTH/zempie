@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:android_id/android_id.dart';
+import 'package:app/global/DioClient.dart';
+import 'package:app/pages/components/app_text.dart';
+import 'package:app/pages/components/dialog.dart';
 import 'package:app/pages/screens/Authentication/loginscreen.dart';
 import 'package:app/pages/screens/chat.dart';
 import 'package:app/pages/screens/onboard_screen.dart';
@@ -19,14 +22,26 @@ import 'package:app/pages/base/page_layout.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Constants/ColorConstants.dart';
 import '../../Constants/Constants.dart';
 import '../../Constants/ImageConstants.dart';
+import '../../Constants/utils.dart';
+import '../../models/User.dart';
+import 'Authentication/regist_city_screen.dart';
+import 'Authentication/regist_country_screen.dart';
+import 'Authentication/regist_game_genre_screen.dart';
+import 'Authentication/regist_genre_screen.dart';
+import 'Authentication/regist_job_dept_screen.dart';
+import 'Authentication/regist_job_group_screen.dart';
+import 'Authentication/regist_job_position_screen.dart';
+import 'joinmembership/jointhemembership.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -49,9 +64,63 @@ class SplashPageState extends BaseState<SplashPage> {
   }
 
   Future<void> load() async {
+    var response = await DioClient.getVersion();
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    String recentVersion = "";
+    if(Platform.isAndroid){
+      recentVersion = response.data["result"]["android"];
+    }else{
+      recentVersion = response.data["result"]["ios"];
+    }
+    if(packageInfo.version.compareTo(recentVersion) < 0){
+      AppDialog.showOneDialog(context, "version_title".tr(), "version_description".tr(), () {
+        if(Platform.isAndroid){
+          Utils.urlLaunch("https://play.google.com/store/apps/details?id=com.fromthered.zempie");
+        }else{
+          Utils.urlLaunch("https://apps.apple.com/kr/app/zempie/id6449574630");
+        }
+      });
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+
+    if (prefs.getBool('first_run') ?? true) {
+      FlutterSecureStorage storage = FlutterSecureStorage();
+
+      await storage.deleteAll();
+      await FirebaseAuth.instance.signOut();
+
+      prefs.setBool('first_run', false);
+    }
+    print(response);
     User? user = await FirebaseAuth.instance.currentUser;
     if(user != null){
-      Constants.getUserInfo(false,context, apiP);
+      try {
+        String token = "Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}";
+        var response = await apiP.userInfo(token);
+        UserModel user = UserModel.fromJson(response.data["result"]["user"]);
+
+        if(user.profile.jobDept.isEmpty){
+          Get.to(RegistJobDeptScreen(user: user));
+        }else if(user.profile.jobGroup.isEmpty){
+          Get.to(RegistJobGroupScreen(user: user));
+        }else if(user.profile.jobPosition.isEmpty){
+          Get.to(RegistJobPositionScreen(user: user));
+        }else if(user.profile.country.isEmpty){
+          Get.to(RegistCountryScreen(user: user));
+        }else if(user.profile.city.isEmpty){
+          Get.to(RegistCityScreen(user: user));
+        }else if(user.profile.interestGameGenre.isEmpty){
+          Get.to(RegistGameGenreScreen(user: user));
+        }else if(user.profile.stateMsg.isEmpty){
+          Get.to(RegistGenreScreen(user: user));
+        }else {
+          Constants.getUserInfo(false,context, apiP);
+        }
+      } catch(e) {
+        print(e);
+        Get.off(OnBoardScreen(),transition: Transition.rightToLeft);
+      }
     }else{
       Get.off(OnBoardScreen(),transition: Transition.rightToLeft);
     }
@@ -144,7 +213,7 @@ class SplashPageState extends BaseState<SplashPage> {
 
       //set fcm token
       Map<String, dynamic> body = {"token": gPushKey, "device_id": device_id};
-      showLoading();
+
       apiC
           .setFcmToken("Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}", jsonEncode(body))
           .then((value) async {
@@ -166,7 +235,19 @@ class SplashPageState extends BaseState<SplashPage> {
       body: Stack(
         children: [
           Center(
-            child:SvgPicture.asset(ImageConstants.appLogo,fit: BoxFit.cover,),
+            child:Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Image.asset(ImageConstants.splashLogo,width: Get.width*0.3, fit: BoxFit.cover,),
+
+                SizedBox(height: 20,),
+                AppText(
+                    text: "Today’s Game Developers Community",
+                  fontSize: 13,
+                )
+              ],
+            ),
           ),
         ],
       ),
