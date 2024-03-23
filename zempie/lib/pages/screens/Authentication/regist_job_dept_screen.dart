@@ -23,7 +23,6 @@ import '../../../Constants/Constants.dart';
 import '../../../Constants/FontConstants.dart';
 import '../../../Constants/ImageConstants.dart';
 import '../../../Constants/ImageUtils.dart';
-import '../../../Constants/utils.dart';
 import '../../base/base_state.dart';
 
 class RegistJobDeptScreen extends StatefulWidget {
@@ -154,10 +153,8 @@ class _RegistJobDeptScreen extends BaseState<RegistJobDeptScreen> {
                         Obx(() => GestureDetector(
                           onTap: () async {
                             if(isExistText.value){
-                              Utils.showDialogWidget(context);
                               var response = await DioClient.updateProfile(controller.text, widget.user.profile.jobGroup, widget.user.profile.jobPosition, widget.user.profile.country, widget.user.profile.city, widget.user.profile.interestGameGenre, widget.user.profile.stateMsg);
                               UserModel user = UserModel.fromJson(response.data["result"]["user"]);
-                              Get.back();
                               if(user.profile.jobGroup.isEmpty){
                                 Get.to(RegistJobGroupScreen(user: user));
                               }else if(user.profile.jobPosition.isEmpty){

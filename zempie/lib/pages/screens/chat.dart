@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:isolate';
 import 'dart:math';
 import 'dart:ui';
@@ -33,14 +32,10 @@ import 'package:get/get.dart' hide Trans;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Constants/ImageConstants.dart';
-import '../../Constants/utils.dart';
-import '../../global/DioClient.dart';
-import '../../models/dto/user_dto.dart';
 import '../../utils/ChatRoomUtils.dart';
 import '../components/BtnBottomSheetWidget.dart';
 import '../components/EditRoomNameBottomSheet.dart';
 import '../components/app_text.dart';
-import '../components/report_user_dialog.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -71,12 +66,7 @@ class ChatPageState extends BaseState<ChatPage> {
       if(roomAllList.isNotEmpty){
         isInit = true;
       }
-      roomFilterList.addAll(roomAllList.where((element) {
-        if(!(element.leaved ?? false)) {
-          return true;
-        }
-        return false;
-      }).toList());
+      roomFilterList = roomAllList;
     });
     getRoomList();
     initPush();
@@ -84,7 +74,6 @@ class ChatPageState extends BaseState<ChatPage> {
     ReceivePort _port = ReceivePort();
     IsolateNameServer.registerPortWithName(_port.sendPort, 'firbase_port1');
     _port.listen((dynamic data) {
-      print("푸쉬 테스트");
       setState(() {
         ChatMsgDto msg = ChatMsgDto.fromJson(jsonDecode(data[0]));
         ChatRoomDto room = ChatRoomDto.fromJson(jsonDecode(data[1]));
@@ -94,7 +83,6 @@ class ChatPageState extends BaseState<ChatPage> {
     });
 
     event.on<ChatProcEvent>().listen((event) {
-      print("푸쉬가 들어오나");
       if (mounted) {
         openChatDetailPage(event.room);
       }
@@ -109,7 +97,6 @@ class ChatPageState extends BaseState<ChatPage> {
     //   }
     // });
     event.on<ChatReceivedEvent>().listen((event) {
-      print("푸쉬가 들어오나2");
       if (mounted) {
         ChatRoomDto room = event.room;
         ChatMsgDto msg = event.chat;
@@ -176,6 +163,21 @@ class ChatPageState extends BaseState<ChatPage> {
     getUpdateRoomList();
   }
 
+  Future<void> logout() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('id', "");
+    await prefs.setString('pwd', "");
+
+    showLoading();
+    apiC
+        .delFcmToken("Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}", gPushKey)
+        .then((value) {
+      gCurrentId = 0;
+      FirebaseAuth.instance.signOut();
+      Navigator.pushReplacement(context, SlideRightTransRoute(builder: (context) => const SplashPage()));
+    }).catchError((Object obj) {});
+  }
+
   Future<void> initPush() async {
     RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
@@ -196,42 +198,14 @@ class ChatPageState extends BaseState<ChatPage> {
   }
 
   void openChatDetailPage(ChatRoomDto room) {
-    int index = 0;
-    for(int i=0;i<roomFilterList.length;i++){
-      if(roomFilterList[i].id == room.id){
-        index = i;
-        break;
+    Navigator.push(context, SlideRightTransRoute(builder: (context) => ChatDetailPage(roomDto: room,
+      roomRefresh: (room){
+      for(int i=0;i<roomFilterList.length;i++){
+        if(roomFilterList[i].id == room.id){
+          getChatRoomInfo(i);
+        }
       }
-    }
-    Navigator.push(context,
-        SlideRightTransRoute(builder: (context) => ChatDetailPage(roomDto: room,
-          roomRefresh: (room){
-            getChatRoomInfo(index);
-          }, changeRoom: (room){
-          Get.back();
-          openChatDetailPage(room);
-          },
-          onDeleteRoom: (room){
-            for(int i=0;i<roomAllList.length;i++){
-              if(roomAllList[i].id == room.id){
-                roomAllList.removeAt(i);
-                break;
-              }
-            }
-
-            setState(() {
-              roomFilterList.removeAt(index);
-            });
-
-            ChatRoomUtils.deleteChatRoom(room);
-          },
-        )))
-        .then((value) {
-      setState(() {
-        roomFilterList[index].unread_count = 0;
-        roomFilterList[index].unread_start_id = 0;
-      });
-    });
+    },)));
   }
 
   Future<bool> onBackPressed() async {
@@ -322,25 +296,27 @@ class ChatPageState extends BaseState<ChatPage> {
   void onDelete(int index) {}
 
   void onChat(int index) {
-    openChatDetailPage(roomFilterList[index]);
+    Navigator.push(context,
+            SlideRightTransRoute(builder: (context) => ChatDetailPage(roomDto: roomFilterList[index],
+            roomRefresh: (room){
+              getChatRoomInfo(index);
+            },)))
+        .then((value) {
+      setState(() {
+        roomFilterList[index].unread_count = 0;
+        roomFilterList[index].unread_start_id = 0;
+      });
+    });
   }
 
   void setFilteringList() {
     roomFilterList.clear();
     if (searchController.text.isEmpty) {
-      roomFilterList.addAll(roomAllList.where((element) {
-        if(!(element.leaved ?? false)) {
-          return true;
-        }
-        return false;
-      }).toList());
+      roomFilterList.addAll(roomAllList);
     } else {
       List<ChatRoomDto> list = roomAllList.where((element) =>
       element.last_message != null).toList();
       roomFilterList.addAll(list.where((element) {
-        if(element.leaved ?? false) {
-          return false;
-        }
         if (element.has_name ?? false) {
           return (element.name ?? '').toLowerCase().contains(
               searchController.text.toLowerCase());
@@ -360,16 +336,11 @@ class ChatPageState extends BaseState<ChatPage> {
 
   Future<void> chatRoomLeave(ChatRoomDto roomDto) async {
 
-    if(roomDto.leaved ?? false){
-      removeChatRoom(roomDto);
-      return;
-    }
     showLoading();
     apiC
         .leaveChatRoom(roomDto.id, "Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}")
         .then((value) {
       hideLoading();
-      removeChatRoom(roomDto);
       // event.fire(ChatLeaveEvent(roomDto));
     }).catchError((Object obj) {
       hideLoading();
@@ -377,41 +348,15 @@ class ChatPageState extends BaseState<ChatPage> {
     });
   }
 
-  Future<void> removeChatRoom(ChatRoomDto roomDto) async {
-    for(int i=0;i<roomAllList.length;i++){
-      if(roomAllList[i].id == roomDto.id){
-        roomAllList.removeAt(i);
-        break;
-      }
-    }
-    for(int i=0;i<roomFilterList.length;i++){
-      if(roomFilterList[i].id == roomDto.id){
-        roomFilterList.removeAt(i);
-        break;
-      }
-    }
-
-    await ChatRoomUtils.deleteChatRoom(roomDto);
-    setState(() {
-
-    });
-  }
-
   Future<void> getChatRoomInfo(int index) async {
     ChatRoomDto roomDto = roomFilterList[index];
 
-    ChatMsgDto? preLastedMsg = roomDto.last_message;
     showLoading();
     apiC
         .getChatRoomInfo(roomDto.id, "Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}")
         .then((value) {
       hideLoading();
       print(value);
-
-      if(value.last_message == null && preLastedMsg != null){
-        value.last_message = preLastedMsg;
-        value.last_message?.contents = "deleted_msg".tr();
-      }
 
       setState(() {
         roomFilterList[index] = value;
@@ -474,12 +419,7 @@ class ChatPageState extends BaseState<ChatPage> {
                     InkWell(
                       onTap: () {
                         Navigator.push(
-                            context, SlideRightTransRoute(builder: (context) => ChatAddPage(
-                          refresh: getRoomList,
-                          changeRoom: (room){
-                            openChatDetailPage(room);
-                          },
-                        )));
+                            context, SlideRightTransRoute(builder: (context) => ChatAddPage()));
                       },
                       child: SizedBox(
                           width: 24,
@@ -555,18 +495,6 @@ class ChatPageState extends BaseState<ChatPage> {
                   color: ColorConstants.colorBg1,
                   child: Stack(
                     children: [
-
-                      Visibility(
-                        visible: roomFilterList.isEmpty,
-                          child: Center(
-                            child: AppText(
-                              text: "empty_room_list".tr(),
-                              fontSize: 13,
-                              color: ColorConstants.textGry,
-                            ),
-                          )
-                      ),
-
                       Visibility(
                         visible: roomFilterList.isNotEmpty,
                         child: RefreshIndicator(
@@ -592,22 +520,16 @@ class ChatPageState extends BaseState<ChatPage> {
                                     if((roomDto.joined_users?.length ?? 0) == 1)
                                       items.add(BtnBottomSheetModel(ImageConstants.reportUserIcon, "report_title".tr(), 3));
                                     items.add(BtnBottomSheetModel(ImageConstants.exitRoomIcon, "chat_leave".tr(), 4));
-                                    Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BtnBottomSheetWidget(
+                                    Get.bottomSheet(BtnBottomSheetWidget(
                                       btnItems: items,
-                                      onTapItem: (menuIndex) async {
+                                      onTapItem: (menuIndex){
                                         if(menuIndex == 0){
-                                          Navigator.push(context, SlideRightTransRoute(builder: (context) =>
-                                              ChatAddPage(
-                                                existUsers: roomDto.joined_users ?? [],
-                                                roomIdx: roomDto.id,
+                                          Navigator.push(context, SlideRightTransRoute(builder: (context) => ChatAddPage(existUsers: roomDto.joined_users ?? [], roomIdx: roomDto.id,
                                           refresh: (){
-                                            getRoomList();
-                                          },changeRoom: (room){
-                                                  openChatDetailPage(room);
-                                              },
-                                              )));
+                                            getChatRoomInfo(index);
+                                          },)));
                                         }else if(menuIndex == 1){
-                                          Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),EditRoomNameBottomSheet(
+                                          Get.bottomSheet(EditRoomNameBottomSheet(
                                             roomDto: roomDto,
                                             inputName: (name) async {
                                               if (name.isEmpty) {
@@ -653,33 +575,10 @@ class ChatPageState extends BaseState<ChatPage> {
                                             },
                                           ));
                                         }else if(menuIndex == 2){
-                                          List<UserDto> users = roomFilterList[index].joined_users ?? [];
-                                          for(int i=0;i<users.length;i++){
-                                            if(users[i].id != Constants.user.id){
-                                              var response = await DioClient.postUserBlock(users[i].id);
-                                              Utils.showToast("ban_complete".tr());
-                                              break;
-                                            }
-                                          }
+                                          AppDialog.showConfirmDialog(context, "block_title".tr(), "block_content".tr(), () {});
                                         }else if(menuIndex == 3){
-                                          List<UserDto> users = roomFilterList[index].joined_users ?? [];
-                                          for(int i=0;i<users.length;i++){
-                                            if(users[i].id != Constants.user.id){
-                                              showModalBottomSheet<dynamic>(
-                                                  isScrollControlled: true,
-                                                  context: context,
-                                                  useRootNavigator: true,
-                                                  backgroundColor: Colors.transparent,
-                                                  builder: (BuildContext bc) {
-                                                    return ReportUserDialog(onConfirm: (reportList, reason) async {
-                                                      var response = await DioClient.reportUser(users[i].id, reportList, reason);
-                                                      Utils.showToast("report_complete".tr());
-                                                    },);
-                                                  }
-                                              );
-                                              break;
-                                            }
-                                          }
+                                          AppDialog.showAlertDialog(context, () {}, "report_success_title".tr(),
+                                              "report_success_content".tr());
                                         }else {
                                           AppDialog.showConfirmDialog(context, "leave_title".tr(), "leave_content".tr(), () {
                                             chatRoomLeave(roomDto);
@@ -696,6 +595,16 @@ class ChatPageState extends BaseState<ChatPage> {
                               itemCount: roomFilterList.length),
                         ),
                       ),
+                      Visibility(
+                          visible: roomFilterList.isEmpty,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 0),
+                            child: Center(
+                                child: Text(
+                              "empty_content".tr(),
+                              style: const TextStyle(color: appColorText1, fontSize: 16),
+                            )),
+                          ))
                     ],
                   ),
                 ),

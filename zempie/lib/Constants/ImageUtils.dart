@@ -17,7 +17,7 @@ import 'Constants.dart';
 class ImageUtils {
 
   // 프로필 이미지 위젯
-  static Widget CommunityProfileImage(String src, double width, double height) {
+  static Widget ProfileImage(String src, double width, double height) {
     if (src.isEmpty) {
       return Container(
           decoration: BoxDecoration(
@@ -26,7 +26,7 @@ class ImageUtils {
           ),
           child: ClipRRect(
               borderRadius: BorderRadius.circular(width/2),
-              child: Image.asset(ImageConstants.communityBasicProfile, width: width, height: height,)
+              child: Image.asset(ImageConstants.userProfile, width: width, height: height,)
           )
       );
     }
@@ -57,48 +57,6 @@ class ImageUtils {
     );
   }
 
-  static Widget ProfileImage(String src, double width, double height) {
-    if (src.isEmpty) {
-      return Container(
-        width: width,
-          height: height,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(width/2),
-              border: Border.all(color: ColorConstants.textGry, width: 1)
-          ),
-          child: ClipRRect(
-              borderRadius: BorderRadius.circular(width/2),
-              child: Image.asset(ImageConstants.userProfile, width: width, height: height,)
-          )
-      );
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(width/2),
-          border: Border.all(color: ColorConstants.textGry, width: 1)
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(width/2),
-        child: CachedNetworkImage(
-            imageUrl: "${src}",
-            errorWidget: (context, url, error) =>
-                Container(
-                  width: width,
-                  height: height,
-                  decoration: BoxDecoration(
-                      color: Color(0xffd0cdcd),
-                      borderRadius: BorderRadius.circular(width/2)
-                  ),
-                ),
-            cacheKey: src + Constants.cachingKey,
-            width: width,
-            height: height,
-            fit: BoxFit.cover),
-      ),
-    );
-  }
-
   //프로파일 이미지 샘플
   static Widget ProfileSampleImage(double width, double height) {
     return Container(
@@ -123,7 +81,7 @@ class ImageUtils {
   }
 
   // 네트워크 이미지 위젯
-  static Widget setPostNetworkImage(String src, String content, double width, double height) {
+  static Widget setPostNetworkImage(String src, double width, double height) {
     if(src.isEmpty){
       return Container(
           width: width,
@@ -135,10 +93,9 @@ class ImageUtils {
           ),
           child: Center(
             child: AppText(
-                text: content,
+                text: "Duis vel auctor egestas nisl adipiscing mi. Pharetra tincidunt urna.",
                 textAlign: TextAlign.center,
                 fontWeight: FontWeight.w400,
-                maxLine: 4,
                 fontSize: 13
             ),
           )
@@ -164,7 +121,7 @@ class ImageUtils {
               ),
               child: Center(
                 child: AppText(
-                  text: content,
+                  text: "Duis vel auctor egestas nisl adipiscing mi. Pharetra tincidunt urna.",
                   textAlign: TextAlign.center,
                     fontWeight: FontWeight.w400,
                     fontSize: 13

@@ -88,8 +88,6 @@ class SocialService {
         socialInfo.email = facebookUser.email;
         socialInfo.accessToken = result.accessToken?.token ?? "";
         socialInfo.refreshToken = facebookUser?.refreshToken ?? "";
-
-        return socialInfo;
       case model.AuthProvider.email:
         break;
       default :

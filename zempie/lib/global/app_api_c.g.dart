@@ -13,8 +13,8 @@ class _ApiC implements ApiC {
     this._dio, {
     this.baseUrl,
   }) {
-    // baseUrl ??= 'https://api-extn-com.zempie.com/api/v1/'; // 개발서버
-    baseUrl ??= 'https://api.zempie.com/api/v1/';
+    baseUrl ??= 'https://api-extn-com.zempie.com/api/v1/'; // 개발서버
+    // baseUrl ??= 'https://api.zempie.com/api/v1/';
   }
 
   final Dio _dio;

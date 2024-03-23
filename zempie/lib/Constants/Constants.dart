@@ -34,9 +34,6 @@ import '../utils/ChatRoomUtils.dart';
 import 'ImageConstants.dart';
 
 class Constants {
-  static GlobalKey<NavigatorState> navigatorKey =
-  GlobalKey<NavigatorState>();
-
   static List<ChatRoomDto> localChatRooms = [];
   static UserModel user = UserModel.fromJson({});
   static List<UserModel> myFollowings = [];
@@ -44,7 +41,6 @@ class Constants {
   static List<GameModel> followGames = [];
   static List<BackgroundModel> bgLists = [];
   static Uint8List? userQrCode;
-  static String userQrUrl = "zempie.com/";
   static List<NotificationModel> notifications = [];
   static String languageCode = "";
   static String translationCode = "";
@@ -53,20 +49,20 @@ class Constants {
   static String cachingKey = "";
 
   static List<String> reportUserLists = [
-    "report_user_1".tr(),
-    "report_user_2".tr(),
-    "report_user_3".tr(),
-    "report_user_4".tr(),
-    "report_user_5".tr()
+    "적합하지 않은 콘텐츠 게시",
+    "타인 사칭",
+    "만 12세 미만 계정",
+    "욕설 및 혐오 표현 사용",
+    "기타"
   ];
 
   static List<String> reportLists = [
-    "report_1".tr(),
-    "report_2".tr(),
-    "report_3".tr(),
-    "report_4".tr(),
-    "report_5".tr(),
-    "report_6".tr(),
+    "개인정보보호 위반",
+    "불쾌하거나 민감한 콘텐츠",
+    "불법 콘텐츠",
+    "허가되지 않은 광고",
+    "지식재산권 침해",
+    "기타",
   ];
 
   static String versionName = "";
@@ -83,13 +79,11 @@ class Constants {
 
   static String getNameList(List<MatchEnumModel> items) {
     String result = "";
-    if(items.isNotEmpty) {
-      result =
-      Constants.languageCode == "ko" ? items[0].koName : items[0].enName;
-    }
+    if(items.isNotEmpty)
+      result = items[0].koName;
 
     for(int i=1;i<items.length;i++){
-      result += ", ${Constants.languageCode == "ko" ? items[i].koName : items[i].enName}";
+      result += ", ${items[i].koName}";
     }
     return result;
   }
@@ -140,14 +134,14 @@ class Constants {
     MatchEnumModel(0, "ACTION", "액션", "ACTION", Colors.white),
     MatchEnumModel(1, "ADVENTURE", "어드벤처", "ADVENTURE", Colors.white),
     MatchEnumModel(2, "STRATEGY", "전략", "STRATEGY", Colors.white),
-    MatchEnumModel(3, "ROLE PLAYING", "RPG", "ROLE PLAYING", Colors.white),
+    MatchEnumModel(3, "ROLLPLAY", "RPG", "ROLLPLAY", Colors.white),
     MatchEnumModel(4, "SIMULATION", "시뮬레이션", "SIMULATION", Colors.white),
     MatchEnumModel(5, "SPORTS", "스포츠", "SPORTS", Colors.white),
     MatchEnumModel(6, "PUZZLE", "퍼즐", "PUZZLE", Colors.white),
     MatchEnumModel(7, "SHOOTING", "슈팅", "SHOOTING", Colors.white),
     MatchEnumModel(8, "HORROR", "호러", "HORROR", Colors.white),
     MatchEnumModel(9, "FPS", "FPS", "FPS", Colors.white),
-    MatchEnumModel(10, "RHYTHM", "리듬", "RHYTHM", Colors.white),
+    MatchEnumModel(10, "RYTHYM", "리듬", "RYTHYM", Colors.white),
     MatchEnumModel(11, "RACING", "레이싱", "RACING", Colors.white),
     MatchEnumModel(12, "VISUALNOVEL", "비주얼 노벨", "VISUALNOVEL", Colors.white),
     MatchEnumModel(100, "ETC", "기타", "ETC", Colors.white)
@@ -156,7 +150,7 @@ class Constants {
   static List<MatchEnumModel> interestGenres = [
     MatchEnumModel(1, "FIND_JOB", "이직/구직중", "FIND_JOB", Colors.white),
     MatchEnumModel(2, "RECRUITING", "채용중", "RECRUITING", Colors.white),
-    MatchEnumModel(3, "FIND_GAME_PARTNER", "게임 개발 파트너 구인중", "FIND_GAME_PARTNER", Colors.white),
+    MatchEnumModel(3, "FINE_GAME_PARTNER", "게임 개발 파트너 구인중", "FINE_GAME_PARTNER", Colors.white),
     MatchEnumModel(4, "FIND_GAME_INFO", "흥미로운 게임정보 탐색중", "FIND_GAME_INFO", Colors.white),
     MatchEnumModel(5, "FIND_NEW_GAME", "새로운 게임 탐색중", "FIND_NEW_GAME", Colors.white),
     MatchEnumModel(6, "DEVELOPING_GAME", "게임 개발중", "DEVELOPING_GAME", Colors.white),
@@ -198,8 +192,9 @@ class Constants {
   static Future<void> getUserInfo(bool isShowLoading, BuildContext context, ApiP apiP) async {
     if(isShowLoading)
       Utils.showDialogWidget(context);
-
-    DioClient.getMyInfo().then((value) async {
+    print(await FirebaseAuth.instance.currentUser?.getIdToken());
+    String token = "Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}";
+    apiP.userInfo(token).then((value) async {
       Constants.user = UserModel.fromJson(value.data["result"]["user"]);
       await initPosts();
       initBgList();
@@ -211,7 +206,6 @@ class Constants {
       initNotificationLists();
       getTranslateCodeList();
       gCurrentId = Constants.user.id;
-
 
       bool hasFollowerNext = true;
       int followerPage = 0;
@@ -447,9 +441,9 @@ class Constants {
       for(int k=0;k<interestGenres.length;k++){
         if(interestGenres[k].idx.toString() == items[i]) {
           if(result.isEmpty) {
-            result += Constants.languageCode == "ko" ? interestGenres[k].koName : interestGenres[k].enName;
+            result += interestGenres[k].koName;
           }else{
-            result += ", ${Constants.languageCode == "ko" ? interestGenres[k].koName : interestGenres[k].enName}";
+            result += ", ${interestGenres[k].koName}";
           }
           break;
         }
@@ -505,21 +499,23 @@ class Constants {
 
   static String getNotificationStr(int type) {
     if(type == 8){
-      return "notification_type_8".tr();
+      return "님이 회원님을 팔로우했습니다.";
     }else if(type == 9){
-      return "notification_type_9".tr();
+      return "님이 답글을 달았습니다.";
     }else if(type == 4) {
-      return "notification_type_4".tr();
+      return "님이 포스팅에 댓글을 남겼습니다.";
     }else if(type == 5){
-      return "notification_type_5".tr();
+      return "님이 댓글에 좋아요를 눌렀습니다.";
     }else if(type == 3){
-      return "notification_type_3".tr();
+      return "님이 회원님의 포스팅에 좋아요를 눌렀습니다.";
     }else if(type == 10){
-      return "notification_type_10".tr();
+      return "님이 메시지를 보냈습니다.";
     }else if(type == 11){
-      return "notification_type_11".tr();
-    }else if(type == 20 || type == 23){
-      return "notification_type_20".tr();
+      return "님이 포스트에 멘션 했습니다.";
+    }else if(type == 19){
+      return "님이 게임 댓글에서 멘션 했습니다.";
+    }else if(type == 20){
+      return "님이 게임에 댓글을 달았습니다.";
     }
 
     return "";
@@ -532,13 +528,13 @@ class Constants {
     if(difference.inDays < 1){
       if(difference.inHours < 1){
         if(difference.inMinutes < 1){
-          return "sec".tr(args: [difference.inSeconds.toString()]);
+          return "${difference.inSeconds}초";
         }
-        return "min".tr(args: [difference.inMinutes.toString()]);
+        return "${difference.inMinutes}분";
       }
-      return "hour".tr(args: [difference.inHours.toString()]);
+      return "${difference.inHours}시간";
     }else{
-      DateFormat formatter = DateFormat("notification_time_format".tr());
+      DateFormat formatter = DateFormat('MM월 dd일 a hh:mm');
       String strToday = formatter.format(createdTime);
       return strToday;
     }

@@ -45,46 +45,43 @@ class _GameSimpleItemWidget extends BaseState<GameSimpleItemWidget> {
           this.game = game;
         },));
       },
-      child: Container(
-        color: Colors.transparent,
-        child: Column(
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 45,
-                  height: 45,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle
-                  ),
-                  child: ImageUtils.setRectNetworkImage(
-                      game.urlThumb,
-                      45,
-                      45
-                  ),
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 45,
+                height: 45,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle
                 ),
-                SizedBox(width: 10),
-
-                Flexible(
-                    child:AppText(text: game.title,
-                        fontSize: 13,
-                        color: ColorConstants.white,
-                        textAlign: TextAlign.start,
-                        overflow: TextOverflow.ellipsis,
-                        maxLine: 2,
-                        fontFamily: FontConstants.AppFont,
-                        fontWeight: FontWeight.w400
-                    )
+                child: ImageUtils.setRectNetworkImage(
+                    game.urlThumb,
+                    45,
+                    45
                 ),
+              ),
+              SizedBox(width: 10),
 
-                SizedBox(width: 15,)
-              ],
-            ),
+              Flexible(
+                  child:AppText(text: game.title,
+                      fontSize: 13,
+                      color: ColorConstants.white,
+                      textAlign: TextAlign.start,
+                      overflow: TextOverflow.ellipsis,
+                      maxLine: 2,
+                      fontFamily: FontConstants.AppFont,
+                      fontWeight: FontWeight.w400
+                  )
+              ),
 
-            SizedBox(height: 25,)
-          ],
-        )
+              SizedBox(width: 15,)
+            ],
+          ),
+
+          SizedBox(height: 25,)
+        ],
       ),
     );
   }

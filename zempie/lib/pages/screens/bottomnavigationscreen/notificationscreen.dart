@@ -51,10 +51,6 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      isLoading = true;
-    });
-    reloadNotification();
   }
 
   bool isEmptyAlarm(){
@@ -98,38 +94,6 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
     });
   }
 
-  Future<void> reloadNotification() async {
-    DateTime now = DateTime.now();
-    unReadLists.clear();
-    todayLists.clear();
-    weekLists.clear();
-    monthLists.clear();
-    previousLists.clear();
-    for(int i=0; i<Constants.notifications.length;i++){
-      if(!Constants.notifications[i].isRead){
-        Constants.notifications[i].isRead = true;
-        unReadLists.add(Constants.notifications[i]);
-      }else {
-        DateTime createdAt = DateTime.parse(
-            Constants.notifications[i].createdAt);
-        int inDays = now.difference(createdAt).inDays;
-        if(inDays < 1){
-          todayLists.add(Constants.notifications[i]);
-        }else if(inDays < 7){
-          weekLists.add(Constants.notifications[i]);
-        }else if(inDays < 30){
-          monthLists.add(Constants.notifications[i]);
-        }else{
-          previousLists.add(Constants.notifications[i]);
-        }
-      }
-    }
-
-    setState(() {
-      isLoading = false;
-    });
-  }
-
   @override
   void dispose() {
     super.dispose();
@@ -142,9 +106,41 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
 
       },
       onFocusGained: () async {
-        await Constants.initNotificationLists();
-        await reloadNotification();
+        if(!isEmptyAlarm() && unReadLists.isEmpty){
+          return;
+        }
+        setState(() {
+          isLoading = true;
+        });
+        DateTime now = DateTime.now();
+        unReadLists.clear();
+        todayLists.clear();
+        weekLists.clear();
+        monthLists.clear();
+        previousLists.clear();
         await DioClient.alramRead();
+        for(int i=0; i<Constants.notifications.length;i++){
+          if(!Constants.notifications[i].isRead){
+            Constants.notifications[i].isRead = true;
+            unReadLists.add(Constants.notifications[i]);
+          }else {
+            DateTime createdAt = DateTime.parse(
+                Constants.notifications[i].createdAt);
+            int inDays = now.difference(createdAt).inDays;
+            if(inDays < 1){
+              todayLists.add(Constants.notifications[i]);
+            }else if(inDays < 7){
+              weekLists.add(Constants.notifications[i]);
+            }else if(inDays < 30){
+              monthLists.add(Constants.notifications[i]);
+            }else{
+              previousLists.add(Constants.notifications[i]);
+            }
+          }
+        }
+        setState(() {
+          isLoading = false;
+        });
       },
       child: PageLayout(
         child: Scaffold(
@@ -166,7 +162,7 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
                   children: [
 
                     AppText(
-                        text: "notification".tr(),
+                        text: "알림",
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
@@ -198,331 +194,323 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
                     : isEmptyAlarm() ?
                     Center(
                       child: AppText(
-                        text: "notification_empty".tr(),
+                        text: "알람 리스트가 없습니다.",
                         color: ColorConstants.textGry,
                         fontSize: 12,
                       ),
                     )
-                    : RefreshIndicator(
-                    onRefresh: () async {
-                      await Constants.initNotificationLists();
-                      await reloadNotification();
-                      await DioClient.alramRead();
-                    },
-                    child: SingleChildScrollView(
-                      physics: AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        children: [
+                    : SingleChildScrollView(
+                  child: Column(
+                    children: [
 
-                          if(unReadLists.length != 0)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(left: 15, right: 15, bottom: 10),
-                                  child: AppText(
-                                    text: "notification_unread".tr(),
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                ListView.builder(
-                                    itemCount:  unReadLists.length,
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemBuilder: (context,index){
-                                      Key key = Key(unReadLists[index].id.toString());
-                                      return  Column(
-                                        children: [
-                                          SwipeActionCell(
-                                            key: key,
-                                            backgroundColor: ColorConstants.colorBg1,
-                                            child: NotificationWidget(notification: unReadLists[index], deleteNotification: (){
-
-                                            }, userFollowing: (){
-                                              changeUesrFollowing(unReadLists[index].user.id);
-                                            },),
-                                            trailingActions: [
-                                              SwipeAction(
-                                                  content: Center(
-                                                    child: Container(
-                                                      padding: EdgeInsets.all(8),
-                                                      decoration: BoxDecoration(
-                                                        color: Color(0xffeb5757),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                      child: ImageUtils.setImage(ImageConstants.deleteIcon, 30, 30),
-                                                    ),
-                                                  ),
-                                                  color: Colors.transparent,
-                                                  onTap: (handler) {
-                                                    showDeleteAlert(unReadLists[index], () async {
-                                                      var response = await DioClient.deleteNotification(unReadLists[index].id);
-                                                      Utils.showToast("alarm_remove_complete".tr());
-                                                      setState(() {
-                                                        unReadLists.removeAt(index);
-                                                      });
-                                                    });
-                                                  }),
-                                            ],
-                                          ),
-
-                                          SizedBox(height: 15,),
-                                        ],
-                                      );
-                                    }),
-
-                                SizedBox(height: 10,),
-                              ],
+                      if(unReadLists.length != 0)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(left: 15, right: 15, bottom: 10),
+                              child: AppText(
+                                text: "읽지 않음",
+                                fontSize: 14,
+                              ),
                             ),
+                            ListView.builder(
+                                itemCount:  unReadLists.length,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (context,index){
+                                  Key key = Key(unReadLists[index].id.toString());
+                                  return  Column(
+                                    children: [
+                                      SwipeActionCell(
+                                        key: key,
+                                        backgroundColor: ColorConstants.colorBg1,
+                                        child: NotificationWidget(notification: unReadLists[index], deleteNotification: (){
 
-                          if(todayLists.length != 0)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(left: 15, right: 15, bottom: 10),
-                                  child: AppText(
-                                    text: "notification_today".tr(),
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                ListView.builder(
-                                    itemCount:  todayLists.length,
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemBuilder: (context,index){
-                                      Key key = Key(todayLists[index].id.toString());
-                                      return  Column(
-                                        children: [
-                                          SwipeActionCell(
-                                            key: key,
-                                            backgroundColor: ColorConstants.colorBg1,
-                                            child: NotificationWidget(notification: todayLists[index], deleteNotification: (){
-
-                                            },userFollowing: (){
-                                              changeUesrFollowing(todayLists[index].user.id);
-                                            },),
-                                            trailingActions: [
-                                              SwipeAction(
-                                                  content: Center(
-                                                    child: Container(
-                                                      padding: EdgeInsets.all(8),
-                                                      decoration: BoxDecoration(
-                                                        color: Color(0xffeb5757),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                      child: ImageUtils.setImage(ImageConstants.deleteIcon, 30, 30),
-                                                    ),
+                                        }, userFollowing: (){
+                                          changeUesrFollowing(unReadLists[index].user.id);
+                                        },),
+                                        trailingActions: [
+                                          SwipeAction(
+                                              content: Center(
+                                                child: Container(
+                                                  padding: EdgeInsets.all(8),
+                                                  decoration: BoxDecoration(
+                                                    color: Color(0xffeb5757),
+                                                    borderRadius: BorderRadius.circular(4),
                                                   ),
-                                                  color: Colors.transparent,
-                                                  onTap: (handler) {
-                                                    showDeleteAlert(todayLists[index], () async {
-                                                      var response = await DioClient.deleteNotification(todayLists[index].id);
-                                                      Utils.showToast("alarm_remove_complete".tr());
-                                                      setState(() {
-                                                        todayLists.removeAt(index);
-                                                      });
-                                                    });
-                                                  }),
-                                            ],
-                                          ),
-
-                                          SizedBox(height: 15,),
+                                                  child: ImageUtils.setImage(ImageConstants.deleteIcon, 30, 30),
+                                                ),
+                                              ),
+                                              color: Colors.transparent,
+                                              onTap: (handler) {
+                                                showDeleteAlert(unReadLists[index], () async {
+                                                  var response = await DioClient.deleteNotification(unReadLists[index].id);
+                                                  Utils.showToast("alarm_remove_complete".tr());
+                                                  setState(() {
+                                                    unReadLists.removeAt(index);
+                                                  });
+                                                });
+                                              }),
                                         ],
-                                      );
-                                    }),
+                                      ),
 
-                                SizedBox(height: 10,),
-                              ],
+                                      SizedBox(height: 15,),
+                                    ],
+                                  );
+                                }),
+
+                            SizedBox(height: 10,),
+                          ],
+                        ),
+
+                      if(todayLists.length != 0)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(left: 15, right: 15, bottom: 10),
+                              child: AppText(
+                                text: "오늘",
+                                fontSize: 14,
+                              ),
                             ),
+                            ListView.builder(
+                                itemCount:  todayLists.length,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (context,index){
+                                  Key key = Key(todayLists[index].id.toString());
+                                  return  Column(
+                                    children: [
+                                      SwipeActionCell(
+                                        key: key,
+                                        backgroundColor: ColorConstants.colorBg1,
+                                        child: NotificationWidget(notification: todayLists[index], deleteNotification: (){
 
-                          if(weekLists.length != 0)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(left: 15, right: 15, bottom: 10),
-                                  child: AppText(
-                                    text: "notification_week".tr(),
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                ListView.builder(
-                                    itemCount:  weekLists.length,
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemBuilder: (context,index){
-                                      Key key = Key(weekLists[index].id.toString());
-                                      return  Column(
-                                        children: [
-                                          SwipeActionCell(
-                                            key: key,
-                                            backgroundColor: ColorConstants.colorBg1,
-                                            child: NotificationWidget(notification: weekLists[index], deleteNotification: (){
-
-                                            },userFollowing: (){
-                                              changeUesrFollowing(weekLists[index].user.id);
-                                            },),
-                                            trailingActions: [
-                                              SwipeAction(
-                                                  content: Center(
-                                                    child: Container(
-                                                      padding: EdgeInsets.all(8),
-                                                      decoration: BoxDecoration(
-                                                        color: Color(0xffeb5757),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                      child: ImageUtils.setImage(ImageConstants.deleteIcon, 30, 30),
-                                                    ),
+                                        },userFollowing: (){
+                                          changeUesrFollowing(todayLists[index].user.id);
+                                        },),
+                                        trailingActions: [
+                                          SwipeAction(
+                                              content: Center(
+                                                child: Container(
+                                                  padding: EdgeInsets.all(8),
+                                                  decoration: BoxDecoration(
+                                                    color: Color(0xffeb5757),
+                                                    borderRadius: BorderRadius.circular(4),
                                                   ),
-                                                  color: Colors.transparent,
-                                                  onTap: (handler) {
-                                                    showDeleteAlert(weekLists[index], () async {
-                                                      var response = await DioClient.deleteNotification(weekLists[index].id);
-                                                      Utils.showToast("alarm_remove_complete".tr());
-                                                      setState(() {
-                                                        weekLists.removeAt(index);
-                                                      });
-                                                    });
-                                                  }),
-                                            ],
-                                          ),
-
-                                          SizedBox(height: 15,),
+                                                  child: ImageUtils.setImage(ImageConstants.deleteIcon, 30, 30),
+                                                ),
+                                              ),
+                                              color: Colors.transparent,
+                                              onTap: (handler) {
+                                                showDeleteAlert(todayLists[index], () async {
+                                                  var response = await DioClient.deleteNotification(todayLists[index].id);
+                                                  Utils.showToast("alarm_remove_complete".tr());
+                                                  setState(() {
+                                                    todayLists.removeAt(index);
+                                                  });
+                                                });
+                                              }),
                                         ],
-                                      );
-                                    }),
+                                      ),
 
-                                SizedBox(height: 10,),
-                              ],
+                                      SizedBox(height: 15,),
+                                    ],
+                                  );
+                                }),
+
+                            SizedBox(height: 10,),
+                          ],
+                        ),
+
+                      if(weekLists.length != 0)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(left: 15, right: 15, bottom: 10),
+                              child: AppText(
+                                text: "최근 7일",
+                                fontSize: 14,
+                              ),
                             ),
+                            ListView.builder(
+                                itemCount:  weekLists.length,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (context,index){
+                                  Key key = Key(weekLists[index].id.toString());
+                                  return  Column(
+                                    children: [
+                                      SwipeActionCell(
+                                        key: key,
+                                        backgroundColor: ColorConstants.colorBg1,
+                                        child: NotificationWidget(notification: weekLists[index], deleteNotification: (){
 
-                          if(monthLists.length != 0)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(left: 15, right: 15, bottom: 10),
-                                  child: AppText(
-                                    text: "notification_month".tr(),
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                ListView.builder(
-                                    itemCount:  monthLists.length,
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemBuilder: (context,index){
-                                      Key key = Key(monthLists[index].id.toString());
-                                      return  Column(
-                                        children: [
-                                          SwipeActionCell(
-                                            key: key,
-                                            backgroundColor: ColorConstants.colorBg1,
-                                            child: NotificationWidget(notification: monthLists[index], deleteNotification: (){
-
-                                            },userFollowing: (){
-                                              changeUesrFollowing(monthLists[index].user.id);
-                                            },),
-                                            trailingActions: [
-                                              SwipeAction(
-                                                  content: Center(
-                                                    child: Container(
-                                                      padding: EdgeInsets.all(8),
-                                                      decoration: BoxDecoration(
-                                                        color: Color(0xffeb5757),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                      child: ImageUtils.setImage(ImageConstants.deleteIcon, 30, 30),
-                                                    ),
+                                        },userFollowing: (){
+                                          changeUesrFollowing(weekLists[index].user.id);
+                                        },),
+                                        trailingActions: [
+                                          SwipeAction(
+                                              content: Center(
+                                                child: Container(
+                                                  padding: EdgeInsets.all(8),
+                                                  decoration: BoxDecoration(
+                                                    color: Color(0xffeb5757),
+                                                    borderRadius: BorderRadius.circular(4),
                                                   ),
-                                                  color: Colors.transparent,
-                                                  onTap: (handler) {
-                                                    showDeleteAlert(monthLists[index], () async {
-                                                      var response = await DioClient.deleteNotification(monthLists[index].id);
-                                                      Utils.showToast("alarm_remove_complete".tr());
-                                                      setState(() {
-                                                        monthLists.removeAt(index);
-                                                      });
-                                                    });
-                                                  }),
-                                            ],
-                                          ),
-
-                                          SizedBox(height: 15,),
+                                                  child: ImageUtils.setImage(ImageConstants.deleteIcon, 30, 30),
+                                                ),
+                                              ),
+                                              color: Colors.transparent,
+                                              onTap: (handler) {
+                                                showDeleteAlert(weekLists[index], () async {
+                                                  var response = await DioClient.deleteNotification(weekLists[index].id);
+                                                  Utils.showToast("alarm_remove_complete".tr());
+                                                  setState(() {
+                                                    weekLists.removeAt(index);
+                                                  });
+                                                });
+                                              }),
                                         ],
-                                      );
-                                    }),
+                                      ),
 
-                                SizedBox(height: 10,),
-                              ],
+                                      SizedBox(height: 15,),
+                                    ],
+                                  );
+                                }),
+
+                            SizedBox(height: 10,),
+                          ],
+                        ),
+
+                      if(monthLists.length != 0)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(left: 15, right: 15, bottom: 10),
+                              child: AppText(
+                                text: "최근 30일",
+                                fontSize: 14,
+                              ),
                             ),
+                            ListView.builder(
+                                itemCount:  monthLists.length,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (context,index){
+                                  Key key = Key(monthLists[index].id.toString());
+                                  return  Column(
+                                    children: [
+                                      SwipeActionCell(
+                                        key: key,
+                                        backgroundColor: ColorConstants.colorBg1,
+                                        child: NotificationWidget(notification: monthLists[index], deleteNotification: (){
 
-                          if(previousLists.length != 0)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(left: 15, right: 15, bottom: 10),
-                                  child: AppText(
-                                    text: "notification_previous".tr(),
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                ListView.builder(
-                                    itemCount:  previousLists.length,
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemBuilder: (context,index){
-                                      Key key = Key(previousLists[index].id.toString());
-                                      return  Column(
-                                        children: [
-                                          SwipeActionCell(
-                                            key: key,
-                                            backgroundColor: ColorConstants.colorBg1,
-                                            child: NotificationWidget(notification: previousLists[index], deleteNotification: (){
-
-                                            },userFollowing: (){
-                                              changeUesrFollowing(previousLists[index].user.id);
-                                            },),
-                                            trailingActions: [
-                                              SwipeAction(
-                                                  content: Center(
-                                                    child: Container(
-                                                      padding: EdgeInsets.all(8),
-                                                      decoration: BoxDecoration(
-                                                        color: Color(0xffeb5757),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                      child: ImageUtils.setImage(ImageConstants.deleteIcon, 30, 30),
-                                                    ),
+                                        },userFollowing: (){
+                                          changeUesrFollowing(monthLists[index].user.id);
+                                        },),
+                                        trailingActions: [
+                                          SwipeAction(
+                                              content: Center(
+                                                child: Container(
+                                                  padding: EdgeInsets.all(8),
+                                                  decoration: BoxDecoration(
+                                                    color: Color(0xffeb5757),
+                                                    borderRadius: BorderRadius.circular(4),
                                                   ),
-                                                  color: Colors.transparent,
-                                                  onTap: (handler) {
-                                                    showDeleteAlert(previousLists[index], () async {
-                                                      var response = await DioClient.deleteNotification(previousLists[index].id);
-                                                      Utils.showToast("alarm_remove_complete".tr());
-                                                      setState(() {
-                                                        previousLists.removeAt(index);
-                                                      });
-                                                    });
-                                                  }),
-                                            ],
-                                          ),
-
-                                          SizedBox(height: 15,),
+                                                  child: ImageUtils.setImage(ImageConstants.deleteIcon, 30, 30),
+                                                ),
+                                              ),
+                                              color: Colors.transparent,
+                                              onTap: (handler) {
+                                                showDeleteAlert(monthLists[index], () async {
+                                                  var response = await DioClient.deleteNotification(monthLists[index].id);
+                                                  Utils.showToast("alarm_remove_complete".tr());
+                                                  setState(() {
+                                                    monthLists.removeAt(index);
+                                                  });
+                                                });
+                                              }),
                                         ],
-                                      );
-                                    }),
+                                      ),
 
-                                SizedBox(height: 10,),
-                              ],
+                                      SizedBox(height: 15,),
+                                    ],
+                                  );
+                                }),
+
+                            SizedBox(height: 10,),
+                          ],
+                        ),
+
+                      if(previousLists.length != 0)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(left: 15, right: 15, bottom: 10),
+                              child: AppText(
+                                text: "이전 활동",
+                                fontSize: 14,
+                              ),
                             ),
+                            ListView.builder(
+                                itemCount:  previousLists.length,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (context,index){
+                                  Key key = Key(previousLists[index].id.toString());
+                                  return  Column(
+                                    children: [
+                                      SwipeActionCell(
+                                        key: key,
+                                        backgroundColor: ColorConstants.colorBg1,
+                                        child: NotificationWidget(notification: previousLists[index], deleteNotification: (){
 
-                          SizedBox(height: 20,),
-                        ],
-                      ),
-                    )
+                                        },userFollowing: (){
+                                          changeUesrFollowing(previousLists[index].user.id);
+                                        },),
+                                        trailingActions: [
+                                          SwipeAction(
+                                              content: Center(
+                                                child: Container(
+                                                  padding: EdgeInsets.all(8),
+                                                  decoration: BoxDecoration(
+                                                    color: Color(0xffeb5757),
+                                                    borderRadius: BorderRadius.circular(4),
+                                                  ),
+                                                  child: ImageUtils.setImage(ImageConstants.deleteIcon, 30, 30),
+                                                ),
+                                              ),
+                                              color: Colors.transparent,
+                                              onTap: (handler) {
+                                                showDeleteAlert(previousLists[index], () async {
+                                                  var response = await DioClient.deleteNotification(previousLists[index].id);
+                                                  Utils.showToast("alarm_remove_complete".tr());
+                                                  setState(() {
+                                                    previousLists.removeAt(index);
+                                                  });
+                                                });
+                                              }),
+                                        ],
+                                      ),
+
+                                      SizedBox(height: 15,),
+                                    ],
+                                  );
+                                }),
+
+                            SizedBox(height: 10,),
+                          ],
+                        ),
+
+                      SizedBox(height: 20,),
+                    ],
+                  ),
                 )
               ),
               SizedBox(height: Get.height*0.03),
@@ -558,7 +546,7 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
                 SizedBox(height: 15,),
 
                 AppText(
-                  text: "remove_notification_title".tr(),
+                  text: "알림 내역 삭제",
                   fontSize: 18,
                   fontWeight: FontWeight
                       .w700,
@@ -577,7 +565,7 @@ class _NotificationScreen extends BaseState<NotificationScreen> {
                 SizedBox(height: 30,),
 
                 AppText(
-                  text: "remove_notification_description".tr(),
+                  text: "알림 내역을 삭제하시겠습니까?",
                   fontSize: 16,
                 ),
 

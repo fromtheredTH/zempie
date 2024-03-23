@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:app/utils/ChatUtils.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../Constants/Constants.dart';
 import '../models/dto/chat_room_dto.dart';
 
 class ChatRoomUtils {
@@ -16,16 +15,14 @@ class ChatRoomUtils {
   static Future<void> saveChatRooms(List<ChatRoomDto> chatRooms) async {
     chatRooms.sort((a, b) => (b.last_chat_at ?? "").compareTo(a.last_chat_at ?? ""));
     final encode = jsonEncode(chatRooms);
-    Constants.localChatRooms = chatRooms;
     await _storage.write(key: "ChatRooms", value: encode);
   }
 
   static Future<void> deleteAllRooms() async {
     List<ChatRoomDto> models = await getChatRooms();
     for(int i=0;i<models.length;i++){
-      ChatUtils.deleteAllChats(models[i].id);
+      deleteChatRoom(models[i]);
     }
-    await _storage.delete(key: "ChatRooms");
   }
 
   static Future<void> saveChatRoom(ChatRoomDto chatRoom) async {
@@ -61,7 +58,7 @@ class ChatRoomUtils {
       }
     }
 
-    await saveChatRooms(models);
+    saveChatRooms(models);
   }
 
   static Future<void> deleteChatRoom(ChatRoomDto chatRoom) async {

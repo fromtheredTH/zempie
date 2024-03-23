@@ -49,15 +49,15 @@ class _CommunityScreen extends BaseState<CommunityScreen> with TickerProviderSta
   int _selectedAllSubIndex = 0;
   int _selectedMySubIndex = 0;
   List<OptionModel> allCommunityTabs=[
-    OptionModel(title: "community_tab_all_recommend".tr() ,isSelect: true.obs),
-    OptionModel(title: "community_tab_all_new".tr() ,isSelect: false.obs),
-    OptionModel(title: "community_tab_all_member".tr() ,isSelect: false.obs),
-    OptionModel(title: "community_tab_all_visit".tr() ,isSelect: false.obs),
+    OptionModel(title: "추천" ,isSelect: true.obs),
+    OptionModel(title: "신규" ,isSelect: false.obs),
+    OptionModel(title: "멤버" ,isSelect: false.obs),
+    OptionModel(title: "방문자" ,isSelect: false.obs),
   ];
    List<OptionModel> myCommunityTabs=[
-     OptionModel(title: "community_tab_my_recent".tr() ,isSelect: true.obs),
-     OptionModel(title: "community_tab_my_member".tr() ,isSelect: false.obs),
-     OptionModel(title: "community_tab_my_visit".tr() ,isSelect: false.obs),
+     OptionModel(title: "최근 방문일" ,isSelect: true.obs),
+     OptionModel(title: "멤버" ,isSelect: false.obs),
+     OptionModel(title: "방문자" ,isSelect: false.obs),
    ];
 
    bool isInitialLoading = false;
@@ -223,12 +223,10 @@ class _CommunityScreen extends BaseState<CommunityScreen> with TickerProviderSta
                 ? [] : response.data["result"].map((json) => CommunityModel.fromJson(json)).toList().cast<CommunityModel>();
             allRecommandPage += 1;
             hasNextAllRecommand = response.data["pageInfo"]?["hasNextPage"] ?? false;
-            setState(() {
-              allRecommands.addAll(allRecommandResult);
-            });
-            isLoading = false;
+            allRecommands.addAll(allRecommandResult);
           }
       );
+      isLoading = false;
     }
   }
 
@@ -242,12 +240,10 @@ class _CommunityScreen extends BaseState<CommunityScreen> with TickerProviderSta
                 ? [] : response.data["result"].map((json) => CommunityModel.fromJson(json)).toList().cast<CommunityModel>();
             allNewPage += 1;
             hasNextAllNew = response.data["pageInfo"]?["hasNextPage"] ?? false;
-            setState(() {
-              allNews.addAll(allNewResult);
-            });
-            isLoading = false;
+            allNews.addAll(allNewResult);
           }
       );
+      isLoading = false;
     }
   }
 
@@ -261,12 +257,10 @@ class _CommunityScreen extends BaseState<CommunityScreen> with TickerProviderSta
                 ? [] : response.data["result"].map((json) => CommunityModel.fromJson(json)).toList().cast<CommunityModel>();
             allMemberPage += 1;
             hasNextAllMember = response.data["pageInfo"]?["hasNextPage"] ?? false;
-            setState(() {
-              allMembers.addAll(allMemberResult);
-            });
-            isLoading = false;
+            allMembers.addAll(allMemberResult);
           }
       );
+      isLoading = false;
     }
   }
 
@@ -280,12 +274,10 @@ class _CommunityScreen extends BaseState<CommunityScreen> with TickerProviderSta
                 ? [] : response.data["result"].map((json) => CommunityModel.fromJson(json)).toList().cast<CommunityModel>();
             allVisitPage += 1;
             hasNextAllVisit = response.data["pageInfo"]?["hasNextPage"] ?? false;
-            setState(() {
-              allVisits.addAll(allVisitResult);
-            });
-            isLoading = false;
+            allVisits.addAll(allVisitResult);
           }
       );
+      isLoading = false;
     }
   }
 
@@ -299,12 +291,10 @@ class _CommunityScreen extends BaseState<CommunityScreen> with TickerProviderSta
                 ? [] : response.data["result"].map((json) => CommunityModel.fromJson(json)).toList().cast<CommunityModel>();
             myRecentPage += 1;
             hasNextmyRecent = response.data["pageInfo"]?["hasNextPage"] ?? false;
-            setState(() {
-              myRecents.addAll(myRecentResult);
-            });
-            isLoading = false;
+            myRecents.addAll(myRecentResult);
           }
       );
+      isLoading = false;
     }
   }
 
@@ -318,12 +308,10 @@ class _CommunityScreen extends BaseState<CommunityScreen> with TickerProviderSta
                 ? [] : response.data["result"].map((json) => CommunityModel.fromJson(json)).toList().cast<CommunityModel>();
             myMemberPage += 1;
             hasNextmyMember = response.data["pageInfo"]?["hasNextPage"] ?? false;
-            setState(() {
-              myMembers.addAll(myMemberResult);
-            });
-            isLoading = false;
+            myMembers.addAll(myMemberResult);
           }
       );
+      isLoading = false;
     }
   }
 
@@ -337,12 +325,10 @@ class _CommunityScreen extends BaseState<CommunityScreen> with TickerProviderSta
                 ? [] : response.data["result"].map((json) => CommunityModel.fromJson(json)).toList().cast<CommunityModel>();
             myVisitPage += 1;
             hasNextmyVisit = response.data["pageInfo"]?["hasNextPage"] ?? false;
-            setState(() {
-              myVisits.addAll(myVisitResult);
-            });
-            isLoading = false;
+            myVisits.addAll(myVisitResult);
           }
       );
+      isLoading = false;
     }
   }
 
@@ -429,10 +415,8 @@ class _CommunityScreen extends BaseState<CommunityScreen> with TickerProviderSta
                           child:
                           Container(
                             margin: EdgeInsets.symmetric(horizontal: Get.width * 0.01),
-                            padding: EdgeInsets.only(left: 12, right: 12, top: 5, bottom: 5),
-                            constraints: BoxConstraints(
-                                minWidth: Get.width*0.22
-                            ),
+
+                            width: Get.width * 0.22,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(6),
                               color:
@@ -512,7 +496,7 @@ class _CommunityScreen extends BaseState<CommunityScreen> with TickerProviderSta
                 _selectedMySubIndex == 1 ? myMemberWidget() :
                 myVisitWidget(),
 
-            SizedBox(height: 70,),
+            SizedBox(height: Get.height*0.1,),
 
 
 

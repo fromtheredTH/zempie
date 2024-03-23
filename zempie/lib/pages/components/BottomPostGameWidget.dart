@@ -86,7 +86,7 @@ class _BottomPostGameWidget extends BaseState<BottomPostGameWidget> {
                   child: Column(
                     children: [
                       AppText(
-                        text: "bottom_post_game_widget_guide_description".tr(),
+                        text: "포스트를 게시할 게임 1개를 선택해 주세요.",
                         fontSize: 0.016,
                         textAlign: TextAlign.center,
                         color: ColorConstants.backGryText,
@@ -131,7 +131,7 @@ class _BottomPostGameWidget extends BaseState<BottomPostGameWidget> {
             height: Get.height*0.15,
             child: Center(
               child: AppText(
-                text: "bottom_post_game_widget_guide_empty".tr(),
+                text: "개발하신 게임이 있다면 젬파이에 등록하고,\n더 많은 유저들을 확보해 보세요.",
               ),
             )
           ),
@@ -179,7 +179,7 @@ class _BottomPostGameWidget extends BaseState<BottomPostGameWidget> {
                       ),
                       child: Center(
                         child: AppText(
-                          text: Constants.user.games.length == 0 ? "regist_game".tr() : "confirm".tr(),
+                          text: Constants.user.games.length == 0 ? "게임 등록하기" : "confirm".tr(),
                           fontSize: 0.016,
                           color: ColorConstants.white,
                           fontFamily: FontConstants.AppFont,

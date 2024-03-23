@@ -9,7 +9,6 @@ import 'package:app/pages/components/UserListItemWidget.dart';
 import 'package:app/pages/components/discover_widget.dart';
 import 'package:app/pages/components/loading_widget.dart';
 import 'package:app/pages/screens/profile/profile_screen.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart' hide Trans;
@@ -157,7 +156,6 @@ class _DiscoverScreen extends BaseState<DiscoverScreen> {
                   borderRadius:
                   BorderRadius.circular(6.0), // Adjust the value as needed
                 ),
-                margin: EdgeInsets.only(bottom: 10),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -243,7 +241,7 @@ class _DiscoverScreen extends BaseState<DiscoverScreen> {
                     : users.length == 0 && games.length == 0 && communities.length == 0?
                 Center(
                   child: AppText(
-                    text: "empty_search".tr(),
+                    text: "검색 결과가 없습니다",
                     fontSize: 13,
                     color: ColorConstants.gray3,
                   ),
@@ -268,7 +266,7 @@ class _DiscoverScreen extends BaseState<DiscoverScreen> {
                                   Expanded(child: Container(height: 0.5, color: ColorConstants.colorMain)),
                                   SizedBox(width: 20),
                                   AppText(
-                                    text: "user".tr(),
+                                    text: "유저",
                                     fontSize: 10,
                                     color: ColorConstants.colorMain,
                                   ),
@@ -308,7 +306,7 @@ class _DiscoverScreen extends BaseState<DiscoverScreen> {
                                   Expanded(child: Container(height: 0.5, color: ColorConstants.colorMain)),
                                   SizedBox(width: 20),
                                   AppText(
-                                    text: "game".tr(),
+                                    text: "게임",
                                     fontSize: 10,
                                     color: ColorConstants.colorMain,
                                   ),
@@ -343,7 +341,7 @@ class _DiscoverScreen extends BaseState<DiscoverScreen> {
                                   Expanded(child: Container(height: 0.5, color: ColorConstants.colorMain)),
                                   SizedBox(width: 20),
                                   AppText(
-                                    text: "community".tr(),
+                                    text: "커뮤니티",
                                     fontSize: 10,
                                     color: ColorConstants.colorMain,
                                   ),

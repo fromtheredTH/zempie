@@ -90,7 +90,8 @@ class _BottomProfileWidget extends BaseState<BottomProfileWidget> {
 
                             SizedBox(width: 5,),
 
-                              TagCreatorWidget(positionIndex: widget.user.profile.jobGroup,)
+                            if(widget.user.profile.jobGroup == "1")
+                              TagCreatorWidget()
                           ],
                         ),
                       ],

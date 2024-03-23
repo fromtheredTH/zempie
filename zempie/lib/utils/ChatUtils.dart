@@ -122,8 +122,7 @@ class ChatUtils {
     List<ChatMsgDto> models = await getChats(roomId);
     for(int i=0;i<models.length;i++){
       if(isSameChat(models[i], chatRoom)){
-        models[i].type = 0;
-        models[i].chat_idx = -1;
+        models.removeAt(i);
         break;
       }
     }

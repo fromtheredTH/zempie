@@ -131,7 +131,7 @@ class _DiscsoverPostingListScreen extends BaseState<DiscsoverPostingListScreen> 
                           child: Icon(Icons.arrow_back_ios, color:Colors.white)),
 
                       AppText(
-                        text: "tab_search_discover".tr(),
+                        text: "탐색 탭",
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       )

@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:app/Constants/ColorConstants.dart';
-import 'package:app/Constants/ImageUtils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:app/global/app_colors.dart';
 import 'package:app/helpers/common_util.dart';
@@ -10,7 +9,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../../Constants/ImageConstants.dart';
 import '../../../models/dto/user_dto.dart';
 import '../app_text.dart';
 
@@ -40,29 +38,41 @@ class ItemChatRoom extends StatelessWidget {
 
   Widget makeRoomProfile(List<UserDto> users, double size) {
     if(users.length == 0){
-      return ImageUtils.ProfileImage("", size, size);
+      return Image.asset("assets/image/ic_default_user.png", height: size, width: size);
     }else if(users.length == 1){
-      return ImageUtils.ProfileImage(users[0].picture ?? "", size, size);
-    }else {
+      if((users[0].profile_img ?? "").isEmpty){
+        return Image.asset("assets/image/ic_default_user.png", height: size, width: size);
+      }
+      return ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: users[0].profile_img!,
+          width: 45,
+          height: 45,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => CircularProgressIndicator(),
+          errorWidget: (context, url, error) => Icon(Icons.error),
+        ),
+      );
+    }else{
       users.sort((a, b) => (a.nickname ?? "").compareTo(b.nickname ?? ""));
       List<UserDto> profileUsers = [users[0], users[1]];
       return Container(
-        width: size,
-        height: size/2 + 4,
+        width: 45,
+        height: 45,
         child: Stack(
           children: [
             Positioned(
                 top: 0,
                 bottom: 0,
                 left: 0,
-                child: makeRoomProfile([profileUsers[0]], size/2 + 4)
+                child: makeRoomProfile([profileUsers[0]], 25)
             ),
 
             Positioned(
                 top: 0,
                 bottom: 0,
                 right: 0,
-                child: makeRoomProfile([profileUsers[1]], size/2 + 4)
+                child: makeRoomProfile([profileUsers[1]], 25)
             ),
           ],
         ),

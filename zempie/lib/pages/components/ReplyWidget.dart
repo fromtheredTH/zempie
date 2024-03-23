@@ -117,9 +117,11 @@ class _ReplyWidget extends BaseState<ReplyWidget> {
                       SizedBox(height: Get.height*0.005),
                       Row(
                         children: [
-                            TagCreatorWidget(positionIndex: reply.user.profile.jobGroup,),
+                          if(reply.user.profile.jobGroup == "1")
+                            TagCreatorWidget(),
                           SizedBox(width: Get.width*0.01),
-                            TagDevWidget(positionIndex: reply.user.profile.jobPosition,)
+                          if(reply.user.profile.jobPosition == "0")
+                            TagDevWidget()
                         ],
                       ),
                       SizedBox(height: Get.height*0.005),
@@ -139,15 +141,15 @@ class _ReplyWidget extends BaseState<ReplyWidget> {
                   List<BtnBottomSheetModel> items = [];
                   if(reply.user.id == Constants.user.id) {
                     items.add(BtnBottomSheetModel(
-                        ImageConstants.editRoomIcon, "edit_comment".tr(), 0));
+                        ImageConstants.editRoomIcon, "댓글 수정", 0));
                     items.add(BtnBottomSheetModel(
-                        ImageConstants.deleteIcon, "delete_comment".tr(), 1));
+                        ImageConstants.deleteIcon, "댓글 삭제", 1));
                   }else{
                     items.add(BtnBottomSheetModel(
-                        ImageConstants.report, "report_comment".tr(), 2));
+                        ImageConstants.report, "댓글 신고", 2));
                   }
 
-                  Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BtnBottomSheetWidget(
+                  Get.bottomSheet(BtnBottomSheetWidget(
                     btnItems: items,
                     onTapItem: (sheetIdx) async {
                       if(sheetIdx == 0){
@@ -155,7 +157,6 @@ class _ReplyWidget extends BaseState<ReplyWidget> {
                       }else if(sheetIdx == 1) {
                         await DioClient.deleteGameReply(reply.id);
                         widget.onDelete();
-                        Utils.showToast("delete_comment_complete".tr());
                       }else{
                         showModalBottomSheet<dynamic>(
                             isScrollControlled: true,
@@ -290,7 +291,7 @@ class _ReplyWidget extends BaseState<ReplyWidget> {
                       widget.onTapChild(reply);
                     },
                     child: AppText(
-                      text: "${"recomment".tr()} ${reply.countReply}",
+                      text: "답글 ${reply.countReply}",
                       color: ColorConstants.blue1,
                       fontSize: 14,
                     ),
@@ -314,7 +315,7 @@ class _ReplyWidget extends BaseState<ReplyWidget> {
                   });
                 },
                 child: AppText(
-                    text: isTranslation ? "translate_origin".tr() : "translate_str".tr(),
+                    text: isTranslation ? "원문보기" : "번역보기",
                     fontSize: 12,
                     color: ColorConstants.white
                 ),

@@ -124,7 +124,7 @@ class _BottomCountryWidget extends BaseState<BottomCountryWidget> {
                                         SizedBox(width: 5,),
 
                                         AppText(
-                                          text: Constants.languageCode == "ko" ? countries[index].nameModel.ko : countries[index].nameModel.en,
+                                          text: countries[index].nameModel.ko,
                                           color: (selectedCountry?.code ?? "") == countries[index].code ? ColorConstants.colorMain : ColorConstants.white,
                                           fontSize: 14,
                                         ),

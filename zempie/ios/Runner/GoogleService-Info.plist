@@ -3,23 +3,23 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>235654438895-d6nk6ptfhrbqd9okpto2gpugmnh88v6e.apps.googleusercontent.com</string>
+	<string>797641160577-o2tne1mma6v3vom5nbjjacmuauq5vhik.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.235654438895-d6nk6ptfhrbqd9okpto2gpugmnh88v6e</string>
+	<string>com.googleusercontent.apps.797641160577-o2tne1mma6v3vom5nbjjacmuauq5vhik</string>
 	<key>ANDROID_CLIENT_ID</key>
-	<string>235654438895-irm36ldeoqfd1sr96gpqjgsu28pcnk25.apps.googleusercontent.com</string>
+	<string>797641160577-drbuikc9lcejq1ce0196l836v5f34l1h.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
-	<string>AIzaSyAG6LGUyF36db9uc7tyWdSYaU-3S_241yY</string>
+	<string>AIzaSyCwAfkvK8RZY20JTDBYMYxbLjo34Flg_5U</string>
 	<key>GCM_SENDER_ID</key>
-	<string>235654438895</string>
+	<string>797641160577</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.fromthered.zempie</string>
+	<string>com.fromthered.zempie.dev</string>
 	<key>PROJECT_ID</key>
-	<string>zempie</string>
+	<string>zempie-dev</string>
 	<key>STORAGE_BUCKET</key>
-	<string>zempie.appspot.com</string>
+	<string>zempie-dev.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -31,8 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:235654438895:ios:5e15b5fcd1624be7c9601a</string>
-	<key>DATABASE_URL</key>
-	<string>https://zempie.firebaseio.com</string>
+	<string>1:797641160577:ios:7c9978e5e9f26d84645a80</string>
 </dict>
 </plist>

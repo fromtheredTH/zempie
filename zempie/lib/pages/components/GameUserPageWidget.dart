@@ -109,10 +109,10 @@ class _GameSimpleItemWidget extends BaseState<GameUserPageWidget> {
                   GestureDetector(
                     onTap: (){
                       List<BtnBottomSheetModel> items = [];
-                      items.add(BtnBottomSheetModel(ImageConstants.unSubscribe, "follow_cancel".tr(), 0));
-                      items.add(BtnBottomSheetModel(ImageConstants.report, "game_report".tr(), 1));
+                      items.add(BtnBottomSheetModel(ImageConstants.unSubscribe, "팔로우 취소", 0));
+                      items.add(BtnBottomSheetModel(ImageConstants.report, "게임 신고", 1));
 
-                      Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BtnBottomSheetWidget(btnItems: items, onTapItem: (menuIndex) async {
+                      Get.bottomSheet(BtnBottomSheetWidget(btnItems: items, onTapItem: (menuIndex) async {
                         if(menuIndex == 0){
                           setState(() {
                             game.isFollow = false;
@@ -152,7 +152,7 @@ class _GameSimpleItemWidget extends BaseState<GameUserPageWidget> {
                       ),
                       child: Center(
                         child: AppText(
-                          text: "follow".tr(),
+                          text: "팔로우",
                           color: ColorConstants.white,
                           fontSize: 12,
                         ),

@@ -29,17 +29,17 @@ class UserNameWidget extends StatelessWidget {
 
         SizedBox(width: 10,),
 
-        // if((user?.is_developer ?? 0) == 1)
-        //   Row(
-        //     children: [
-        //       TagCreatorWidget(),
-        //
-        //       SizedBox(width: 10,),
-        //     ],
-        //   ),
-        //
-        // if((user?.is_developer ?? 0) == 1)
-        //   TagDevWidget(positionIndex: "0",)
+        if((user?.is_developer ?? 0) == 1)
+          Row(
+            children: [
+              TagCreatorWidget(),
+
+              SizedBox(width: 10,),
+            ],
+          ),
+
+        if((user?.is_developer ?? 0) == 1)
+          TagDevWidget()
       ],
     );
   }

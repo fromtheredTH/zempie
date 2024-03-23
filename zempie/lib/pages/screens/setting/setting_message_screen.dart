@@ -106,7 +106,7 @@ class _SettingMessageScreen extends BaseState<SettingMessageScreen> {
                           child: Icon(Icons.arrow_back_ios, color:Colors.white)),
 
                       AppText(
-                        text: "message_manage".tr(),
+                        text: "메시지 관리",
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       )
@@ -126,14 +126,14 @@ class _SettingMessageScreen extends BaseState<SettingMessageScreen> {
                   SizedBox(height: 15,),
 
                   AppText(
-                    text: "alarm_receive_setting".tr(),
+                    text: "수신 설정",
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                   ),
                   SizedBox(height: 5,),
 
                   AppText(
-                    text: "alarm_receive_setting_desc".tr(),
+                    text: "DM을 허용할 사용자를 선택해 주세요.",
                     fontSize: 13,
                     color: ColorConstants.halfWhite,
                     fontWeight: FontWeight.w400,
@@ -164,7 +164,7 @@ class _SettingMessageScreen extends BaseState<SettingMessageScreen> {
                         SizedBox(width: 5,),
 
                         AppText(
-                          text: "setting_message_all".tr(),
+                          text: "모든 사용자",
                           color: selectedIndex == 0 ? ColorConstants.colorMain : ColorConstants.white,
                           fontSize: 14,
                         )
@@ -189,7 +189,7 @@ class _SettingMessageScreen extends BaseState<SettingMessageScreen> {
                         SizedBox(width: 5,),
 
                         AppText(
-                          text: "setting_message_follow".tr(),
+                          text: "내가 팔로우한 살마만",
                           color: selectedIndex == 1 ? ColorConstants.colorMain : ColorConstants.white,
                           fontSize: 14,
                         )
@@ -214,7 +214,7 @@ class _SettingMessageScreen extends BaseState<SettingMessageScreen> {
                         SizedBox(width: 5,),
 
                         AppText(
-                          text: "setting_message_no".tr(),
+                          text: "허용 안함",
                           color: selectedIndex == 2 ? ColorConstants.colorMain : ColorConstants.white,
                           fontSize: 14,
                         )

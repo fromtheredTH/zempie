@@ -89,7 +89,7 @@ class _SettingTermsScreen extends BaseState<SettingTermsScreen> {
                           child: Icon(Icons.arrow_back_ios, color:Colors.white)),
 
                       AppText(
-                        text: "terms".tr(),
+                        text: "운영 약관",
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       )

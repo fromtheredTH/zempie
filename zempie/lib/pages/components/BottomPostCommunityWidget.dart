@@ -50,7 +50,7 @@ class _BottomPostCommunityWidget extends BaseState<BottomPostCommunityWidget> {
       width: Get.width,
       constraints: BoxConstraints(
         minHeight: Get.height*0.2,
-        maxHeight: Get.height*0.52
+        maxHeight: Get.height*0.5
       ),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.only(topLeft: Radius.circular(30),
@@ -79,7 +79,7 @@ class _BottomPostCommunityWidget extends BaseState<BottomPostCommunityWidget> {
                 fontWeight: FontWeight.w700,
               ),
               AppText(
-                text: "bottom_post_community_widget_guide".tr(),
+                text: "개 커뮤니티에 가입되어 있습니다.",
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
@@ -88,7 +88,7 @@ class _BottomPostCommunityWidget extends BaseState<BottomPostCommunityWidget> {
 
           SizedBox(height: Get.height*0.01,),
           AppText(
-            text: "bottom_post_community_select".tr(),
+            text: "포스트를 게시할 커뮤니티(채널)을 선택해 주세요.",
             fontSize: 12,
             color: ColorConstants.halfWhite,
           ),

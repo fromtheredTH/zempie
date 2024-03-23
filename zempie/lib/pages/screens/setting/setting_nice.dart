@@ -3,7 +3,6 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:app/Constants/Constants.dart';
 import 'package:app/Constants/ImageUtils.dart';
@@ -28,7 +27,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
@@ -58,54 +56,13 @@ import '../../components/post_widget.dart';
 import '../newPostScreen.dart';
 
 class SettingNiceScreen extends StatefulWidget {
-  SettingNiceScreen({super.key,required this. encData, required this.integrityValue, required this.tokenVersionId, required this.request_no});
-  String encData;
-  String integrityValue;
-  String tokenVersionId;
-  String request_no;
+  SettingNiceScreen({super.key, });
 
   @override
   State<SettingNiceScreen> createState() => _SettingNiceScreen();
 }
 
 class _SettingNiceScreen extends BaseState<SettingNiceScreen> {
-
-  final InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
-    crossPlatform: InAppWebViewOptions(
-      cacheEnabled: true,
-      clearCache: true,
-      transparentBackground: true,
-      useShouldOverrideUrlLoading: true,
-      javaScriptEnabled: true,
-      userAgent: "hmdsAgent",
-    ),
-    android: AndroidInAppWebViewOptions(
-      useHybridComposition: true,
-      mixedContentMode: AndroidMixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
-      initialScale: 100
-    ),
-    ios: IOSInAppWebViewOptions(
-      useOnNavigationResponse: true,
-      scrollsToTop: false,
-      allowsInlineMediaPlayback: true,
-    )
-  );
-
-  late String url;
-
-  @override
-  void initState() {
-
-    String baseUrl = "https://nice.checkplus.co.kr/CheckPlusSafeModel/service.cb?";
-    String encData = Uri.encodeComponent(widget.encData);
-    String integrityValue = Uri.encodeComponent(widget.integrityValue);
-    String tokenVersionId = Uri.encodeComponent(widget.tokenVersionId);
-    String request_no = Uri.encodeComponent(widget.request_no);
-    String queryUrl = "${"enc_data=${encData}&integrity_value=${integrityValue}&token_version_id=${tokenVersionId}&m=service&request_no=${request_no}"}";
-    url = baseUrl + queryUrl;
-    print(url);
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +90,7 @@ class _SettingNiceScreen extends BaseState<SettingNiceScreen> {
                           child: Icon(Icons.arrow_back_ios, color:Colors.white)),
 
                       AppText(
-                        text: "setting_sicurity_nice".tr(),
+                        text: "본인인증",
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       )
@@ -145,26 +102,6 @@ class _SettingNiceScreen extends BaseState<SettingNiceScreen> {
             ),
             SizedBox(height: 30),
 
-            Expanded(
-                child: InAppWebView(
-                  initialUrlRequest: URLRequest(
-                    url: Uri.parse(url),
-                  ),
-                  initialOptions: options,
-                  onWebViewCreated: (controller) {
-                    controller.addJavaScriptHandler(
-                        handlerName: 'FlutterHandler',
-                        callback: (arguments) {
-                          print("나이스 리턴값 ${arguments[0]}");
-                          Map<String ,dynamic> response = jsonDecode(arguments[0]);
-                          if(response['isPass']) {
-                            print("인증 성공");
-                          }
-                        }
-                    );
-                  },
-                )
-            )
 
           ],
         )

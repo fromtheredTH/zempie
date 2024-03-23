@@ -141,15 +141,14 @@ class _CommunityDetailScreen extends BaseState<CommunityDetailScreen> {
                     ),
                   ],
                 ),
-                if(community.isSubscribed)
                 GestureDetector(
                   onTap: (){
                     List<BtnBottomSheetModel> items = [];
                     if(community.isSubscribed) {
                       items.add(BtnBottomSheetModel(
-                          ImageConstants.unSubscribe, "exit_community".tr(), 0));
+                          ImageConstants.unSubscribe, "팔로우 취소", 0));
 
-                      Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BtnBottomSheetWidget(
+                      Get.bottomSheet(BtnBottomSheetWidget(
                           btnItems: items, onTapItem: (menuIndex) async {
                         if (menuIndex == 0) {
                           await DioClient.getCommunityUnSubscribe(community.id);
@@ -180,7 +179,7 @@ class _CommunityDetailScreen extends BaseState<CommunityDetailScreen> {
                             ImageUtils.setCommunityListNetworkImage(community.bannerImg, false),
                             Padding(
                               padding:  EdgeInsets.only(top: Get.width/2.55 - 32),
-                              child: Center(child: ImageUtils.CommunityProfileImage(community.profileImg, 64, 64)),
+                              child: Center(child: ImageUtils.ProfileImage(community.profileImg, 64, 64)),
                             ),
                           ],
                         ),
@@ -337,7 +336,7 @@ class _CommunityDetailScreen extends BaseState<CommunityDetailScreen> {
                             ),
                             SizedBox(height: 10,),
                             AppText(
-                                text: "community_write_no".tr(),
+                                text: "커뮤니티에 가입하신 후 포스트 작성이 가능합니다.",
                                 fontSize: 12,
                                 color: ColorConstants.halfWhite,
                                 textAlign: TextAlign.start,
@@ -411,7 +410,7 @@ class _CommunityDetailScreen extends BaseState<CommunityDetailScreen> {
                               padding: EdgeInsets.only(top: 50,bottom: 50),
                               child: Center(
                                 child: AppText(
-                                  text: "empty_post".tr(),
+                                  text: "포스팅이 없습니다",
                                   fontSize: 14,
                                   color: ColorConstants.halfWhite,
                                 ),

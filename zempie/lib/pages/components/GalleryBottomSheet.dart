@@ -3,17 +3,13 @@
 import 'dart:io';
 
 import 'package:app/Constants/ImageConstants.dart';
-import 'package:app/Constants/utils.dart';
 import 'package:app/pages/components/app_button.dart';
-import 'package:app/pages/components/app_text.dart';
 import 'package:drag_select_grid_view/drag_select_grid_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:http_parser/http_parser.dart';
 import 'package:photo_gallery/photo_gallery.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:video_player/video_player.dart';
@@ -26,8 +22,7 @@ class GalleryBottomSheet extends StatefulWidget {
   Function(List<Medium>) onTapSend;
   int limitCnt;
   String sendText;
-  bool onlyImage;
-  GalleryBottomSheet({Key? key, this.controller, required this.onTapSend, this.limitCnt = 10 , this.sendText = "", this.onlyImage = false}) : super(key: key);
+  GalleryBottomSheet({Key? key, this.controller, required this.onTapSend, this.limitCnt = 10 , this.sendText = ""}) : super(key: key);
 
   @override
   State<GalleryBottomSheet> createState() => _GalleryBottomSheet();
@@ -117,8 +112,6 @@ class _GalleryBottomSheet extends BaseState<GalleryBottomSheet> {
     });
   }
 
-
-
   @override
   void initState() {
     albumFuture = initAsync();
@@ -152,15 +145,7 @@ class _GalleryBottomSheet extends BaseState<GalleryBottomSheet> {
     );
     isLast = mediaPage.isLast;
     page = 1;
-    if(widget.onlyImage) {
-      for (int i = 0; i < mediaPage.items.length; i++) {
-        if(mediaPage.items[i].mediumType == MediumType.image){
-          _media.add(mediaPage.items[i]);
-        }
-      }
-    }else {
-      _media.addAll(mediaPage.items);
-    }
+    _media.addAll(mediaPage.items);
     return _media;
   }
 
@@ -173,15 +158,7 @@ class _GalleryBottomSheet extends BaseState<GalleryBottomSheet> {
       );
       page += 1;
       setState(() {
-        if(widget.onlyImage) {
-          for (int i = 0; i < mediaPage.items.length; i++) {
-            if(mediaPage.items[i].mediumType == MediumType.image){
-              _media.add(mediaPage.items[i]);
-            }
-          }
-        }else {
-          _media.addAll(mediaPage.items);
-        }
+        _media.addAll(mediaPage.items);
       });
       isLast = mediaPage.isLast;
       isLoading = false;
@@ -191,15 +168,24 @@ class _GalleryBottomSheet extends BaseState<GalleryBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(
-        maxHeight: Get.height*0.9
-      ),
       decoration: BoxDecoration(
           color: ColorConstants.colorSub,
           borderRadius: BorderRadius.only(topRight: Radius.circular(24), topLeft: Radius.circular(24))
       ),
-      child: Stack(
+      child: Column(
         children: [
+          SizedBox(height: 15,),
+          Center(
+            child: Container(
+              width: 48,
+              height: 6,
+              decoration: BoxDecoration(
+                  color: Color(0xffd9d9d9),
+                  borderRadius: BorderRadius.circular(4)
+              ),
+            ),
+          ),
+          SizedBox(height: 15),
 
           Expanded(
               child: FutureBuilder(
@@ -207,96 +193,85 @@ class _GalleryBottomSheet extends BaseState<GalleryBottomSheet> {
                 builder: (context, snapshot){
                   if(snapshot.hasData) {
                     return Container(
-                        child: Listener(
-                          onPointerDown: _detectTapedItem,
-                          onPointerMove: _detectTapedItem,
-                          onPointerUp: _clearSelection,
-                          child: GridView.builder(
-                              controller: widget.controller,
-                              key: key,
-                              padding: EdgeInsets.only(left: 15, right: 15, top: 40),
-                              physics: isStart ? NeverScrollableScrollPhysics() : null,
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                childAspectRatio: 1.0,
-                                crossAxisSpacing: 5.0,
-                                mainAxisSpacing: 5.0,
-                              ),
-                              itemCount: _media.length,
-                              itemBuilder: (context, index) {
-                                return MediaItem(
+                      margin: EdgeInsets.only(left: 10, right: 10),
+                      child: Listener(
+                        onPointerDown: _detectTapedItem,
+                        onPointerMove: _detectTapedItem,
+                        onPointerUp: _clearSelection,
+                        child: GridView.builder(
+                            controller: widget.controller,
+                            key: key,
+                            physics: isStart ? NeverScrollableScrollPhysics() : null,
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              childAspectRatio: 1.0,
+                              crossAxisSpacing: 5.0,
+                              mainAxisSpacing: 5.0,
+                            ),
+                            itemCount: _media.length,
+                            itemBuilder: (context, index) {
+                              return MediaItem(
                                   index: index,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      if(selectedIndexes.contains(index)){
-                                        selectedIndexes.remove(index);
-                                      }else{
-                                        if(selectedIndexes.length < widget.limitCnt){
-                                          selectedIndexes.add(index);
-                                        }
+                                child: GestureDetector(
+                                  onTap: () {
+                                    if(selectedIndexes.contains(index)){
+                                      selectedIndexes.remove(index);
+                                    }else{
+                                      if(selectedIndexes.length < widget.limitCnt){
+                                        selectedIndexes.add(index);
                                       }
-                                    },
-                                    onLongPressStart: (details){
-                                      setState(() {
-                                        isStart = true;
-                                        startTarget = index;
-                                      });
-                                    },
-                                    child: Container(
-                                        color: ColorConstants.gray3,
-                                        child: Stack(
-                                          children: [
-                                            Center(
-                                                child: Container(
-                                                  width: double.maxFinite,
-                                                  height: double.maxFinite,
-                                                  child: FadeInImage(
-                                                    fit: BoxFit.cover,
-                                                    placeholder: MemoryImage(kTransparentImage),
-                                                    image: ThumbnailProvider(
-                                                      mediumId: _media[index].id,
-                                                      mediumType:_media[index].mediumType,
-                                                      highQuality: true,
-                                                    ),
-                                                  ),
-                                                )
-                                            ),
+                                    }
+                                  },
+                                  onLongPressStart: (details){
+                                    setState(() {
+                                      isStart = true;
+                                      startTarget = index;
+                                    });
+                                  },
+                                  child: Container(
+                                      color: ColorConstants.gray3,
+                                      child: Stack(
+                                        children: [
+                                          Center(
+                                            child: Container(
+                                              width: double.maxFinite,
+                                              height: double.maxFinite,
+                                              child: FadeInImage(
+                                                fit: BoxFit.cover,
+                                                placeholder: MemoryImage(kTransparentImage),
+                                                image: ThumbnailProvider(
+                                                  mediumId: _media[index].id,
+                                                  mediumType:_media[index].mediumType,
+                                                  highQuality: true,
+                                                ),
+                                              ),
+                                            )
+                                          ),
 
-                                            Positioned(
-                                                top: 5,
-                                                left: 5,
-                                                child: InkWell(
-                                                  onTap: (){
-                                                    if(selectedIndexes.contains(index)){
-                                                      selectedIndexes.remove(index);
-                                                    }else{
-                                                      if(selectedIndexes.length < widget.limitCnt){
-                                                        selectedIndexes.add(index);
-                                                      }
+                                          Positioned(
+                                              top: 5,
+                                              left: 5,
+                                              child: InkWell(
+                                                onTap: (){
+                                                  if(selectedIndexes.contains(index)){
+                                                    selectedIndexes.remove(index);
+                                                  }else{
+                                                    if(selectedIndexes.length < widget.limitCnt){
+                                                      selectedIndexes.add(index);
                                                     }
-                                                  },
-                                                  child: Image.asset( selectedIndexes.contains(index) || _trackTaped.contains(index) ? ImageConstants.imageChecked : ImageConstants.imageUnChecked, width: 32, height: 32,),
-                                                )
-                                            ),
-
-                                            if(_media[index].mediumType == MediumType.video)
-                                              Positioned(
-                                                  bottom: 5,
-                                                  right: 5,
-                                                  child: AppText(
-                                                    text: Utils.getIntToStringTime(_media[index].duration),
-                                                    fontSize: 12,
-                                                    color: Colors.white,
-                                                  )
+                                                  }
+                                                },
+                                                child: Image.asset( selectedIndexes.contains(index) || _trackTaped.contains(index) ? ImageConstants.imageChecked : ImageConstants.imageUnChecked, width: 32, height: 32,),
                                               )
-                                          ],
-                                        )
-                                    ),
+                                          )
+                                        ],
+                                      )
                                   ),
-                                );
-                              }
-                          ),
-                        )
+                                ),
+                              );
+                            }
+                        ),
+                      )
                     );
                   }
 
@@ -314,53 +289,23 @@ class _GalleryBottomSheet extends BaseState<GalleryBottomSheet> {
               )
           ),
 
-          Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: IgnorePointer(
-                child: Container(
-                  width: double.maxFinite,
-                  height: 40,
-                  decoration: BoxDecoration(
-                      color: ColorConstants.colorSub,
-                      borderRadius: BorderRadius.only(topRight: Radius.circular(24), topLeft: Radius.circular(24))
-                  ),
-                  child: Center(
-                      child: IgnorePointer(
-                        child: Container(
-                          width: 48,
-                          height: 6,
-                          decoration: BoxDecoration(
-                              color: Color(0xffd9d9d9),
-                              borderRadius: BorderRadius.circular(4)
-                          ),
-                        ),
-                      )
-                  ),
-                ),
-              )
-          ),
+          SizedBox(height: 15,),
 
           if(getSelectedCount() != 0)
-          Positioned(
-            bottom: 15,
-              left: 0,
-              right: 0,
-              child: AppButton(
-                  text: widget.sendText.isEmpty ? "send_image".tr(args: ["${getSelectedCount()}"]) : widget.sendText,
-                  disabled: getSelectedCount() == 0,
-                  onTap: (){
-                    List<Medium> results = [];
-                    for(int i=0;i<selectedIndexes.length;i++){
-                      results.add(_media[selectedIndexes.elementAt(i)]);
-                    }
-                    widget.onTapSend(results);
-                    Get.back();
-                  }
-              ),
-          )
+          AppButton(
+              text: widget.sendText.isEmpty ? "send_image".tr(args: ["${getSelectedCount()}"]) : widget.sendText,
+              disabled: getSelectedCount() == 0,
+              onTap: (){
+                List<Medium> results = [];
+                for(int i=0;i<selectedIndexes.length;i++){
+                  results.add(_media[selectedIndexes.elementAt(i)]);
+                }
+                widget.onTapSend(results);
+                Get.back();
+              }
+          ),
 
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 15),
         ],
       )
     );

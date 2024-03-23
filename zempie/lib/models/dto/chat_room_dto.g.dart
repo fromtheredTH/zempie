@@ -18,7 +18,6 @@ ChatRoomDto _$ChatRoomDtoFromJson(Map<String, dynamic> json) => ChatRoomDto(
       deleted_at: json['deleted_at'] as String?,
       has_name: json['has_name'] as bool?,
       name: json['name'] as String?,
-      leaved: json['leaved'] as bool? ,
       unread_count: fromJsonInt(json['unread_count']),
       unread_start_id: fromJsonInt(json['unread_start_id']),
       last_message: json['last_message'] == null
@@ -42,7 +41,6 @@ Map<String, dynamic> _$ChatRoomDtoToJson(ChatRoomDto instance) =>
       'deleted_at': instance.deleted_at,
       'has_name': instance.has_name,
       'name': instance.name,
-          'leaved': instance.leaved,
       'unread_count': toJsonInt(instance.unread_count),
       'unread_start_id': toJsonInt(instance.unread_start_id),
       'last_message': instance.last_message,

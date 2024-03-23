@@ -63,12 +63,12 @@ class _BottomInterestGenreWidget extends BaseState<BottomInterestGenreWidget> {
           ),
           SizedBox(height: Get.height * 0.02,),
           AppText(
-            text: "interset_genre".tr(),
+            text: "관심 분야",
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
           AppText(
-            text: "interset_genre_select".tr(),
+            text: "관심 분야를 선택해 주세요",
             fontSize: 12,
             color: ColorConstants.halfWhite,
           ),
@@ -117,7 +117,7 @@ class _BottomInterestGenreWidget extends BaseState<BottomInterestGenreWidget> {
                                 ),
                                 Expanded(
                                   child: AppText(
-                                    text: Constants.languageCode == "ko" ? Constants.interestGenres[index].koName : Constants.interestGenres[index].enName,
+                                    text: Constants.interestGenres[index].koName,
                                     color: isSelected ? ColorConstants.colorMain : ColorConstants.white,
                                     fontSize: 14,
                                   ),

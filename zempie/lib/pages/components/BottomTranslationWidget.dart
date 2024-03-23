@@ -8,7 +8,6 @@ import 'package:app/models/GameModel.dart';
 import 'package:app/models/TranslationModel.dart';
 import 'package:app/pages/base/base_state.dart';
 import 'package:app/pages/components/app_text.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -60,12 +59,12 @@ class _BottomTranslationWidget extends BaseState<BottomTranslationWidget> {
           ),
           SizedBox(height: Get.height * 0.02,),
           AppText(
-            text: "language".tr(),
+            text: "언어",
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
           AppText(
-            text: "launuage_select".tr(),
+            text: "젬파이 앱에서 사용할 언어를 선택해 주세요.",
             fontSize: 12,
             color: ColorConstants.halfWhite,
           ),

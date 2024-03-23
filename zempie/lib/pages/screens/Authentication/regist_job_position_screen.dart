@@ -23,7 +23,6 @@ import '../../../Constants/Constants.dart';
 import '../../../Constants/FontConstants.dart';
 import '../../../Constants/ImageConstants.dart';
 import '../../../Constants/ImageUtils.dart';
-import '../../../Constants/utils.dart';
 import '../../../models/CountryModel.dart';
 import '../../base/base_state.dart';
 import '../../components/loading_widget.dart';
@@ -137,7 +136,7 @@ class _RegistJobPositionScreen extends BaseState<RegistJobPositionScreen> {
                                                         children: [
                                                           Expanded(
                                                             child: AppText(
-                                                              text: Constants.languageCode == "ko" ? jobPositions[index].koName : jobPositions[index].enName,
+                                                              text: jobPositions[index].enumValue,
                                                               color: jobPositions[index].color,
                                                               fontSize: 14,
                                                             ),
@@ -240,7 +239,6 @@ class _RegistJobPositionScreen extends BaseState<RegistJobPositionScreen> {
                       GestureDetector(
                         onTap: () async {
                           UserModel? user;
-                          Utils.showDialogWidget(context);
                           if(selectedItem != null){
                             if(selectedItem!.idx == -1){
                               var response = await DioClient.updateProfile(widget.user.profile.jobDept, widget.user.profile.jobGroup, "해당 없음", widget.user.profile.country, widget.user.profile.city, widget.user.profile.interestGameGenre, widget.user.profile.stateMsg);
@@ -253,7 +251,6 @@ class _RegistJobPositionScreen extends BaseState<RegistJobPositionScreen> {
                             var response = await DioClient.updateProfile(widget.user.profile.jobDept, widget.user.profile.jobGroup, controller.text, widget.user.profile.country, widget.user.profile.city, widget.user.profile.interestGameGenre, widget.user.profile.stateMsg);
                             user = UserModel.fromJson(response.data["result"]["user"]);
                           }
-                          Get.back();
                           if(user != null){
                             if(user.profile.country.isEmpty){
                               Get.to(RegistCountryScreen(user: user));

@@ -3,7 +3,6 @@ import 'package:app/global/DioClient.dart';
 import 'package:app/models/CommunityModel.dart';
 import 'package:app/models/GameModel.dart';
 import 'package:app/pages/components/loading_widget.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -110,7 +109,7 @@ class _ProfileFollowMemberScreen extends BaseState<ProfileFollowMemberScreen> {
                   width: Get.width * 0.01,
                 ),
                 AppText(
-                  text: widget.isFollowing ? "add_chat_following".tr() : "follower".tr(),
+                  text: widget.isFollowing ? "팔로잉" : "팔로워",
                   fontSize: 16,
                   color: Colors.white,
                   fontFamily: FontConstants.AppFont,
@@ -135,7 +134,7 @@ class _ProfileFollowMemberScreen extends BaseState<ProfileFollowMemberScreen> {
                   return Expanded(
                       child: Center(
                         child: AppText(
-                          text: widget.isFollowing ? "empty_following".tr() : "empty_follower".tr(),
+                          text: widget.isFollowing ? "팔로잉이 없습니다" : "팔로워가 없습니다",
                           fontSize: 13,
                           color: ColorConstants.halfWhite,
                         ),

@@ -6,7 +6,6 @@ import 'package:app/models/CommunityModel.dart';
 import 'package:app/pages/components/app_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:get/get_core/src/get_main.dart';
 
@@ -67,7 +66,7 @@ class _CommunityWidget extends State<CommunityWidget> {
                   ImageUtils.setCommunityListNetworkImage(community.bannerImg, true),
                   Padding(
                     padding:  EdgeInsets.only(top: Get.width*0.4*1.5/3*1.2 - Get.width*0.4*1.5/4),
-                    child: Center(child: ImageUtils.CommunityProfileImage( community.profileImg, Get.width*0.4*1.5/4, Get.width*0.4*1.5/4)),
+                    child: Center(child: ImageUtils.ProfileImage( community.profileImg, Get.width*0.4*1.5/4, Get.width*0.4*1.5/4)),
                   ),
                 ],
               ),
@@ -91,26 +90,24 @@ class _CommunityWidget extends State<CommunityWidget> {
             ),
             Spacer(),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Expanded(
-                    child: Column(
-                      children: [
-                        AppText(
-                          text: "${community.memberCnt}",
-                          fontSize: 13,
-                          color: ColorConstants.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        AppText(
-                          text: 'member'.tr(),
-                          fontSize: 10,
-                          color: ColorConstants.white70Percent,
-                        ),
-                      ],
+                Column(
+                  children: [
+                    AppText(
+                      text: "${community.memberCnt}",
+                      fontSize: 13,
+                      color: ColorConstants.white,
+                      fontWeight: FontWeight.w700,
                     ),
+                    AppText(
+                      text: 'member'.tr(),
+                      fontSize: 10,
+                      color: ColorConstants.white70Percent,
+                    ),
+                  ],
                 ),
-                Expanded(
-                  child: Column(
+                Column(
                   children: [
                     AppText(
                       text: "${community.postsCnt}",
@@ -125,9 +122,7 @@ class _CommunityWidget extends State<CommunityWidget> {
                     ),
                   ],
                 ),
-                ),
-                Expanded(
-                  child: Column(
+                Column(
                   children: [
                     AppText(
                       text: "${community.visitCnt}",
@@ -142,7 +137,6 @@ class _CommunityWidget extends State<CommunityWidget> {
                     ),
                   ],
                 ),
-                )
               ],
             ),
             Spacer(),
@@ -182,7 +176,7 @@ class _CommunityWidget extends State<CommunityWidget> {
               ),
               child: Center(
                 child: AppText(
-                  text: 'enterance'.tr(),
+                  text: 'enterance',
                   fontSize: 13,
                   color: ColorConstants.colorMain,
                 ),

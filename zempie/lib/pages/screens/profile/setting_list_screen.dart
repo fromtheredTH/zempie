@@ -14,7 +14,6 @@ import 'package:app/pages/screens/setting/setting_alarm_screen.dart';
 import 'package:app/pages/screens/setting/setting_block_screen.dart';
 import 'package:app/pages/screens/setting/setting_message_screen.dart';
 import 'package:app/pages/screens/setting/setting_question_screen.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -25,7 +24,6 @@ import 'package:get/get_core/src/get_main.dart';
 import '../../../Constants/ColorConstants.dart';
 import '../../../Constants/FontConstants.dart';
 import '../../../Constants/ImageConstants.dart';
-import '../../../Constants/utils.dart';
 import '../../../models/User.dart';
 import '../../components/app_text.dart';
 import '../../base/base_state.dart';
@@ -72,7 +70,7 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                           child: Icon(Icons.arrow_back_ios, color:Colors.white)),
 
                       AppText(
-                        text: "setting".tr(),
+                        text: "설정",
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       )
@@ -108,7 +106,7 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                                     ImageUtils.setImage(ImageConstants.settingAccount, 20, 20),
                                     SizedBox(width: 5,),
                                     AppText(
-                                      text: "account".tr(),
+                                      text: "계정",
                                       fontSize: 14,
                                     )
                                   ],
@@ -143,7 +141,7 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                                     ImageUtils.setImage(ImageConstants.settingSecurity, 20, 20),
                                     SizedBox(width: 5,),
                                     AppText(
-                                      text: "sicurity".tr(),
+                                      text: "보안",
                                       fontSize: 14,
                                     )
                                   ],
@@ -180,7 +178,7 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                                     ImageUtils.setImage(ImageConstants.settingProfile, 20, 20),
                                     SizedBox(width: 5,),
                                     AppText(
-                                      text: "profile".tr(),
+                                      text: "프로필",
                                       fontSize: 14,
                                     )
                                   ],
@@ -200,11 +198,7 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
 
                         GestureDetector(
                           onTap: (){
-                            if(Constants.languageCode == "ko") {
-                              Utils.urlLaunch("https://zempie.com/ko/terms");
-                            }else{
-                              Utils.urlLaunch("https://zempie.com/myaccount/terms");
-                            }
+                            Get.to(SettingTermsScreen());
                           },
                           child: Container(
                             height: 30,
@@ -219,7 +213,7 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                                     ImageUtils.setImage(ImageConstants.settingTerms, 20, 20),
                                     SizedBox(width: 5,),
                                     AppText(
-                                      text: "terms".tr(),
+                                      text: "운영약관",
                                       fontSize: 14,
                                     )
                                   ],
@@ -254,7 +248,7 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                                     ImageUtils.setImage(ImageConstants.settingAlarm, 20, 20),
                                     SizedBox(width: 5,),
                                     AppText(
-                                      text: "set_alarm".tr(),
+                                      text: "알림 설정",
                                       fontSize: 14,
                                     )
                                   ],
@@ -289,7 +283,7 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                                     ImageUtils.setImage(ImageConstants.settingBlock, 20, 20),
                                     SizedBox(width: 5,),
                                     AppText(
-                                      text: "block_manage".tr(),
+                                      text: "차단 관리",
                                       fontSize: 14,
                                     )
                                   ],
@@ -324,7 +318,7 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                                     ImageUtils.setImage(ImageConstants.settingMsg, 20, 20),
                                     SizedBox(width: 5,),
                                     AppText(
-                                      text: "message_manage".tr(),
+                                      text: "메시지 관리",
                                       fontSize: 14,
                                     )
                                   ],
@@ -359,7 +353,7 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                                     ImageUtils.setImage(ImageConstants.settingQuestion, 20, 20),
                                     SizedBox(width: 5,),
                                     AppText(
-                                      text: "question".tr(),
+                                      text: "문의하기",
                                       fontSize: 14,
                                     )
                                   ],
@@ -378,16 +372,13 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                         ),
 
                         GestureDetector(
-                          onTap: () {
-                            Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BottomLanguageWidget(onTapLanguage: (code) async {
+                          onTap: (){
+                            Get.bottomSheet(BottomLanguageWidget(onTapLanguage: (code){
                               AndroidOptions _getAndroidOptions() => const AndroidOptions(
                                 encryptedSharedPreferences: true,
                               );
                               final _storage = new FlutterSecureStorage(aOptions: _getAndroidOptions());
                               _storage.write(key: "language", value: code);
-                              final newLocale = Locale(code);
-                              await context.setLocale(Locale(code));
-                              Get.updateLocale(newLocale);
                               setState(() {
                                 Constants.languageCode = code;
                               });
@@ -406,7 +397,7 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                                     ImageUtils.setImage(ImageConstants.settingLanguage, 20, 20),
                                     SizedBox(width: 5,),
                                     AppText(
-                                      text: "language".tr(),
+                                      text: "언어",
                                       fontSize: 14,
                                     )
                                   ],
@@ -435,7 +426,7 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
 
                         GestureDetector(
                           onTap: (){
-                            Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BottomTranslationWidget(onTapLanguage: (code) async {
+                            Get.bottomSheet(BottomTranslationWidget(onTapLanguage: (code) async {
                               AndroidOptions _getAndroidOptions() => const AndroidOptions(
                                 encryptedSharedPreferences: true,
                               );
@@ -463,7 +454,7 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                                     ImageUtils.setImage(ImageConstants.settingTransfer, 20, 20),
                                     SizedBox(width: 5,),
                                     AppText(
-                                      text: "basic_translate_language".tr(),
+                                      text: "기본 번역 언어",
                                       fontSize: 14,
                                     )
                                   ],
@@ -507,7 +498,7 @@ class _SettingListScreen extends BaseState<SettingListScreen> {
                                     ImageUtils.setImage(ImageConstants.settingVersion, 20, 20),
                                     SizedBox(width: 5,),
                                     AppText(
-                                      text: "version_info".tr(),
+                                      text: "버전정보",
                                       fontSize: 14,
                                     )
                                   ],

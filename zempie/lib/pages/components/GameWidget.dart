@@ -33,20 +33,18 @@ class _GameWidget extends State<GameWidget> {
   @override
   void initState() {
     game = widget.game;
-    if(game.supportPlatform.isNotEmpty) {
-      if (game.gameType == 1) {
-        supportedType.add("html");
-      } else {
-        List<String> types = game.supportPlatform.split(",");
-        if (types.contains("1"))
-          supportedType.add("window");
-        if (types.contains("2"))
-          supportedType.add("ios");
-        if (types.contains("3"))
-          supportedType.add("android");
-        if (types.contains("4"))
-          supportedType.add("ios");
-      }
+    if(game.gameType == 1) {
+      supportedType.add("html");
+    }else{
+      List<String> types = game.supportPlatform.split(",");
+      if(types.contains("1"))
+        supportedType.add("window");
+      if(types.contains("2"))
+        supportedType.add("ios");
+      if(types.contains("3"))
+        supportedType.add("android");
+      if(types.contains("4"))
+        supportedType.add("ios");
     }
     super.initState();
   }
@@ -94,6 +92,10 @@ class _GameWidget extends State<GameWidget> {
                                   height: 24,
                                   width: 24,
                                   margin: EdgeInsets.only(right: 10),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xff5d5d5d),
+                                    borderRadius: BorderRadius.circular(1),
+                                  ),
                                   child: Center(
                                     child: Image.asset(
                                       supportedType[index] == "html" ? ImageConstants.htmlIcon :

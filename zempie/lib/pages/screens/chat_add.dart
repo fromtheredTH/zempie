@@ -26,15 +26,13 @@ import 'package:get/get.dart' hide Trans;
 import '../../Constants/ColorConstants.dart';
 import '../../Constants/FontConstants.dart';
 import '../../Constants/ImageConstants.dart';
-import '../../global/DioClient.dart';
 import '../components/app_text.dart';
 
 class ChatAddPage extends StatefulWidget {
-  ChatAddPage({Key? key, this.existUsers, this.roomIdx, this.refresh, required this.changeRoom}) : super(key: key);
+  ChatAddPage({Key? key, this.existUsers, this.roomIdx, this.refresh}) : super(key: key);
   List<UserDto>? existUsers;
   int? roomIdx;
   Function()? refresh;
-  Function(ChatRoomDto) changeRoom;
 
   @override
   ChatAddPageState createState() => ChatAddPageState();
@@ -193,41 +191,29 @@ class ChatAddPageState extends BaseState<ChatAddPage> {
     if (selectList.isEmpty) {
       return;
     }
-    if(widget.existUsers != null && widget.existUsers!.length > 1){
+    if(widget.existUsers != null){
       await inviteUser();
       return;
     }
     String name = nameController.text;
 
+    Map<String, dynamic> body = {"receiver_ids": selectList.map((e) => e.id).toList(), "name": name};
     showLoading();
-    List<String> userIds = widget.existUsers != null ? widget.existUsers!.map((e) => e.id.toString()).toList() : [];
-    userIds.addAll(selectList.map((e) => e.id.toString()).toList());
-    var response = await DioClient.getUserChatRoom(userIds.join(","));
-    if(response.data["totalCount"] == 0){
-      Map<String, dynamic> body = {"receiver_ids": userIds, "name": name};
-
-      apiC
-          .createChatRoom("Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}", jsonEncode(body))
-          .then((value) {
-        hideLoading();
-        print("chat room id = ${value.id}");
-
-        if(widget.refresh != null) {
-          widget.refresh!();
-        }
-        Get.back();
-        widget.changeRoom(value);
-
-      }).catchError((Object obj) {
-        hideLoading();
-        showToast("connection_failed".tr());
-      });
-    }else{
-      ChatRoomDto room = ChatRoomDto.fromJson(response.data["result"][0]);
+    apiC
+        .createChatRoom("Bearer ${await FirebaseAuth.instance.currentUser?.getIdToken()}", jsonEncode(body))
+        .then((value) {
       hideLoading();
-      Get.back();
-      widget.changeRoom(room);
-    }
+      print("chat room id = ${value.id}");
+
+      Navigator.pushReplacement(
+          context, SlideRightTransRoute(builder: (context) => ChatDetailPage(roomDto: value,
+      roomRefresh: (room){
+
+      },)));
+    }).catchError((Object obj) {
+      hideLoading();
+      showToast("connection_failed".tr());
+    });
   }
 
   @override

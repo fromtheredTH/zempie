@@ -21,7 +21,6 @@ import '../../../Constants/ColorConstants.dart';
 import '../../../Constants/FontConstants.dart';
 import '../../../Constants/ImageConstants.dart';
 import '../../../Constants/ImageUtils.dart';
-import '../../../Constants/utils.dart';
 import '../../../models/CountryModel.dart';
 import '../../base/base_state.dart';
 import '../../components/loading_widget.dart';
@@ -74,7 +73,7 @@ class _RegistGenreScreen extends BaseState<RegistGenreScreen> {
                             Container(
                               width: double.maxFinite,
                               child: AppText(
-                                text: "interset_genre".tr(),
+                                text: "관심 분야",
                                 fontSize: 18,
                               ),
                             ),
@@ -82,7 +81,7 @@ class _RegistGenreScreen extends BaseState<RegistGenreScreen> {
                             Container(
                               width: double.maxFinite,
                               child: AppText(
-                                text: "interset_genre_select".tr(),
+                                text: "관심 분야를 선택해 주세요.",
                                 fontSize: 14,
                                 color: ColorConstants.halfWhite,
                               ),
@@ -192,7 +191,7 @@ class _RegistGenreScreen extends BaseState<RegistGenreScreen> {
                                                   ),
                                                   Expanded(
                                                     child: AppText(
-                                                      text: Constants.languageCode == "ko" ? Constants.interestGenres[index].koName : Constants.interestGenres[index].enName,
+                                                      text: Constants.interestGenres[index].koName,
                                                       color: isSelected ? ColorConstants.colorMain : ColorConstants.white,
                                                       fontSize: 14,
                                                     ),
@@ -215,14 +214,12 @@ class _RegistGenreScreen extends BaseState<RegistGenreScreen> {
                       GestureDetector(
                         onTap: () async {
                           if(selectedItems.length != 0){
-                            Utils.showDialogWidget(context);
                             String genre = "";
                             genre += selectedItems[0].idx.toString();
                             for(int i=1;i<selectedItems.length;i++){
                               genre += ",${selectedItems[i].idx}";
                             }
                             var response = await DioClient.updateProfile(widget.user.profile.jobDept, widget.user.profile.jobGroup, widget.user.profile.jobPosition, widget.user.profile.country, widget.user.profile.city, widget.user.profile.interestGameGenre, genre);
-                            Get.back();
                             Constants.getUserInfo(true,context, apiP);
                           }
                         },

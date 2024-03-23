@@ -124,7 +124,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
     jobDeptController.text = user.profile.jobDept;
     jobGroup = Constants.getProfileJobGroup(user.profile.jobGroup);
     jobPosition = Constants.getProfileJobPosition(user.profile.jobPosition);
-    jobController.text = "${Constants.languageCode == "ko" ? (jobGroup?.koName ?? "") : (jobGroup?.enName ?? "")} ${Constants.languageCode == "ko" ? (jobPosition?.koName ?? "") : (jobPosition?.enName ?? "")}";
+    jobController.text = "${jobGroup?.koName ?? ""} ${jobPosition?.koName ?? ""}";
     country = Constants.getCountryModel(user.profile.country);
     city = user.profile.city;
     countryController.text = "${country.nameModel.ko} ${city}";
@@ -165,7 +165,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                               Icons.arrow_back_ios, color: Colors.white)),
 
                       AppText(
-                        text: "my_profile".tr(),
+                        text: "내 프로필",
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       )
@@ -200,7 +200,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                             ) : Container(
                               height: Get.width / 4,
                               width: Get.width,
-                              color: ColorConstants.white,
+                              color: ColorConstants.textGry,
                             ),
 
                             Align(
@@ -215,10 +215,10 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                                       ImageConstants.albumIcon,
                                       "gallery".tr(), 1));
                                   items.add(BtnBottomSheetModel(
-                                      ImageConstants.deleteIcon, "current_profile_delete".tr(),
+                                      ImageConstants.deleteIcon, "현재 사진 삭제",
                                       2));
 
-                                  Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BtnBottomSheetWidget(
+                                  Get.bottomSheet(BtnBottomSheetWidget(
                                     btnItems: items,
                                     onTapItem: (sheetIdx) async {
                                       isBanner = true;
@@ -252,8 +252,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                                                         GalleryBottomSheet(
                                                           controller: controller,
                                                           limitCnt: 1,
-                                                          onlyImage: true,
-                                                          sendText: "profile_change".tr(),
+                                                          sendText: "변경하기",
                                                           onTapSend: (
                                                               results) {
                                                             procAssetsWithGallery(
@@ -281,7 +280,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                                       borderRadius: BorderRadius.circular(4)
                                   ),
                                   child: AppText(
-                                    text: "profile_change".tr(),
+                                    text: "변경하기",
                                     fontSize: 12,
                                   ),
                                 ),
@@ -317,10 +316,10 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                                         ImageConstants.albumIcon,
                                         "gallery".tr(), 1));
                                     items.add(BtnBottomSheetModel(
-                                        ImageConstants.deleteIcon, "current_profile_delete".tr(),
+                                        ImageConstants.deleteIcon, "현재 사진 삭제",
                                         2));
 
-                                    Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),BtnBottomSheetWidget(
+                                    Get.bottomSheet(BtnBottomSheetWidget(
                                       btnItems: items,
                                       onTapItem: (sheetIdx) async {
                                         isBanner = false;
@@ -354,8 +353,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                                                           GalleryBottomSheet(
                                                             controller: controller,
                                                             limitCnt: 1,
-                                                            onlyImage: true,
-                                                            sendText: "profile_change".tr(),
+                                                            sendText: "변경하기",
                                                             onTapSend: (
                                                                 results) {
                                                               procAssetsWithGallery(
@@ -387,7 +385,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                         height: 10,
                       ),
                       AppText(
-                        text: "job_where".tr(),
+                        text: "소속",
                         fontSize: 12,
                         color: ColorConstants.halfWhite,
                       ),
@@ -428,7 +426,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                       Row(
                         children: [
                           AppText(
-                            text: "jobgroup".tr(),
+                            text: "직군",
                             fontSize: 12,
                             color: ColorConstants.halfWhite,
                           ),
@@ -447,13 +445,13 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                       ),
                       TextField(
                         onTap: () {
-                          Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),
+                          Get.bottomSheet(
                               backgroundColor: ColorConstants.backGry,
                               isScrollControlled: true,
                               BottomProfileJobWidget(
                                 selectedJobGroup: jobGroup!, onSelectJobGroup: (
                                   group) {
-                                Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),
+                                Get.bottomSheet(
                                     backgroundColor: ColorConstants.backGry,
                                     isScrollControlled: true,
                                     BottomProfileJobPositionWidget(
@@ -462,7 +460,9 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                                       onSelectJobPosition: (group, position) {
                                         jobGroup = group;
                                         jobPosition = position;
-                                        jobController.text = "${Constants.languageCode == "ko" ? (jobGroup?.koName ?? "") : (jobGroup?.enName ?? "")} ${Constants.languageCode == "ko" ? (jobPosition?.koName ?? "") : (jobPosition?.enName ?? "")}";
+                                        jobController.text =
+                                        "${jobGroup?.koName ??
+                                            ""} ${jobPosition!.koName}";
                                       },)
                                 );
                               },)
@@ -522,7 +522,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                       ),
                       TextField(
                         onTap: () {
-                          Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),
+                          Get.bottomSheet(
                               backgroundColor: ColorConstants.backGry,
 
                               isScrollControlled: true,
@@ -575,7 +575,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                       Row(
                         children: [
                           AppText(
-                            text: "interset_genre".tr(),
+                            text: "관심 분야",
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                           ),
@@ -596,7 +596,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                       TextField(
                         controller: interestGenreController,
                         onTap: () {
-                          Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),
+                          Get.bottomSheet(
                               backgroundColor: ColorConstants.backGry,
                               isScrollControlled: true,
                               BottomInterestGenreWidget(
@@ -639,7 +639,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                         height: 20,
                       ),
                       AppText(
-                        text: "select_interest_game_genre_title".tr(),
+                        text: "관심 게임 장르",
                         fontSize: 12,
                         color: ColorConstants.halfWhite,
                       ),
@@ -648,7 +648,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                       ),
                       TextField(
                         onTap: () {
-                          Get.bottomSheet(enterBottomSheetDuration: Duration(milliseconds: 100), exitBottomSheetDuration: Duration(milliseconds: 100),
+                          Get.bottomSheet(
                               backgroundColor: ColorConstants.backGry,
                               isScrollControlled: true,
                               BottomInterestGameGenreWidget(
@@ -727,9 +727,8 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                                                 child: Row(
                                                   children: [
                                                     AppText(
-                                                      text: Constants.languageCode == "ko" ? interestGameGenreItems[index]
-                                                          .koName : interestGameGenreItems[index]
-                                                          .enName,
+                                                      text: interestGameGenreItems[index]
+                                                          .koName,
                                                       fontSize: 14,
                                                       color: ColorConstants
                                                           .colorMain,
@@ -768,7 +767,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                         height: 10,
                       ),
                       AppText(
-                        text: "my_link".tr(),
+                        text: "내 링크",
                         fontSize: 12,
                         color: ColorConstants.halfWhite,
                       ),
@@ -790,7 +789,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                               BorderSide(color: Color(0xFFFFFFFF).withOpacity(
                                   0.5)),
                             ),
-                            hintText: "my_link_name_description".tr(),
+                            hintText: "링크를 표시할 이름을 입력해 주세요",
                             hintStyle: TextStyle(
                               color: Color(0xFFFFFFFF).withOpacity(0.5),
                               fontWeight: FontWeight.w400,
@@ -818,7 +817,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                               BorderSide(color: Color(0xFFFFFFFF).withOpacity(
                                   0.5)),
                             ),
-                            hintText: "my_link_description".tr(),
+                            hintText: "링크를 입력해 주세요",
                             hintStyle: TextStyle(
                               color: Color(0xFFFFFFFF).withOpacity(0.5),
                               fontWeight: FontWeight.w400,
@@ -832,7 +831,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                         height: 20,
                       ),
                       AppText(
-                        text: "language_use".tr(),
+                        text: "사용 언어",
                         fontSize: 12,
                         color: ColorConstants.halfWhite,
                       ),
@@ -854,7 +853,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                               BorderSide(color: Color(0xFFFFFFFF).withOpacity(
                                   0.5)),
                             ),
-                            hintText: "language_use_description".tr(),
+                            hintText: "사용 언어를 선택해 주세요",
                             hintStyle: TextStyle(
                               color: Color(0xFFFFFFFF).withOpacity(0.5),
                               fontWeight: FontWeight.w400,
@@ -868,7 +867,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                         height: 20,
                       ),
                       AppText(
-                        text: "introduce".tr(),
+                        text: "자기 소개",
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
@@ -900,7 +899,7 @@ class _ProfileEditScreen extends BaseState<ProfileEditScreen> {
                             //   borderSide:
                             //       BorderSide(color: Color(0xFFFFFFFF).withOpacity(0.5)),
                             // ),
-                            hintText: "introduce_description".tr(),
+                            hintText: "간략한 자기 소개 글을 작성해 주세요...",
                             hintStyle: TextStyle(
                               color: Color(0xFFFFFFFF).withOpacity(0.5),
                               fontWeight: FontWeight.w400,

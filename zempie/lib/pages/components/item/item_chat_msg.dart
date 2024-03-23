@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:app/Constants/ColorConstants.dart';
 import 'package:app/Constants/ImageConstants.dart';
-import 'package:app/Constants/ImageUtils.dart';
 import 'package:app/models/dto/user_dto.dart';
 import 'package:image/image.dart' as img;
 import 'package:app/global/global.dart';
@@ -155,7 +154,7 @@ class ItemChatMsg extends StatelessWidget {
       constraints: BoxConstraints(maxWidth: Get.width*0.65),
       decoration: BoxDecoration(
           color: mine ? ColorConstants.colorOptionBrown : ColorConstants.white5Percent,
-          borderRadius: BorderRadius.circular(info.chat_idx == -1 ? 8 : 8),
+          borderRadius: BorderRadius.circular(info.chat_idx == -1 ? 0 : 8),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       child: AppText(
@@ -197,7 +196,7 @@ class ItemChatMsg extends StatelessWidget {
               },
               child: CachedNetworkImage(
                 imageUrl: arr[index],
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
                 width: getImageSize(cnt, index),
                 height: getImageSize(cnt, index),
               ),
@@ -209,6 +208,7 @@ class ItemChatMsg extends StatelessWidget {
   }
 
   Widget videoTile(BuildContext context) {
+    double aspect = 2;
 
     return GestureDetector(
       onTap: () {
@@ -226,17 +226,18 @@ class ItemChatMsg extends StatelessWidget {
           }
         });
       },
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: 240
-        ),
+      child: SizedBox(
+          width: 240,
           child: Stack(
             children: [
-              (info.contents ?? '').split(",").length != 2
-                  ? Container(color: Colors.black)
-                  : CachedNetworkImage(
-                imageUrl: (info.contents ?? '').split(",")[1],
-                fit: BoxFit.cover,
+              AspectRatio(
+                aspectRatio: aspect,
+                child: (info.contents ?? '').split(",").length != 2
+                    ? Container(color: Colors.black)
+                    : CachedNetworkImage(
+                        imageUrl: (info.contents ?? '').split(",")[1],
+                        fit: BoxFit.fill,
+                      ),
               ),
               Positioned.fill(
                 child: Align(
@@ -380,12 +381,11 @@ class ItemChatMsg extends StatelessWidget {
                                 ),
                                 if(paragraphEnd)
                                   info.id == -2
-                                      ? SizedBox(
+                                      ? const SizedBox(
                                     width: 12,
                                     height: 12,
                                     child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      color: ColorConstants.colorMain,
+                                        strokeWidth: 2
                                     ),
                                   )
                                       : AppText(
@@ -434,7 +434,22 @@ class ItemChatMsg extends StatelessWidget {
                             opacity: paragraphStart ? 1 : 0,
                             child: InkWell(
                               onTap: onProfile,
-                              child: ImageUtils.ProfileImage((info.sender?.picture ?? ''), profileWidth, profileHeight)
+                              child: (info.sender?.picture ?? '').isEmpty
+                                  ? Image.asset("assets/image/ic_default_user.png",
+                                      height: profileHeight, width: profileWidth)
+                                  : ClipOval(
+                                      child: CachedNetworkImage(
+                                        imageUrl: info.sender?.picture ?? '',
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) => CircularProgressIndicator(),
+                                        errorWidget: (context, url, error) => Image.asset(
+                                            "assets/image/ic_default_user.png",
+                                            height: profileHeight,
+                                            width: profileWidth),
+                                        height: profileHeight,
+                                        width: profileWidth,
+                                      ),
+                                    ),
                             ),
                           ),
                           const SizedBox(width: 4),
@@ -469,14 +484,11 @@ class ItemChatMsg extends StatelessWidget {
                                       visible: paragraphStart,
                                       child: Padding(
                                         padding: const EdgeInsets.only(left: 6),
-                                        child: InkWell(
-                                          onTap: onProfile,
-                                          child: AppText(
-                                            text: getUser()?.nickname ?? "unknown".tr(),
-                                            fontSize: 13,
-                                            color: ColorConstants.halfWhite,
-                                          ),
-                                        )
+                                        child: AppText(
+                                          text: getUser()?.nickname ?? "unknown".tr(),
+                                          fontSize: 13,
+                                          color: ColorConstants.halfWhite,
+                                        ),
                                       ),
                                     ),
                               Row(

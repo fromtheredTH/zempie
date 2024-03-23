@@ -131,7 +131,7 @@ class _SettingBlockScreen extends BaseState<SettingBlockScreen> {
                           child: Icon(Icons.arrow_back_ios, color:Colors.white)),
 
                       AppText(
-                        text: "block_manage".tr(),
+                        text: "차단 관리",
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       )
@@ -151,14 +151,14 @@ class _SettingBlockScreen extends BaseState<SettingBlockScreen> {
                     SizedBox(height: 15,),
 
                     AppText(
-                      text: "setting_blocked_user_title".tr(),
+                      text: "차단된 유저",
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
                     SizedBox(height: 5,),
 
                     AppText(
-                      text: "setting_blocked_user_desc".tr(),
+                      text: "차단 취소를 누르면 차단이 해제됩니다.",
                       fontSize: 13,
                       color: ColorConstants.halfWhite,
                       fontWeight: FontWeight.w400,
@@ -190,7 +190,7 @@ class _SettingBlockScreen extends BaseState<SettingBlockScreen> {
                               return Expanded(
                                   child: Center(
                                     child: AppText(
-                                      text: "empty_block_user".tr(),
+                                      text: "차단된 유저가 없습니다",
                                       fontSize: 13,
                                       color: ColorConstants.halfWhite,
                                     ),

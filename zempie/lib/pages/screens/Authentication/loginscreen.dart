@@ -17,6 +17,8 @@ import 'package:app/pages/screens/Authentication/regist_job_group_screen.dart';
 import 'package:app/pages/screens/Authentication/regist_job_position_screen.dart';
 import 'package:app/pages/screens/bottomnavigationscreen/bottomNavBarScreen.dart';
 import 'package:app/pages/screens/joinmembership/jointhemembership.dart';
+import 'package:app/pages/screens/joinmembership/membershipconfirmationscreen.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -298,7 +300,7 @@ class _LoginScreen extends BaseState<LoginScreen> {
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: AppText(
-                          text: "are_you_pwd_forget".tr(),
+                          text: "비밀번호를 잊으셨습니까?",
                           textAlign: TextAlign.end,
                           fontSize: 12,
                         ),
@@ -310,7 +312,7 @@ class _LoginScreen extends BaseState<LoginScreen> {
                     GestureDetector(
                       onTap: () async {
                         if (!EmailValidator.validate(controller.emailController.text,true)) { // Use EmailValidator.validate() to validate email
-                          controller.emailValidationText.value="email_guide_incorrect".tr();
+                          controller.emailValidationText.value="올바른 이메일 형식을 작성해 주세요.";
                         } else{
                           if(controller.emailController.text.isEmpty){
                             showToast("please_input_email".tr());
@@ -322,7 +324,7 @@ class _LoginScreen extends BaseState<LoginScreen> {
                           var emailResponse = await DioClient.checkEmail(controller.emailController.text);
 
                           if(emailResponse.data["result"] is bool && !emailResponse.data["result"]){
-                            controller.emailValidationText.value="email_is_empty".tr();
+                            controller.emailValidationText.value="존재하지 않는 이메일입니다. 회원가입을 진행해주세요.";
                             return;
                           }
                           showLoading();
@@ -339,7 +341,7 @@ class _LoginScreen extends BaseState<LoginScreen> {
                           ),
                           child: Center(
                             child: AppText(
-                              text: "login".tr(),
+                              text: "로그인",
                               fontWeight:FontWeight.w700,
                               fontSize: 16,
                             ),
@@ -349,7 +351,7 @@ class _LoginScreen extends BaseState<LoginScreen> {
                     Align(
                       alignment: Alignment.center,
                       child: AppText(
-                        text: "login_or".tr(),
+                        text: "- 또는 -",
                         textAlign: TextAlign.center,
                         fontSize: 12,
                         color: ColorConstants.halfWhite,
@@ -381,13 +383,14 @@ class _LoginScreen extends BaseState<LoginScreen> {
                       const SizedBox(
                           width:10
                       ),
-                      SvgPicture.asset(ImageConstants.googleLogo, width: 24, height: 24,),
+                      Flexible(
+                          child: SvgPicture.asset(ImageConstants.googleLogo)),
                       const SizedBox(
                           width:10
                       ),
                       Flexible(
                         child: AppText(
-                          text: "signin_google".tr(),
+                          text: "구글 계정으로 로그인",
                           color: ColorConstants.black,
                           fontSize: 14,
                         ),
@@ -422,14 +425,14 @@ class _LoginScreen extends BaseState<LoginScreen> {
                       ),
                       Container(
                         child: Image.asset(ImageConstants.facebookLogo),
-                        height: 24,
-                        width: 24,),
+                        height: 25,
+                        width: 25,),
 
                       SizedBox(width: 15,),
                       Flexible(
                         flex: 2,
                         child: AppText(
-                          text: "signin_facebook".tr(),
+                          text: "페이스북 계정으로 로그인",
                           color: ColorConstants.white,
                           fontSize: 14,
                         ),
@@ -438,7 +441,6 @@ class _LoginScreen extends BaseState<LoginScreen> {
                   ),
                 ),
               ),
-              if(!Platform.isAndroid)
               GestureDetector(
                 onTap: () async {
                   SocialService socialService = GetIt.I.get<SocialService>();
@@ -460,13 +462,14 @@ class _LoginScreen extends BaseState<LoginScreen> {
                       const SizedBox(
                           width:10
                       ),
-                      SvgPicture.asset(ImageConstants.appleLogo, width: 24, height: 24,),
+                      Flexible(
+                          child: SvgPicture.asset(ImageConstants.appleLogo, height: 27,width: 27)),
                       const SizedBox(
                           width:10
                       ),
                       Flexible(
                         child: AppText(
-                          text: "signin_apple".tr(),
+                          text: "애플 계정으로 로그인",
                           color: ColorConstants.white,
                           fontSize: 14,
                         ),
@@ -493,7 +496,7 @@ class _LoginScreen extends BaseState<LoginScreen> {
                       )),
                   child: Center(
                     child: AppText(
-                      text: "signup".tr(),
+                      text: "회원가입",
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),

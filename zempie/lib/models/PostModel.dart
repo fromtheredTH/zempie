@@ -2,7 +2,6 @@
 import 'dart:convert';
 
 import 'package:app/models/AttatchmentFile.dart';
-import 'package:app/models/ChannelModel.dart';
 import 'package:app/models/CommunityModel.dart';
 import 'package:app/models/GameModel.dart';
 import 'package:app/models/User.dart';
@@ -50,19 +49,9 @@ class PostModel {
         functionType = json['function_type'] ?? "",
         attachmentFiles = json['attatchment_files'] != null ?
         json['attatchment_files'] is String ?
-        jsonDecode(json["attatchment_files"])?.map(
-                (fileJson) =>
-                    AttachmentFile.fromJson(
-                        fileJson is List
-                            ? fileJson[0]
-                            : fileJson
-                    )
-        ).toList().cast<AttachmentFile>() ?? []
-            : (json["attatchment_files"] as List<dynamic>).isEmpty
-            ? []
-            : json["attatchment_files"][0] is List<dynamic>
-            ? []
-            : json["attatchment_files"].map((fileJson) => AttachmentFile.fromJson(fileJson)).toList().cast<AttachmentFile>() : [],
+        jsonDecode(json["attatchment_files"])?.map((fileJson) => AttachmentFile.fromJson(fileJson)).toList().cast<AttachmentFile>() ?? []
+            : (json["attatchment_files"] as List<dynamic>).isEmpty ? [] :
+        json["attatchment_files"][0] is List<dynamic> ? [] : json["attatchment_files"].map((fileJson) => AttachmentFile.fromJson(fileJson)).toList().cast<AttachmentFile>() : [],
         visibility = json['visibility'] ?? "",
         contents = json['contents'] ?? "",
         hashtags = json['hashtags'],
@@ -118,7 +107,7 @@ class PostedAtModel {
   late String updatedAt;
   late String deletedAt;
   late List<GameModel> games;
-  late List<PostCommunityModel> communities;
+  late List<CommunityModel> communities;
   late dynamic portfolioIds;
   late String id;
   late String postsId;
@@ -128,8 +117,8 @@ class PostedAtModel {
       : createdAt = json['created_at'] ?? "",
         updatedAt = json['updated_at'] ?? "",
         deletedAt = json['deleted_at'] ?? "",
-        games = json["games"] == null ? [] : json["games"].map((gameJson) => GameModel.fromJson(gameJson["game"] ?? gameJson)).toList().cast<GameModel>(),
-        communities = json["communities"] == null ? [] : json["communities"].map((communityJson) => PostCommunityModel.fromJson(communityJson)).toList().cast<PostCommunityModel>(),
+        games = json["games"] == null ? [] : json["games"].map((gameJson) => GameModel.fromJson(gameJson)).toList().cast<GameModel>(),
+        communities = json["communities"] == null ? [] : json["communities"].map((communityJson) => CommunityModel.fromJson(communityJson["community"])).toList().cast<CommunityModel>(),
         portfolioIds = json['portfolio_ids'],
         id = json['id'] ?? "",
         postsId = json['posts_id'] ?? "",
@@ -159,14 +148,4 @@ class PostLikeModel {
         id = json['id'] ?? "",
         postId = json['post_id'] ?? "",
         user = UserModel.fromJson(json['user'] ?? {});
-}
-
-
-class PostCommunityModel {
-  late CommunityModel community;
-  late ChannelModel channel;
-
-  PostCommunityModel.fromJson(Map<String, dynamic> json) :
-        community = CommunityModel.fromJson(json['community'] ?? {}),
-        channel = ChannelModel.fromJson(json['channel'] ?? {});
 }

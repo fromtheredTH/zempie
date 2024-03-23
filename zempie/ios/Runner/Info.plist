@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
+<<<<<<< HEAD
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
@@ -62,54 +63,118 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
+=======
+>>>>>>> parent of cad69df... 1.1.5 버전
 	<dict>
-		<key>NSAllowsArbitraryLoads</key>
+		<key>BGTaskSchedulerPermittedIdentifiers</key>
+		<array>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		</array>
+		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>
-		<key>NSExceptionDomains</key>
+		<key>CFBundleDevelopmentRegion</key>
+		<string>$(DEVELOPMENT_LANGUAGE)</string>
+		<key>CFBundleDisplayName</key>
+		<string>Zempie</string>
+		<key>CFBundleExecutable</key>
+		<string>$(EXECUTABLE_NAME)</string>
+		<key>CFBundleIdentifier</key>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		<key>CFBundleInfoDictionaryVersion</key>
+		<string>6.0</string>
+		<key>CFBundleName</key>
+		<string>app</string>
+		<key>CFBundlePackageType</key>
+		<string>APPL</string>
+		<key>CFBundleShortVersionString</key>
+		<string>$(FLUTTER_BUILD_NAME)</string>
+		<key>CFBundleSignature</key>
+		<string>????</string>
+		<key>CFBundleVersion</key>
+		<string>7</string>
+		<key>ITSAppUsesNonExemptEncryption</key>
+		<false/>
+		<key>LSRequiresIPhoneOS</key>
+		<true/>
+		<key>LSSupportsOpeningDocumentsInPlace</key>
+		<true/>
+		<key>NSAppTransportSecurity</key>
 		<dict>
-			<key>dev-zempie.s3.ap-northeast-2.amazonaws.com</key>
+			<key>NSAllowsArbitraryLoads</key>
+			<true/>
+			<key>NSExceptionDomains</key>
 			<dict>
-				<key>NSExceptionRequiresForwardSecrecy</key>
-				<false/>
-				<key>NSIncludesSubdomains</key>
-				<true/>
+				<key>dev-zempie.s3.ap-northeast-2.amazonaws.com</key>
+				<dict>
+					<key>NSExceptionRequiresForwardSecrecy</key>
+					<false/>
+					<key>NSIncludesSubdomains</key>
+					<true/>
+				</dict>
 			</dict>
 		</dict>
+		<key>NSCameraUsageDescription</key>
+		<string>To upload profile or photo, we need to use your camera.</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>To record audio chat, we need to use your micro phone.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>To upload profile or photo, we need to use your photo library.</string>
+		<key>NSSpeechRecognitionUsageDescription</key>
+		<string>To record audio chat, we need to use your micro phone.</string>
+		<key>UIApplicationSupportsIndirectInputEvents</key>
+		<true/>
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>fetch</string>
+			<string>remote-notification</string>
+			<string>audio</string>
+			<string>processing</string>
+		</array>
+		<key>UIFileSharingEnabled</key>
+		<true/>
+		<key>UILaunchStoryboardName</key>
+		<string>LaunchScreen</string>
+		<key>UIMainStoryboardFile</key>
+		<string>Main</string>
+		<key>UISupportedInterfaceOrientations</key>
+		<array>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationLandscapeLeft</string>
+			<string>UIInterfaceOrientationLandscapeRight</string>
+		</array>
+		<key>UISupportedInterfaceOrientations~ipad</key>
+		<array>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationPortraitUpsideDown</string>
+			<string>UIInterfaceOrientationLandscapeLeft</string>
+			<string>UIInterfaceOrientationLandscapeRight</string>
+		</array>
+		<key>UISupportsDocumentBrowser</key>
+		<true/>
+		<key>UIViewControllerBasedStatusBarAppearance</key>
+		<false/>
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>fb2461801087295883</string>
+					<string>com.googleusercontent.apps.797641160577-o2tne1mma6v3vom5nbjjacmuauq5vhik</string>
+				</array>
+			</dict>
+		</array>
+		<key>FacebookAppID</key>
+		<string>2461801087295883</string>
+		<key>FacebookClientToken</key>
+		<string>1e8bb1fef47ab157862eeacfcf8af8b0</string>
+		<key>FacebookDisplayName</key>
+		<string>Zempie</string>
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>fbapi</string>
+			<string>fb-messenger-share-api</string>
+		</array>
+		<key>UIStatusBarHidden</key>
+		<true/>
 	</dict>
-	<key>NSCameraUsageDescription</key>
-	<string>To upload profile or photo, we need to use your camera.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>To record audio chat, we need to use your micro phone.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>To upload profile or photo, we need to use your photo library.</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>To record audio chat, we need to use your micro phone.</string>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-		<string>processing</string>
-		<string>remote-notification</string>
-	</array>
-	<key>UIFileSharingEnabled</key>
-	<true/>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
-	<key>UIStatusBarHidden</key>
-	<false/>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-	</array>
-	<key>UISupportsDocumentBrowser</key>
-	<true/>
-	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
-</dict>
 </plist>
